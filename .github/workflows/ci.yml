@@ -33,12 +33,12 @@ jobs:
           test -f requirements.txt
           test -f references/cinematic_macros_and_continuity.md
           test -f references/creative_strategy_and_marketing.md
-          test -f references/cultural_hussaini_and_dialect_guide.md
+          test -f references/scriptwriting_and_lip_sync_guide.md
           test -f resources/blueprint_schema.json
           test -f scripts/cineflow_compiler.py
           test -f scripts/Compile-CineFlowBlueprint.ps1
           test -f examples/example_01_commercial_promo.json
-          test -f examples/example_02_hussaini_elegy_sync.json
+          test -f examples/example_02_explainer_and_story_script.json
           grep -q "^name: cineflow-ai-studio" SKILL.md
 
       - name: Lint Compiler & Unit Tests with Pylint

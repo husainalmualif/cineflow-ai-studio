@@ -1,4 +1,4 @@
-"""Unit tests for CineFlow AI Studio Compiler, Dialect Detector, Lip-Sync Phraser, and QA Engine."""
+"""Unit tests for CineFlow AI Studio Scriptwriter, Prompt Compiler, Dialect Detector, Lip-Sync Phraser, and QA Engine."""
 
 from scripts.cineflow_compiler import (
     compile_blueprint,
@@ -37,8 +37,8 @@ def test_resolve_slash_macros() -> None:
     assert "9:16" in joined
 
 
-def test_compile_blueprint_commercial_and_husayni() -> None:
-    """Verify full blueprint compilation for both Commercial and Husayni Elegy modes."""
+def test_compile_blueprint_commercial_and_explainer() -> None:
+    """Verify full blueprint compilation for both Commercial and Explainer video modes."""
     bp = compile_blueprint(
         idea="إعلان قهوة مختصة /dollyin /macro /goldenhour /4k /ar 9:16",
         purpose="Commercials & TVCs",
@@ -49,19 +49,22 @@ def test_compile_blueprint_commercial_and_husayni() -> None:
     )
     assert bp["production_profile"]["aspect_ratio"] == "9:16"
     assert bp["global_parameters"]["total_runtime_seconds"] == 15
+    assert "script_and_content" in bp
+    assert "full_spoken_script" in bp["script_and_content"]
     assert len(bp["scene_breakdown"]) == 3
     assert all(s["duration_seconds"] <= 10 for s in bp["scene_breakdown"])
     assert bp["qa_audit"]["audio_math_passed"] is True
     assert bp["qa_audit"]["anti_cgi_guardrails_injected"] is True
     assert len(bp["marketing_expansion"]["carousel_arabic_copy"]) == 7
 
-    husayni_bp = compile_blueprint(
-        idea="مستهل قصيدة حسينية /chiaroscuro /candlelight /ar 9:16",
-        purpose="Husayni Elegies & Cultural Audio-Visuals",
-        video_format="Live-Action",
-        style_variant="Husayni Rhythmic & Poetic Sync",
-        dialogue="يا طارش الظعن بالله خبرني عن أحبابي",
+    explainer_bp = compile_blueprint(
+        idea="شرح تطبيق ذكي لإدارة الوقت والمهام /exploded_view /orbit_360 /4k /ar 9:16",
+        purpose="Explainer Videos",
+        video_format="Motion Graphics",
+        style_variant="Short-Form Edits / AMV",
+        dialogue="تعبت من زحمة المهام اليومية؟ هذا التطبيق يرتب يومك في ثلاث ثواني",
         total_runtime_seconds=15,
     )
-    assert "55Hz" in husayni_bp["scene_breakdown"][0]["audio_foley_sync"]
-    assert "Qafla" in husayni_bp["scene_breakdown"][2]["audio_foley_sync"]
+    assert explainer_bp["production_profile"]["purpose"] == "Explainer Videos"
+    assert "Problem Identification" in explainer_bp["script_and_content"]["narrative_framework"]
+    assert "exploded-view" in explainer_bp["scene_breakdown"][0]["visual_prompt"]

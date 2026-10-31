@@ -1,7 +1,7 @@
 """
-CineFlow AI Studio — Autonomous Prompt Compiler, Dialect Detector, Lip-Sync Phraser & Pre-Flight QA Engine.
+CineFlow AI Studio — Autonomous Scriptwriter, Prompt Compiler, Dialect Detector, Lip-Sync Phraser & Pre-Flight QA Engine.
 
-Compiles raw creative intent, Arabic/Gulf dialogue, or Husayni poetry into a validated JSON Production Blueprint
+Compiles raw creative intent, video topics, or Arabic/Gulf scripts into a validated JSON Production Blueprint
 ready for Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro).
 """
 
@@ -56,7 +56,7 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/lowkey": "moody low-key cinematic lighting with deep shadows",
     "/volumetric": "volumetric Tyndall god-rays cutting through fine atmospheric haze",
     "/candlelight": "warm flickering candlelight illumination with deep amber falloff",
-    "/silhouette": "identity-safe backlit silhouette against atmospheric rim light",
+    "/silhouette": "dramatic backlit silhouette against atmospheric rim light",
     "/rain": "falling rain droplets with realistic surface splashes and wet reflections",
     "/smoke": "organic rising aromatic steam and wispy atmospheric smoke",
     "/dust": "illuminated floating dust motes suspended in light beams",
@@ -65,6 +65,17 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/4k": "ultra-high-definition 4K master render",
     "/ar 9:16": "vertical 9:16 (1080x1920) mobile composition",
     "/ar 16:9": "widescreen 16:9 (1920x1080) cinema composition",
+}
+
+PURPOSE_FRAMEWORKS: Dict[str, str] = {
+    "Commercials & TVCs": "Hook (0-4s) -> Sensory Product Proof & Desire (4-11s) -> Safe-Zone Offer & CTA (11-15s)",
+    "Corporate Videos": "Vision Hook -> Human & Operational Excellence -> Brand Commitment Outro",
+    "Educational & Training": "Curiosity Question -> Visual Metaphor & Step-by-Step Breakdown -> Key Takeaway",
+    "Explainer Videos": "Problem Identification -> Agitation -> How the Solution Works (Step 1-2-3) -> CTA",
+    "Testimonial Videos": "Initial Challenge -> Turning Point Experience -> Tangible Results & Recommendation",
+    "Documentaries": "Atmospheric Mystery Hook -> Factual Context & Discovery -> Reflective Climax",
+    "Event Videos": "High-Energy Cold Open -> Dynamic Crowd & Keynotes Montage -> Event Emblem Outro",
+    "Entertainment Videos": "Inciting Hook -> Rising Dramatic/Rhythmic Action -> Emotional Climax & Payoff",
 }
 
 
@@ -123,11 +134,11 @@ def compile_blueprint(
     body_language: str = "Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق)",
     camera_gear: str = "ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens",
     color_grading: str = "Cinematic Warm Golden-Amber LUT with Skin-Tone Protection",
-    character_id: str = "@Character_Barista_01",
-    product_id: str = "@Product_SpecialtyCoffee_01",
+    character_id: str = "@Character_Lead_01",
+    product_id: str = "@Product_Hero_01",
     total_runtime_seconds: int = 15,
 ) -> Dict[str, Any]:
-    """Compile a complete CineFlow AI Studio JSON blueprint."""
+    """Compile a complete CineFlow AI Studio JSON blueprint including scriptwriting and scene prompts."""
     aspect_ratio = "9:16"
     if "/ar 16:9" in idea.lower():
         aspect_ratio = "16:9"
@@ -137,6 +148,15 @@ def compile_blueprint(
     macros = resolve_slash_macros(idea)
     compiled_macro_str = ", ".join(macros)
     detected_dialect = detect_arabic_dialect(f"{idea} {dialogue}")
+    narrative_framework = PURPOSE_FRAMEWORKS.get(
+        purpose,
+        "Hook (0-4s) -> Core Value & Demonstration (4-11s) -> Safe-Zone Payoff & CTA (11-15s)",
+    )
+    runtime_category = (
+        "Short-Form Viral / Micro-Content (10-15s)"
+        if total_runtime_seconds <= 15
+        else "Long-Form / Chaptered Narrative (>15s)"
+    )
 
     if video_format == "Live-Action":
         anti_cgi_suffix = (
@@ -164,41 +184,21 @@ def compile_blueprint(
     d1_sync = optimize_arabic_lip_sync(d1_raw, s1_dur)
     d2_sync = optimize_arabic_lip_sync(d2_raw, s2_dur)
 
-    is_husayni = (
-        purpose == "Husayni Elegies & Cultural Audio-Visuals"
-        or style_variant == "Husayni Rhythmic & Poetic Sync"
+    s1_audio = (
+        f"Tone: {tone} | SFX: Deep sub-bass hook impact (sfx_hook.wav) at 0.0s + "
+        "subtle air whoosh on camera push-in + tactile product foley | "
+        "Ambient noise: Authentic room tone (Auto-ducked -12dB under voice)"
+    )
+    s2_audio = (
+        f"Tone: {tone} | SFX: Tactile micro-foley (surface contact / crisp movement) "
+        "+ rhythmic beat pulse | Ambient noise: Clean spatial environment bed"
+    )
+    s3_audio = (
+        "Tone: Confident & inviting closure | SFX: Subtle resonant chime + soft sub-bass tail "
+        "resolving cleanly | Ambient noise: [Audio: Absolute Silence] in final 1.0s for clean NLE loop"
     )
 
-    if is_husayni:
-        s1_audio = (
-            "Vocal Stage: Mustahal (Qarar deep velvet chest voice) | Maqam Saba / Bayati | "
-            "SFX: Deep 55Hz bare-palm chest-slap Latm on Beat 1, 285ms analog tape echo, "
-            "3.2s Husseiniya hall reverb | Ambient noise: Reverent candlelit Matam atmosphere "
-            "(Pure Acapella, No Musical Instruments)"
-        )
-        s2_audio = (
-            "Vocal Stage: Climax (Jawab Al-Jawab soaring chest-voice peak) | "
-            "SFX: Synchronized congregation 55Hz Latm + acoustic Dammam strike (HPF @ 35Hz) "
-            "locked to curved speed-ramp impact + unison male Raddada response (-3.0dB smart sidechain ducking)"
-        )
-        s3_audio = (
-            "Vocal Stage: Qafla (Sudden Drop to Qarar & Waqf bi-s-Sukun, 0 BPM Rubato) | "
-            "SFX: Percussion drops to zero silence, 450ms tape delay tail decaying into reverent stillness"
-        )
-    else:
-        s1_audio = (
-            f"Tone: {tone} | SFX: Deep sub-bass hook impact (sfx_hook.wav) at 0.0s + "
-            "subtle air whoosh on camera push-in + tactile product foley | "
-            "Ambient noise: Authentic room tone (Auto-ducked -12dB under voice)"
-        )
-        s2_audio = (
-            f"Tone: {tone} | SFX: Tactile micro-foley (liquid pour / surface contact / crisp movement) "
-            "+ rhythmic beat pulse | Ambient noise: Clean spatial environment bed"
-        )
-        s3_audio = (
-            "Tone: Confident & inviting closure | SFX: Subtle resonant chime + soft sub-bass tail "
-            "resolving cleanly | Ambient noise: [Audio: Absolute Silence] in final 1.0s for clean NLE loop"
-        )
+    clean_title = re.sub(r"/\S+", "", idea).strip() or f"{purpose} Production"
 
     return {
         "production_profile": {
@@ -207,24 +207,28 @@ def compile_blueprint(
             "style_variant": style_variant,
             "target_platform": "Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro)",
             "aspect_ratio": aspect_ratio,
+            "runtime_category": runtime_category,
         },
-        "creative_divergence_lock": {
+        "script_and_content": {
+            "video_title": clean_title,
+            "narrative_framework": narrative_framework,
             "audience_emotional_truth": (
-                "البحث عن الأصالة والجودة الحقيقية التي تمنح شعوراً فورياً بالتميز والراحة "
-                "بعيداً عن المبالغات الإعلانية المستهلكة"
+                "البحث عن الجودة الأصيلة والحل العملي المباشر الذي يمنح المشاهد نتيجة فورية "
+                "وملموسة بعيداً عن المقدمات الطويلة والمبالغات التسويقية"
             ),
             "expected_cliche_rejected": (
-                "البدء بمقدمة ترحيبية تقليدية أو لقطة ثابتة للمنتج مع عبارات تسويقية مستهلكة"
+                "البدء بمقدمة ترحيبية تقليدية بطيئة أو لقطة ثابتة للمنتج مع عبارات إعلانية مستهلكة"
             ),
             "chosen_divergence_angle": (
-                "البدء الفوري من الثانية 0.0 بلقطة ماكرو حسية فائقة الواقعية تكسر التوقع البصري"
+                "الدخول الفوري من الثانية 0.0 بلقطة بصرية خاطفة تكسر التوقع وتدمج المشاهد في قلب الحدث"
             ),
             "hook_variants_scene_1": {
-                "contrarian": "الكل يظن أن السر في السعر.. لكن الحقيقة تختبئ في هذه التفاصيل الدقيقة.",
-                "visual_payoff": "لقطة ماكرو فورية للحظة الذروة البصرية مع حركة كاميرا بطيئة تخطف العين من أول إطار.",
-                "pain_point": "تعبت من التجارب العادية اللي ما تعطيك النتيجة اللي في بالك؟ شوف الفرق الحقيقي.",
-                "authority": "بمعايير هندسية دقيقة وخبرة متقنة.. هكذا تُصنع التجربة الأصيلة.",
+                "contrarian": "أغلب الناس يركزون على الشكل الخارجي.. لكن السر الحقيقي يبدأ من هذه التفصيلة.",
+                "visual_payoff": "لقطة ماكرو سينمائية فورية للحظة الذروة البصرية مع حركة كاميرا تخطف العين من أول إطار.",
+                "pain_point": "تعبت من الخيارات العادية اللي ما تعطيك النتيجة اللي في بالك؟ شوف الفرق الحقيقي.",
+                "authority": "بمعايير هندسية دقيقة وتجربة متقنة.. هكذا تُصنع النتيجة الاحترافية من أول مرة.",
             },
+            "full_spoken_script": f"[المشهد 1 - الهوك]: {d1_sync} | [المشهد 2 - القيمة والبرهان]: {d2_sync} | [المشهد 3 - الخاتمة]: اطلب الآن عبر الرابط في البايو",
         },
         "global_parameters": {
             "tone": tone,

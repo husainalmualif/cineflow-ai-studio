@@ -1,0 +1,96 @@
+{
+    "production_profile":  {
+                               "purpose":  "Explainer Videos",
+                               "format":  "Motion Graphics",
+                               "style_variant":  "Short-Form Edits / AMV",
+                               "target_platform":  "Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro)",
+                               "aspect_ratio":  "9:16",
+                               "runtime_category":  "Short-Form Viral / Micro-Content (10-15s)"
+                           },
+    "script_and_content":  {
+                               "video_title":  "شرح تطبيق ذكي لإدارة المهام وتنظيم الوقت للمحترفين      9:16",
+                               "narrative_framework":  "Problem Identification -\u003e Agitation -\u003e How the Solution Works (Step 1-2-3) -\u003e CTA",
+                               "audience_emotional_truth":  "البحث عن الجودة الأصيلة والحل العملي المباشر الذي يمنح المشاهد نتيجة فورية وملموسة بعيداً عن المقدمات الطويلة والمبالغات التسويقية",
+                               "expected_cliche_rejected":  "البدء بمقدمة ترحيبية تقليدية بطيئة أو لقطة ثابتة للمنتج مع عبارات إعلانية مستهلكة",
+                               "chosen_divergence_angle":  "الدخول الفوري من الثانية 0.0 بلقطة بصرية خاطفة تكسر التوقع وتدمج المشاهد في قلب الحدث",
+                               "hook_variants_scene_1":  {
+                                                             "contrarian":  "أغلب الناس يركزون على الشكل الخارجي.. لكن السر الحقيقي يبدأ من هذه التفصيلة.",
+                                                             "visual_payoff":  "لقطة ماكرو سينمائية فورية للحظة الذروة البصرية مع حركة كاميرا تخطف العين من أول إطار.",
+                                                             "pain_point":  "تعبت من الخيارات العادية اللي ما تعطيك النتيجة اللي في بالك؟ شوف الفرق الحقيقي.",
+                                                             "authority":  "بمعايير هندسية دقيقة وتجربة متقنة.. هكذا تُصنع النتيجة الاحترافية من أول مرة."
+                                                         },
+                               "full_spoken_script":  "[المشهد 1 - الهوك]: تعبت من زحمة المهام .. [0.3s breath pause] اليومية؟ هذا | [المشهد 2 - القيمة والبرهان]: التطبيق يرتب أولوياتك في .. [0.3s breath pause] ثواني ويضاعف إنتاجيتك | [المشهد 3 - الخاتمة]: اطلب الآن عبر الرابط في البايو"
+                           },
+    "global_parameters":  {
+                              "tone":  "Serious, Clear, Inspiring (جاد، واضح، وملهم)",
+                              "body_language_baseline":  "Confident posture, expressive hand gestures explaining workflow (واثق ومتمكن)",
+                              "dialect_lock":  "MSA (العربية الفصحى العصرية)",
+                              "color_grading":  "Modern Tech Teal \u0026 Crisp Daylight LUT",
+                              "camera_gear_emulation":  "Sony Venice 2 + 35mm Prime \u0026 3D Motion Rig",
+                              "identity_lock_target":  "Lock [Character ID: @Character_TechFounder_01] + Lock [Product ID: @Product_SmartAppUI_01] + Lock [Setting DNA]",
+                              "credit_governance_mode":  "Step 1: Nano Banana 2 Lite (0-Credit Keyframes) -\u003e Step 2: Gemini Omni Flash 360p Draft (0-Credit 720p Upscale) -\u003e Step 3: Veo 3.1 Quality Final Render",
+                              "total_runtime_seconds":  15
+                          },
+    "scene_breakdown":  [
+                            {
+                                "scene_id":  1,
+                                "scene_role":  "SCENE 1 — VISUAL HOOK \u0026 PATTERN INTERRUPT (0.0s - 4s)",
+                                "duration_seconds":  4,
+                                "flow_mode":  "Ingredients-to-Video (Lock @Character_TechFounder_01 \u0026 @Product_SmartAppUI_01)",
+                                "continuity_handshake":  "Initial Master State Seed: Bind @Character_TechFounder_01 and @Product_SmartAppUI_01 on clean reference backgrounds",
+                                "visual_prompt":  "[Identity \u0026 Setting Lock: @Character_TechFounder_01, @Product_SmartAppUI_01, consistent architectural lighting] + [Subject \u0026 Physical Action: Immediate kinetic opening at t=0.0s, subject exhibits Confident posture, expressive hand gestures explaining workflow (واثق ومتمكن) while interacting physically with @Product_SmartAppUI_01] + [Camera \u0026 Optics: Sony Venice 2 + 35mm Prime \u0026 3D Motion Rig] + [Movement \u0026 Macros: atmospheric bi-color cyberpunk neon reflections on wet surfaces, continuous 360-degree circular gimbal orbit around the locked central subject, ultra-high-definition 4K master render, mechanical 3D exploded-view disassembly in mid-air with axial component separation and precision reassembly, vertical 9:16 (1080x1920) mobile composition] + [Color \u0026 Hyper-Realism: Modern Tech Teal \u0026 Crisp Daylight LUT, crisp high-precision digital rendering, coherent motion physics --no frame flicker, no garbled Arabic text, no geometry distortion, no identity drift]",
+                                "audio_foley_sync":  "Tone: Serious, Clear, Inspiring (جاد، واضح، وملهم) | SFX: Deep sub-bass hook impact (sfx_hook.wav) at 0.0s + subtle air whoosh on camera push-in + tactile product foley | Ambient noise: Authentic room tone (Auto-ducked -12dB under voice)",
+                                "dialogue_lip_sync":  "تعبت من زحمة المهام .. [0.3s breath pause] اليومية؟ هذا",
+                                "text_overlay":  "السر اللي يغير التجربة بالكامل"
+                            },
+                            {
+                                "scene_id":  2,
+                                "scene_role":  "SCENE 2 — CORE VALUE \u0026 RHYTHMIC CLIMAX (4s - 11s)",
+                                "duration_seconds":  7,
+                                "flow_mode":  "Frames-to-Video (Save Last Frame of Scene 1 as \u003cFIRST_FRAME\u003e + Maintain Ingredients)",
+                                "continuity_handshake":  "SCENE_HANDSHAKE: Inherit exact exit lighting, color temperature, wardrobe, and 180-degree spatial axis from Scene 1",
+                                "visual_prompt":  "[Identity \u0026 Setting Lock: @Character_TechFounder_01, @Product_SmartAppUI_01, inherited lighting handshake from Scene 1] + [Subject \u0026 Physical Action: Continuous physical progression, close-up macro reveal of @Product_SmartAppUI_01 texture and authentic human micro-expression (Confident posture, expressive hand gestures explaining workflow (واثق ومتمكن)), natural lip closure on breath pauses] + [Camera \u0026 Optics: Sony Venice 2 + 35mm Prime \u0026 3D Motion Rig, shallow f/1.4 bokeh] + [Movement \u0026 Macros: smooth orbital tracking and curved speed-ramp at peak action, atmospheric bi-color cyberpunk neon reflections on wet surfaces, continuous 360-degree circular gimbal orbit around the locked central subject, ultra-high-definition 4K master render, mechanical 3D exploded-view disassembly in mid-air with axial component separation and precision reassembly, vertical 9:16 (1080x1920) mobile composition] + [Color \u0026 Hyper-Realism: Modern Tech Teal \u0026 Crisp Daylight LUT, crisp high-precision digital rendering, coherent motion physics --no frame flicker, no garbled Arabic text, no geometry distortion, no identity drift]",
+                                "audio_foley_sync":  "Tone: Serious, Clear, Inspiring (جاد، واضح، وملهم) | SFX: Tactile micro-foley (surface contact / crisp movement) + rhythmic beat pulse | Ambient noise: Clean spatial environment bed",
+                                "dialogue_lip_sync":  "التطبيق يرتب أولوياتك في .. [0.3s breath pause] ثواني ويضاعف إنتاجيتك",
+                                "text_overlay":  "تفاصيل أصيلة .. وجودة لا تقبل المساومة"
+                            },
+                            {
+                                "scene_id":  3,
+                                "scene_role":  "SCENE 3 — STANDARDIZED SAFE-ZONE OUTRO \u0026 LOOP (11s - 15s)",
+                                "duration_seconds":  4,
+                                "flow_mode":  "Frames-to-Video (Save Last Frame of Scene 2 as \u003cFIRST_FRAME\u003e -\u003e Loop-Back Composition)",
+                                "continuity_handshake":  "SCENE_HANDSHAKE: Smooth dolly pull-back creating 35% clean blurred negative space in upper-center (Y:420..820) and lower-middle (Y:950..1280) for branding \u0026 CTA",
+                                "visual_prompt":  "[Identity \u0026 Setting Lock: @Product_SmartAppUI_01 hero placement on surface, @Character_TechFounder_01 softly out of focus in background] + [Subject \u0026 Physical Action: Final settling motion, warm ambient glow, upper and middle vertical frame intentionally composed with clean uncluttered bokeh negative space for Arabic brand logo and CTA overlay, final frame lighting echoes Scene 1 for seamless loop] + [Camera \u0026 Optics: Sony Venice 2 + 35mm Prime \u0026 3D Motion Rig, 50mm f/1.4] + [Movement: slow stabilized dolly pull-out to locked end-frame] + [Color \u0026 Hyper-Realism: Modern Tech Teal \u0026 Crisp Daylight LUT, crisp high-precision digital rendering, coherent motion physics --no frame flicker, no garbled Arabic text, no geometry distortion, no identity drift]",
+                                "audio_foley_sync":  "Tone: Confident \u0026 inviting closure | SFX: Subtle resonant chime + soft sub-bass tail resolving cleanly | Ambient noise: [Audio: Absolute Silence] in final 1.0s for clean NLE loop",
+                                "dialogue_lip_sync":  "[Mouth closed naturally, warm confident nod]",
+                                "text_overlay":  "اطلب الآن — الرابط في البايو"
+                            }
+                        ],
+    "outro_standardization":  {
+                                  "aspect_ratio":  "9:16 (Safe-Zone Enforced)",
+                                  "brand_logo_safe_zone":  "Y: 420..820, X: 120..960 (Upper-Center Clean Negative Space — avoids top OS/UI bar Y:0..250)",
+                                  "cta_and_handles_safe_zone":  "Y: 950..1280, X: 120..900 (Lower-Middle Safe Zone — avoids bottom caption marquee Y:1400..1920 \u0026 right icons X:910..1080)",
+                                  "loop_back_visual_cue":  "Final frame lighting and subject angle match Scene 1 Frame 0 to trigger automatic replay loop"
+                              },
+    "marketing_expansion":  {
+                                "poster_layout_prompt":  "Commercial advertising poster (4:5 aspect ratio, 1080x1350) rendered in Nano Banana Pro: Hero composition featuring @Product_SmartAppUI_01 and @Character_TechFounder_01 in the lower two-thirds, matching Modern Tech Teal \u0026 Crisp Daylight LUT and Sony Venice 2 + 35mm Prime \u0026 3D Motion Rig look, with 35% clean dark/warm negative space in the top third for bold Arabic Kufi/Cairo headline typography, studio rim lighting, crisp high-precision digital rendering, coherent motion physics --no frame flicker, no garbled Arabic text, no geometry distortion, no identity drift",
+                                "social_design_brief":  "High-contrast 9:16 Reels Cover \u0026 1:1 Community Quote Card featuring @Product_SmartAppUI_01 macro detail, #FFFFFF setup text + #FFD60A highlighted keyword in Cairo Black font.",
+                                "carousel_arabic_copy":  [
+                                                             "الشريحة 1 (الغلاف الخاطف): ليش 90% من الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ (اسحب لليسار ⬅)",
+                                                             "الشريحة 2 (المشكلة الخفية): المشكلة مو في كثرة المحاولات.. المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق من أول لحظة.",
+                                                             "الشريحة 3 (نقطة التحول): لما تجتمع الخامة الأصيلة مع الهندسة المتقنة، تتحول التجربة اليومية إلى معيار جديد للفخامة.",
+                                                             "الشريحة 4 (القيمة العملية 1): ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر حتى وصولها بين يديك.",
+                                                             "الشريحة 5 (القيمة العملية 2): تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون أي تعقيد.",
+                                                             "الشريحة 6 (الخلاصة والبرهان): الفرق يبان من التجربة الأولى.. لأن الجودة الحقيقية تتكلم عن نفسها.",
+                                                             "الشريحة 7 (دعوة الإجراء - CTA): احفظ هذا المنشور للرجوع إليه، وتواصل معنا الآن عبر الرابط في البايو لتجربة الفرق بنفسك!"
+                                                         ]
+                            },
+    "qa_audit":  {
+                     "audio_math_passed":  true,
+                     "micro_scene_limit_passed":  true,
+                     "physicality_firewall_passed":  true,
+                     "anti_cgi_guardrails_injected":  true,
+                     "dialect_lock_verified":  true,
+                     "outro_safe_zone_verified":  true
+                 }
+}

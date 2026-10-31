@@ -24,7 +24,7 @@ This reference manual documents the internal continuity, camera optics, slash-ma
 14. `SCRIPT_STATE`: `Exact_User_Text` (`Verbatim_Script_Lock = TRUE`).
 15. `PERFORMANCE_STATE`: Tone of Voice (`Emotion`), Body Language (`Micro-Cues`), Intensity, Subtext, Pause Timing, Gaze Direction (`Eyeline_Match`).
 16. `AUDIO_STATE`: Dialogue Timing, Foley SFX, Ambient Room Tone, Auto-Ducking, Silence Tags (`[Audio: Absolute Silence]`).
-17. `MUSIC_STATE`: Genre, Maqam, Tor, BPM, Beat Grid Markers, Rhythmic Sync Mode.
+17. `MUSIC_STATE`: Genre, Tempo, Musical Key, BPM, Beat Grid Markers, Rhythmic Sync Mode.
 18. `PHYSICS_STATE`: Gravity, Collision, Momentum, Cloth Dynamics, Fluid Dynamics, Smoke/Particle Behavior (`MOTION_LOCK`).
 19. `TEMPORAL_STATE`: Scene Duration, Shot Duration (`3–10s`), Time Elapsed, Pacing Curve.
 20. `SPATIAL_STATE`: `180_Degree_Rule_Lock`, Entry/Exit Vectors, Subject Coordinates, Safe-Zone Grid.

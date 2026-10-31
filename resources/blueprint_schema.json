@@ -4,6 +4,7 @@
   "type": "object",
   "required": [
     "production_profile",
+    "script_and_content",
     "global_parameters",
     "scene_breakdown",
     "outro_standardization",
@@ -25,8 +26,7 @@
             "Testimonial Videos",
             "Documentaries",
             "Event Videos",
-            "Entertainment Videos",
-            "Husayni Elegies & Cultural Audio-Visuals"
+            "Entertainment Videos"
           ]
         },
         "format": {
@@ -47,7 +47,6 @@
             "Commercial Promo",
             "Short-Form Edits / AMV",
             "Sizzle Reel / Recap",
-            "Husayni Rhythmic & Poetic Sync",
             "Narrative Continuity Sequence"
           ]
         },
@@ -58,12 +57,18 @@
         "aspect_ratio": {
           "type": "string",
           "enum": ["9:16", "16:9", "1:1", "4:5", "21:9"]
+        },
+        "runtime_category": {
+          "type": "string"
         }
       }
     },
-    "creative_divergence_lock": {
+    "script_and_content": {
       "type": "object",
+      "required": ["video_title", "narrative_framework", "full_spoken_script"],
       "properties": {
+        "video_title": { "type": "string" },
+        "narrative_framework": { "type": "string" },
         "audience_emotional_truth": { "type": "string" },
         "expected_cliche_rejected": { "type": "string" },
         "chosen_divergence_angle": { "type": "string" },
@@ -75,7 +80,8 @@
             "pain_point": { "type": "string" },
             "authority": { "type": "string" }
           }
-        }
+        },
+        "full_spoken_script": { "type": "string" }
       }
     },
     "global_parameters": {
