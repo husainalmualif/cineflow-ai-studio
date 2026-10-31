@@ -1,0 +1,55 @@
+name: CineFlow AI Studio CI (Skill & Blueprint Compiler Validation)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  validate-skill-and-compiler:
+    name: Validate Skill Structure, Pylint, Unit Tests & JSON Blueprint Compiler
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Lint & Test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate Skill Structure & Reference Files
+        run: |
+          test -f SKILL.md
+          test -f README.md
+          test -f requirements.txt
+          test -f references/cinematic_macros_and_continuity.md
+          test -f references/creative_strategy_and_marketing.md
+          test -f references/cultural_hussaini_and_dialect_guide.md
+          test -f resources/blueprint_schema.json
+          test -f scripts/cineflow_compiler.py
+          test -f scripts/Compile-CineFlowBlueprint.ps1
+          test -f examples/example_01_commercial_promo.json
+          test -f examples/example_02_hussaini_elegy_sync.json
+          grep -q "^name: cineflow-ai-studio" SKILL.md
+
+      - name: Lint Compiler & Unit Tests with Pylint
+        run: |
+          pylint --disable=C0301,R0913,R0914,R0917 scripts/cineflow_compiler.py tests/test_cineflow_compiler.py
+
+      - name: Run Automated Unit Tests with Pytest
+        run: |
+          pytest -v tests/test_cineflow_compiler.py
+
+      - name: Test CLI Blueprint Generation
+        run: |
+          python scripts/cineflow_compiler.py --output /tmp/test_blueprint.json
+          test -s /tmp/test_blueprint.json

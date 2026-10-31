@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CineFlow AI Studio Production Blueprint Schema",
+  "type": "object",
+  "required": [
+    "production_profile",
+    "global_parameters",
+    "scene_breakdown",
+    "outro_standardization",
+    "marketing_expansion",
+    "qa_audit"
+  ],
+  "properties": {
+    "production_profile": {
+      "type": "object",
+      "required": ["purpose", "format", "style_variant", "target_platform", "aspect_ratio"],
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "Commercials & TVCs",
+            "Corporate Videos",
+            "Educational & Training",
+            "Explainer Videos",
+            "Testimonial Videos",
+            "Documentaries",
+            "Event Videos",
+            "Entertainment Videos",
+            "Husayni Elegies & Cultural Audio-Visuals"
+          ]
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "Live-Action",
+            "Animation (2D / 3D)",
+            "Motion Graphics",
+            "Live Streaming",
+            "360 & Interactive"
+          ]
+        },
+        "style_variant": {
+          "type": "string",
+          "enum": [
+            "Montage Sequence",
+            "Music Videos",
+            "Commercial Promo",
+            "Short-Form Edits / AMV",
+            "Sizzle Reel / Recap",
+            "Husayni Rhythmic & Poetic Sync",
+            "Narrative Continuity Sequence"
+          ]
+        },
+        "target_platform": {
+          "type": "string",
+          "default": "Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro)"
+        },
+        "aspect_ratio": {
+          "type": "string",
+          "enum": ["9:16", "16:9", "1:1", "4:5", "21:9"]
+        }
+      }
+    },
+    "creative_divergence_lock": {
+      "type": "object",
+      "properties": {
+        "audience_emotional_truth": { "type": "string" },
+        "expected_cliche_rejected": { "type": "string" },
+        "chosen_divergence_angle": { "type": "string" },
+        "hook_variants_scene_1": {
+          "type": "object",
+          "properties": {
+            "contrarian": { "type": "string" },
+            "visual_payoff": { "type": "string" },
+            "pain_point": { "type": "string" },
+            "authority": { "type": "string" }
+          }
+        }
+      }
+    },
+    "global_parameters": {
+      "type": "object",
+      "required": [
+        "tone",
+        "body_language_baseline",
+        "dialect_lock",
+        "color_grading",
+        "camera_gear_emulation",
+        "identity_lock_target",
+        "total_runtime_seconds"
+      ],
+      "properties": {
+        "tone": { "type": "string" },
+        "body_language_baseline": { "type": "string" },
+        "dialect_lock": { "type": "string" },
+        "color_grading": { "type": "string" },
+        "camera_gear_emulation": { "type": "string" },
+        "identity_lock_target": { "type": "string" },
+        "credit_governance_mode": { "type": "string" },
+        "total_runtime_seconds": { "type": "integer", "minimum": 3 }
+      }
+    },
+    "scene_breakdown": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "scene_id",
+          "duration_seconds",
+          "visual_prompt",
+          "audio_foley_sync",
+          "dialogue_lip_sync",
+          "text_overlay"
+        ],
+        "properties": {
+          "scene_id": { "type": "integer" },
+          "scene_role": { "type": "string" },
+          "duration_seconds": { "type": "integer", "minimum": 2, "maximum": 10 },
+          "flow_mode": { "type": "string" },
+          "continuity_handshake": { "type": "string" },
+          "visual_prompt": { "type": "string" },
+          "audio_foley_sync": { "type": "string" },
+          "dialogue_lip_sync": { "type": "string" },
+          "text_overlay": { "type": "string" }
+        }
+      }
+    },
+    "outro_standardization": {
+      "type": "object",
+      "required": ["aspect_ratio", "brand_logo_safe_zone", "cta_and_handles_safe_zone"],
+      "properties": {
+        "aspect_ratio": { "type": "string" },
+        "brand_logo_safe_zone": { "type": "string" },
+        "cta_and_handles_safe_zone": { "type": "string" },
+        "loop_back_visual_cue": { "type": "string" }
+      }
+    },
+    "marketing_expansion": {
+      "type": "object",
+      "required": ["poster_layout_prompt", "carousel_arabic_copy"],
+      "properties": {
+        "poster_layout_prompt": { "type": "string" },
+        "social_design_brief": { "type": "string" },
+        "carousel_arabic_copy": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "qa_audit": {
+      "type": "object",
+      "properties": {
+        "audio_math_passed": { "type": "boolean" },
+        "micro_scene_limit_passed": { "type": "boolean" },
+        "physicality_firewall_passed": { "type": "boolean" },
+        "anti_cgi_guardrails_injected": { "type": "boolean" },
+        "dialect_lock_verified": { "type": "boolean" },
+        "outro_safe_zone_verified": { "type": "boolean" }
+      }
+    }
+  }
+}
