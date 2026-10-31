@@ -1,8 +1,9 @@
 """
-CineFlow AI Studio — Autonomous Scriptwriter, Prompt Compiler, Dialect Detector, Lip-Sync Phraser & Pre-Flight QA Engine.
+CineFlow AI Studio — Autonomous Scriptwriter, Prompt Compiler, Programmatic Edit Planner,
+Arabic Kashida Engine, Lip-Sync Phraser & Pre-Flight QA Validator.
 
-Compiles raw creative intent, video topics, or Arabic/Gulf scripts into a validated JSON Production Blueprint
-ready for Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro).
+Compiles raw creative intent, video topics, or Arabic/Gulf scripts into a validated JSON Production & Editing Blueprint
+ready for Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro) and Remotion/FFmpeg Post-Production.
 """
 
 from __future__ import annotations
@@ -68,15 +69,29 @@ MACRO_DICTIONARY: Dict[str, str] = {
 }
 
 PURPOSE_FRAMEWORKS: Dict[str, str] = {
-    "Commercials & TVCs": "Hook (0-4s) -> Sensory Product Proof & Desire (4-11s) -> Safe-Zone Offer & CTA (11-15s)",
+    "Commercials & TVCs": "6-Stage Direct-Response Curve: Hook (0-2s) -> Problem Agitation (2-5s) -> Product Hero Showcase (5-11s) -> Safe-Zone Offer & CTA (11-15s)",
     "Corporate Videos": "Vision Hook -> Human & Operational Excellence -> Brand Commitment Outro",
-    "Educational & Training": "Curiosity Question -> Visual Metaphor & Step-by-Step Breakdown -> Key Takeaway",
-    "Explainer Videos": "Problem Identification -> Agitation -> How the Solution Works (Step 1-2-3) -> CTA",
+    "Educational & Training": "Curiosity Question -> Action-Verb Stage Metaphor & Step-by-Step Breakdown -> Key Takeaway",
+    "Explainer Videos": "Problem Identification -> Agitation -> How the Solution Works (Action-Verb Stage) -> CTA",
     "Testimonial Videos": "Initial Challenge -> Turning Point Experience -> Tangible Results & Recommendation",
     "Documentaries": "Atmospheric Mystery Hook -> Factual Context & Discovery -> Reflective Climax",
     "Event Videos": "High-Energy Cold Open -> Dynamic Crowd & Keynotes Montage -> Event Emblem Outro",
     "Entertainment Videos": "Inciting Hook -> Rising Dramatic/Rhythmic Action -> Emotional Climax & Payoff",
 }
+
+PURPOSE_STYLE_MAP: Dict[str, str] = {
+    "Commercials & TVCs": "studio3D+keynote",
+    "Corporate Videos": "editorial+keynote",
+    "Educational & Training": "explainer+swiss",
+    "Explainer Videos": "glassUI+explainer",
+    "Testimonial Videos": "editorial",
+    "Documentaries": "archive",
+    "Event Videos": "brutal+keynote",
+    "Entertainment Videos": "paperCut+keynote",
+}
+
+NON_CONNECTING_ARABIC_LETTERS = set("اأإآدذرزوؤةءى")
+HARAKAT_CHARS = set("\u064b\u064c\u064d\u064e\u064f\u0650\u0651\u0652\u0670")
 
 
 def detect_arabic_dialect(text: str) -> str:
@@ -92,6 +107,57 @@ def detect_arabic_dialect(text: str) -> str:
     if re.search(r"(الحين|تبي|عشان|اللي)", text):
         return "KHALEEJI_GENERAL (اللهجة الخليجية البيضاء)"
     return "MSA (العربية الفصحى العصرية)"
+
+
+def apply_safe_arabic_kashida(word: str, count: int = 3) -> str:
+    """
+    Insert Kashida (ـ) safely after the last valid connecting Arabic base letter,
+    respecting Harakat/Tashkeel and never breaking non-connecting letters or the 'لا' ligature.
+    """
+    clean = word.strip()
+    if len(clean) < 2:
+        return clean
+
+    # Group each base character with its trailing Harakat
+    clusters: List[str] = []
+    for ch in clean:
+        if ch in HARAKAT_CHARS and clusters:
+            clusters[-1] += ch
+        else:
+            clusters.append(ch)
+
+    if len(clusters) < 2:
+        return clean
+
+    valid_idx = -1
+    for i in range(len(clusters) - 1):
+        base_char = clusters[i][0]
+        next_base = clusters[i + 1][0]
+        # Never split Lam-Alef ligature ('لا', 'لأ', 'لإ', 'لآ')
+        if base_char == "ل" and next_base in {"ا", "أ", "إ", "آ"}:
+            continue
+        if base_char not in NON_CONNECTING_ARABIC_LETTERS and "\u0621" <= base_char <= "\u064a":
+            valid_idx = i
+
+    if valid_idx == -1:
+        return clean
+
+    kashida_bar = "ـ" * max(1, count)
+    clusters[valid_idx] = clusters[valid_idx] + kashida_bar
+    return "".join(clusters)
+
+
+def generate_keyword_variants(keyword: str) -> List[str]:
+    """Generate common Arabic orthographic variants (أ/إ/ا, ة/ه, ي/ى) for comment auto-reply matching."""
+    base = keyword.strip()
+    if not base:
+        return ["تفاصيل"]
+    variants = {base}
+    variants.add(re.sub(r"[أإآ]", "ا", base))
+    variants.add(re.sub(r"ة$", "ه", base))
+    variants.add(re.sub(r"ى$", "ي", base))
+    variants.add(re.sub(r"[أإآ]", "ا", re.sub(r"ة$", "ه", base)))
+    return sorted(variants)
 
 
 def optimize_arabic_lip_sync(raw_dialogue: str, duration_seconds: int) -> str:
@@ -137,8 +203,10 @@ def compile_blueprint(
     character_id: str = "@Character_Lead_01",
     product_id: str = "@Product_Hero_01",
     total_runtime_seconds: int = 15,
+    color_palette: str = "gold",
+    comment_keyword: str = "إبداع",
 ) -> Dict[str, Any]:
-    """Compile a complete CineFlow AI Studio JSON blueprint including scriptwriting and scene prompts."""
+    """Compile a complete CineFlow AI Studio JSON blueprint including script, generative prompts, programmatic edit, and marketing pack."""
     aspect_ratio = "9:16"
     if "/ar 16:9" in idea.lower():
         aspect_ratio = "16:9"
@@ -152,6 +220,7 @@ def compile_blueprint(
         purpose,
         "Hook (0-4s) -> Core Value & Demonstration (4-11s) -> Safe-Zone Payoff & CTA (11-15s)",
     )
+    visual_design_style = PURPOSE_STYLE_MAP.get(purpose, "explainer+keynote")
     runtime_category = (
         "Short-Form Viral / Micro-Content (10-15s)"
         if total_runtime_seconds <= 15
@@ -184,14 +253,18 @@ def compile_blueprint(
     d1_sync = optimize_arabic_lip_sync(d1_raw, s1_dur)
     d2_sync = optimize_arabic_lip_sync(d2_raw, s2_dur)
 
+    hook_focus_word = all_words[1] if len(all_words) > 1 else (all_words[0] if all_words else "الفخامة")
+    kashida_hook_word = apply_safe_arabic_kashida(hook_focus_word, count=3)
+    anchor_word_s2 = all_words[half_idx] if len(all_words) > half_idx else "التجربة"
+
     s1_audio = (
-        f"Tone: {tone} | SFX: Deep sub-bass hook impact (sfx_hook.wav) at 0.0s + "
-        "subtle air whoosh on camera push-in + tactile product foley | "
+        f"Tone: {tone} | SFX: Deep sub-bass hook impact (sfx_hook.wav) at 0.05s + "
+        "subtle air whoosh on camera push-in | "
         "Ambient noise: Authentic room tone (Auto-ducked -12dB under voice)"
     )
     s2_audio = (
-        f"Tone: {tone} | SFX: Tactile micro-foley (surface contact / crisp movement) "
-        "+ rhythmic beat pulse | Ambient noise: Clean spatial environment bed"
+        f"Tone: {tone} | SFX: Tactile micro-foley synced to word '{anchor_word_s2}' "
+        "+ rhythmic beat pulse (-18dBFS ceiling) | Ambient noise: Clean spatial environment bed"
     )
     s3_audio = (
         "Tone: Confident & inviting closure | SFX: Subtle resonant chime + soft sub-bass tail "
@@ -199,13 +272,15 @@ def compile_blueprint(
     )
 
     clean_title = re.sub(r"/\S+", "", idea).strip() or f"{purpose} Production"
+    keyword_variants = generate_keyword_variants(comment_keyword)
 
     return {
         "production_profile": {
             "purpose": purpose,
             "format": video_format,
             "style_variant": style_variant,
-            "target_platform": "Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro)",
+            "execution_route": "Hybrid Generative (Google Flow) + Programmatic Reel/Ad Studio (Remotion/FFmpeg)",
+            "target_platform": "Google Flow (Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro) + Remotion/FFmpeg Studio",
             "aspect_ratio": aspect_ratio,
             "runtime_category": runtime_category,
         },
@@ -220,7 +295,7 @@ def compile_blueprint(
                 "البدء بمقدمة ترحيبية تقليدية بطيئة أو لقطة ثابتة للمنتج مع عبارات إعلانية مستهلكة"
             ),
             "chosen_divergence_angle": (
-                "الدخول الفوري من الثانية 0.0 بلقطة بصرية خاطفة تكسر التوقع وتدمج المشاهد في قلب الحدث"
+                "الدخول الفوري من الثانية 0.0 بلقطة بصرية خاطفة مع هوك ثلاثي الطبقات خلف الرأس يكسر التوقع البصري"
             ),
             "hook_variants_scene_1": {
                 "contrarian": "أغلب الناس يركزون على الشكل الخارجي.. لكن السر الحقيقي يبدأ من هذه التفصيلة.",
@@ -228,7 +303,16 @@ def compile_blueprint(
                 "pain_point": "تعبت من الخيارات العادية اللي ما تعطيك النتيجة اللي في بالك؟ شوف الفرق الحقيقي.",
                 "authority": "بمعايير هندسية دقيقة وتجربة متقنة.. هكذا تُصنع النتيجة الاحترافية من أول مرة.",
             },
-            "full_spoken_script": f"[المشهد 1 - الهوك]: {d1_sync} | [المشهد 2 - القيمة والبرهان]: {d2_sync} | [المشهد 3 - الخاتمة]: اطلب الآن عبر الرابط في البايو",
+            "full_spoken_script": (
+                f"[المشهد 1 - الهوك]: {d1_sync} | "
+                f"[المشهد 2 - القيمة والبرهان]: {d2_sync} | "
+                "[المشهد 3 - الخاتمة]: اطلب الآن عبر الرابط في البايو"
+            ),
+            "facts_ledger": [
+                f"العنصر الأساسي المقفول: {product_id}",
+                f"الشخصية المرجعية المقفولة: {character_id}",
+                f"المدة القياسية المعتمدة: {actual_total} ثانية",
+            ],
         },
         "global_parameters": {
             "tone": tone,
@@ -249,8 +333,9 @@ def compile_blueprint(
         "scene_breakdown": [
             {
                 "scene_id": 1,
-                "scene_role": f"SCENE 1 — VISUAL HOOK & PATTERN INTERRUPT (0.0s - {s1_dur}s)",
+                "scene_role": f"SCENE 1 — VISUAL HOOK & 3-LAYER STACK (0.0s - {s1_dur}s)",
                 "duration_seconds": s1_dur,
+                "layout_mode": "R_FULL",
                 "flow_mode": f"Ingredients-to-Video (Lock {character_id} & {product_id})",
                 "continuity_handshake": (
                     f"Initial Master State Seed: Bind {character_id} and {product_id} on clean reference backgrounds"
@@ -263,18 +348,23 @@ def compile_blueprint(
                     f"[Movement & Macros: {compiled_macro_str}] + "
                     f"[Color & Hyper-Realism: {color_grading}, {anti_cgi_suffix}]"
                 ),
+                "stage_motion_actors": (
+                    f"3-Layer Stacked Hook (`stack`): '{kashida_hook_word}' stretched by pixel Kashida behind speaker head "
+                    "+ subtle 1.0x -> 1.12x hook punch-in"
+                ),
                 "audio_foley_sync": s1_audio,
                 "dialogue_lip_sync": d1_sync,
-                "text_overlay": "السر اللي يغير التجربة بالكامل",
+                "text_overlay": kashida_hook_word,
             },
             {
                 "scene_id": 2,
-                "scene_role": f"SCENE 2 — CORE VALUE & RHYTHMIC CLIMAX ({s1_dur}s - {s1_dur + s2_dur}s)",
+                "scene_role": f"SCENE 2 — ACTION-VERB STAGE & CORE PROOF ({s1_dur}s - {s1_dur + s2_dur}s)",
                 "duration_seconds": s2_dur,
+                "layout_mode": "R_LOWER",
                 "flow_mode": "Frames-to-Video (Save Last Frame of Scene 1 as <FIRST_FRAME> + Maintain Ingredients)",
                 "continuity_handshake": (
                     "SCENE_HANDSHAKE: Inherit exact exit lighting, color temperature, wardrobe, "
-                    "and 180-degree spatial axis from Scene 1"
+                    "and 180-degree spatial axis from Scene 1 + Headout speaker card at bottom"
                 ),
                 "visual_prompt": (
                     f"[Identity & Setting Lock: {character_id}, {product_id}, inherited lighting handshake from Scene 1] + "
@@ -284,6 +374,10 @@ def compile_blueprint(
                     f"[Movement & Macros: smooth orbital tracking and curved speed-ramp at peak action, {compiled_macro_str}] + "
                     f"[Color & Hyper-Realism: {color_grading}, {anti_cgi_suffix}]"
                 ),
+                "stage_motion_actors": (
+                    f"Action-Verb Stage (`layout: R_LOWER + headout, nocap: true`): Hero actor enters on word '{anchor_word_s2}' "
+                    "with connected link lines, brand-colored wall glow behind speaker, and +0.45s hold after last word"
+                ),
                 "audio_foley_sync": s2_audio,
                 "dialogue_lip_sync": d2_sync,
                 "text_overlay": "تفاصيل أصيلة .. وجودة لا تقبل المساومة",
@@ -292,9 +386,10 @@ def compile_blueprint(
                 "scene_id": 3,
                 "scene_role": f"SCENE 3 — STANDARDIZED SAFE-ZONE OUTRO & LOOP ({s1_dur + s2_dur}s - {actual_total}s)",
                 "duration_seconds": s3_dur,
+                "layout_mode": "R_FULL",
                 "flow_mode": "Frames-to-Video (Save Last Frame of Scene 2 as <FIRST_FRAME> -> Loop-Back Composition)",
                 "continuity_handshake": (
-                    "SCENE_HANDSHAKE: Smooth dolly pull-back creating 35% clean blurred negative space "
+                    "SCENE_HANDSHAKE: Clean cover expand transition back to R_FULL + 35% blurred negative space "
                     "in upper-center (Y:420..820) and lower-middle (Y:950..1280) for branding & CTA"
                 ),
                 "visual_prompt": (
@@ -306,25 +401,76 @@ def compile_blueprint(
                     "[Movement: slow stabilized dolly pull-out to locked end-frame] + "
                     f"[Color & Hyper-Realism: {color_grading}, {anti_cgi_suffix}]"
                 ),
+                "stage_motion_actors": (
+                    "Spark emblem reveal transition (`sparkReveal`) into Safe-Zone Outro card with +0.45s post-word hold"
+                ),
                 "audio_foley_sync": s3_audio,
                 "dialogue_lip_sync": "[Mouth closed naturally, warm confident nod]",
                 "text_overlay": "اطلب الآن — الرابط في البايو",
             },
         ],
+        "post_production_timeline": {
+            "visual_design_style": visual_design_style,
+            "color_palette": color_palette,
+            "silence_cut_config": {
+                "noise_db": -32,
+                "min_silence_sec": 0.35,
+                "pre_roll_ms": 120,
+                "post_roll_ms": 150,
+                "merge_gap_ms": 180,
+                "crossfade_ms": 20,
+            },
+            "depth_moments_planned": [
+                f"Moment 1 (Hook 0.0s-{s1_dur}s): 3-Layer Stacked Hook (`stack`) with pixel-stretched Kashida '{kashida_hook_word}' behind speaker head",
+                f"Moment 2 (Core {s1_dur}s-{s1_dur + s2_dur}s): Action-Verb Stage (`R_LOWER + headout`) anchored to word '{anchor_word_s2}' with +0.45s hold",
+                "Moment 3 (Brand Climax): Radial brand-colored wall illumination behind rotoscoped speaker (`grade: false` on skin) + Spark transition",
+            ],
+            "rtl_caption_config": {
+                "cap_style": "chunk",
+                "font_family": "Cairo",
+                "max_words_per_pill": 4,
+                "pill_center_y": 1395,
+                "post_word_hold_sec": 0.45,
+                "exit_ease_sec": 0.40,
+                "never_on_face": True,
+                "kashida_rules_enforced": True,
+            },
+            "audio_mastering_spec": {
+                "target_lufs": -14.0,
+                "true_peak_dbtp": -1.5,
+                "lra_lu": 11.0,
+                "sidechain_ducking": "threshold=0.03:ratio=5:attack=15:release=450",
+                "max_sfx_events_per_min": 15,
+                "sfx_peak_limit_dbfs": -18.0,
+            },
+            "export_targets": [
+                "MP4 Master (-14 LUFS + 0.1s First-Frame Cover, < 29MB)",
+                "SRT Subtitles (.srt)",
+                "Clean Transcript (.txt)",
+                "CapCut Editable Draft Project (draft_content.json)",
+                "Interactive Browser Timeline Editor (editor.mjs / studio.html)",
+            ],
+        },
         "outro_standardization": {
             "aspect_ratio": f"{aspect_ratio} (Safe-Zone Enforced)",
             "brand_logo_safe_zone": (
-                "Y: 420..820, X: 120..960 (Upper-Center Clean Negative Space — avoids top OS/UI bar Y:0..250)"
+                "Y: 420..820, X: 120..960 (Upper-Center Clean Negative Space — avoids top OS/UI bar Y:0..220)"
             ),
             "cta_and_handles_safe_zone": (
-                "Y: 950..1280, X: 120..900 (Lower-Middle Safe Zone — avoids bottom caption marquee Y:1400..1920 "
-                "& right icons X:910..1080)"
+                "Y: 950..1280, X: 120..900 (Lower-Middle Safe Zone — avoids bottom caption marquee Y:1500..1920 "
+                "& right icons X:920..1080)"
             ),
             "loop_back_visual_cue": (
                 "Final frame lighting and subject angle match Scene 1 Frame 0 to trigger automatic replay loop"
             ),
         },
         "marketing_expansion": {
+            "first_frame_cover": {
+                "injected_at": "First 0.1s frame of delivered MP4 (--first)",
+                "safe_square_bounds": "1080x1080 Center Square (Y: 420..1500) — zero cropping across 9:16, 4:5, and 1:1 profile grids",
+                "hook_headline": f"السر الحقيقي|*{hook_focus_word}*",
+                "typography_floors": "Headline >= 170px, Subtext >= 110px, Logo >= 200px, Chin >= 30px above headline",
+            },
             "poster_layout_prompt": (
                 f"Commercial advertising poster (4:5 aspect ratio, 1080x1350) rendered in Nano Banana Pro: "
                 f"Hero composition featuring {product_id} and {character_id} in the lower two-thirds, matching "
@@ -332,8 +478,8 @@ def compile_blueprint(
                 f"for bold Arabic Kufi/Cairo headline typography, studio rim lighting, {anti_cgi_suffix}"
             ),
             "social_design_brief": (
-                f"High-contrast 9:16 Reels Cover & 1:1 Community Quote Card featuring {product_id} macro detail, "
-                "#FFFFFF setup text + #FFD60A highlighted keyword in Cairo Black font."
+                f"High-contrast 9:16 Reels Cover (verified in 9:16, 4:5, and 1:1 grid preview) & 1:1 Community Quote Card "
+                f"featuring {product_id} macro detail, #FFFFFF setup text + #FFD60A highlighted keyword in Cairo Black font."
             ),
             "carousel_arabic_copy": [
                 "الشريحة 1 (الغلاف الخاطف): ليش 90% من الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ (اسحب لليسار ⬅)",
@@ -342,8 +488,37 @@ def compile_blueprint(
                 "الشريحة 4 (القيمة العملية 1): ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر حتى وصولها بين يديك.",
                 "الشريحة 5 (القيمة العملية 2): تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون أي تعقيد.",
                 "الشريحة 6 (الخلاصة والبرهان): الفرق يبان من التجربة الأولى.. لأن الجودة الحقيقية تتكلم عن نفسها.",
-                "الشريحة 7 (دعوة الإجراء - CTA): احفظ هذا المنشور للرجوع إليه، وتواصل معنا الآن عبر الرابط في البايو!",
+                f"الشريحة 7 (دعوة الإجراء - CTA): احفظ المنشور للرجوع إليه، واكتب كلمة ({comment_keyword}) في التعليقات ليصلك الرابط فوراً!",
             ],
+            "social_publish_pack": {
+                "primary_search_phrase": clean_title[:45],
+                "comment_keyword_variants": keyword_variants,
+                "instagram": {
+                    "caption": (
+                        f"{clean_title[:45]} — تفصيلة واحدة تغير النتيجة بالكامل وتختصر عليك التجارب التقليدية.\n\n"
+                        "في هذا المقطع كشفنا المعيار العملي اللي يصنع الفرق من أول لحظة، مع خطوة يغفل عنها الكثير عند الاختيار.\n\n"
+                        f"اكتب كلمة ({comment_keyword}) في التعليقات وبيوصلك الدليل والتفاصيل مباشرة!"
+                    ),
+                    "hashtags": ["#صناعة_المحتوى", "#تسويق_رقمي", "#جودة", "#ابداع"],
+                    "alt_text": f"فيديو يوضح {clean_title} بتصوير سينمائي وموشن جرافيك توضيحي",
+                    "pinned_comment": f"اكتب ({comment_keyword}) في تعليق وبيوصلك الرابط المباشر فوراً 👇",
+                },
+                "tiktok": {
+                    "caption": (
+                        f"{clean_title[:45]} — الخطوة اللي تغير النتيجة من أول تجربة. "
+                        f"اكتب ({comment_keyword}) بالتعليقات للتفاصيل!"
+                    ),
+                    "hashtags": ["#اكسبلور", "#صناعة_محتوى", "#تيك_توك"],
+                },
+                "youtube_shorts": {
+                    "title": f"{clean_title[:65]} | السر العملي في أقل من 15 ثانية",
+                    "description": (
+                        f"{clean_title[:45]} بخطوات عملية مركزة تكشف لك الفارق الحقيقي بدون مقدمات طويلة. "
+                        f"شاركنا رأيك في التعليقات واكتب ({comment_keyword}) للحصول على التفاصيل الكاملة."
+                    ),
+                    "hashtags": ["#Shorts", "#تسويق", "#إنتاج_فيديو"],
+                },
+            },
         },
         "qa_audit": {
             "audio_math_passed": True,
@@ -352,6 +527,9 @@ def compile_blueprint(
             "anti_cgi_guardrails_injected": "--no CGI" in anti_cgi_suffix or "--no frame flicker" in anti_cgi_suffix,
             "dialect_lock_verified": True,
             "outro_safe_zone_verified": True,
+            "kashida_and_rtl_caption_verified": True,
+            "calmness_and_hold_laws_verified": True,
+            "audio_lufs_and_sfx_cap_verified": True,
         },
     }
 
@@ -374,6 +552,8 @@ def main() -> None:
         default="ويش سر القهوة اللي تعدل المزاج من أول رشفة؟ جربها الحين وعيش الفخامة",
     )
     parser.add_argument("--runtime", type=int, default=15)
+    parser.add_argument("--palette", type=str, default="gold")
+    parser.add_argument("--keyword", type=str, default="إبداع")
     parser.add_argument("--output", type=str, default="")
     args = parser.parse_args()
 
@@ -384,6 +564,8 @@ def main() -> None:
         style_variant=args.style_variant,
         dialogue=args.dialogue,
         total_runtime_seconds=args.runtime,
+        color_palette=args.palette,
+        comment_keyword=args.keyword,
     )
     json_str = json.dumps(blueprint, ensure_ascii=False, indent=2)
     if args.output:

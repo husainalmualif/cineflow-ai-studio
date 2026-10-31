@@ -1,12 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CineFlow AI Studio Production Blueprint Schema",
+  "title": "CineFlow AI Studio Production & Programmatic Editing Blueprint Schema",
   "type": "object",
   "required": [
     "production_profile",
     "script_and_content",
     "global_parameters",
     "scene_breakdown",
+    "post_production_timeline",
     "outro_standardization",
     "marketing_expansion",
     "qa_audit"
@@ -50,9 +51,12 @@
             "Narrative Continuity Sequence"
           ]
         },
+        "execution_route": {
+          "type": "string"
+        },
         "target_platform": {
           "type": "string",
-          "default": "Google Flow (Veo 3.1 / Gemini Omni Flash 1.1 / Nano Banana Pro)"
+          "default": "Google Flow (Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro) + Remotion/FFmpeg Studio"
         },
         "aspect_ratio": {
           "type": "string",
@@ -81,7 +85,11 @@
             "authority": { "type": "string" }
           }
         },
-        "full_spoken_script": { "type": "string" }
+        "full_spoken_script": { "type": "string" },
+        "facts_ledger": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
       }
     },
     "global_parameters": {
@@ -123,12 +131,43 @@
           "scene_id": { "type": "integer" },
           "scene_role": { "type": "string" },
           "duration_seconds": { "type": "integer", "minimum": 2, "maximum": 10 },
+          "layout_mode": {
+            "type": "string",
+            "enum": ["R_FULL", "R_DOWN", "R_LOWER", "R_OFF"]
+          },
           "flow_mode": { "type": "string" },
           "continuity_handshake": { "type": "string" },
           "visual_prompt": { "type": "string" },
+          "stage_motion_actors": { "type": "string" },
           "audio_foley_sync": { "type": "string" },
           "dialogue_lip_sync": { "type": "string" },
           "text_overlay": { "type": "string" }
+        }
+      }
+    },
+    "post_production_timeline": {
+      "type": "object",
+      "required": [
+        "visual_design_style",
+        "color_palette",
+        "silence_cut_config",
+        "depth_moments_planned",
+        "rtl_caption_config",
+        "audio_mastering_spec"
+      ],
+      "properties": {
+        "visual_design_style": { "type": "string" },
+        "color_palette": { "type": "string" },
+        "silence_cut_config": { "type": "object" },
+        "depth_moments_planned": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rtl_caption_config": { "type": "object" },
+        "audio_mastering_spec": { "type": "object" },
+        "export_targets": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     },
@@ -144,14 +183,16 @@
     },
     "marketing_expansion": {
       "type": "object",
-      "required": ["poster_layout_prompt", "carousel_arabic_copy"],
+      "required": ["first_frame_cover", "poster_layout_prompt", "carousel_arabic_copy", "social_publish_pack"],
       "properties": {
+        "first_frame_cover": { "type": "object" },
         "poster_layout_prompt": { "type": "string" },
         "social_design_brief": { "type": "string" },
         "carousel_arabic_copy": {
           "type": "array",
           "items": { "type": "string" }
-        }
+        },
+        "social_publish_pack": { "type": "object" }
       }
     },
     "qa_audit": {
@@ -162,7 +203,10 @@
         "physicality_firewall_passed": { "type": "boolean" },
         "anti_cgi_guardrails_injected": { "type": "boolean" },
         "dialect_lock_verified": { "type": "boolean" },
-        "outro_safe_zone_verified": { "type": "boolean" }
+        "outro_safe_zone_verified": { "type": "boolean" },
+        "kashida_and_rtl_caption_verified": { "type": "boolean" },
+        "calmness_and_hold_laws_verified": { "type": "boolean" },
+        "audio_lufs_and_sfx_cap_verified": { "type": "boolean" }
       }
     }
   }

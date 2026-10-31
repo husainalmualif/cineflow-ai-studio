@@ -1,6 +1,6 @@
-# Creative Divergence, Multi-Hook Atomization & Multi-Format Marketing Reference
+# Creative Divergence, Direct-Response Ad Pacing, Cover Safe-Square & Multi-Format Marketing Reference
 
-This reference manual documents the strategic ideation, viral hook engineering, and multi-format marketing architecture of **CineFlow AI Studio**.
+This reference manual documents the strategic ideation, viral hook engineering, direct-response video ad pacing, first-frame cover engineering, multi-format marketing expansion, and platform-specific social publishing pack of **CineFlow AI Studio**.
 
 ---
 
@@ -9,7 +9,7 @@ This reference manual documents the strategic ideation, viral hook engineering, 
 $$\text{Performance Optimization} + \text{Creative Exploration} + \text{Anti-Repetition} + \text{Controlled Divergence} = \text{Sustainable Creativity}$$
 
 - **The Vertical Execution Pipeline**:
-  `Intent Routing ➔ Audience Emotional Truth ➔ Anti-Consensus & Divergence ➔ [🔒 Creative Lock] ➔ [🔒 Pre-Production Visual Bible Lock] ➔ Build Micro-Scene Chain ➔ [🔒 Root Content Lock] ➔ Multi-Hook Atomization & Marketing Expansion ➔ [🛑 Master Pre-Flight QA]`.
+  `Intent Routing ➔ Audience Emotional Truth ➔ Anti-Consensus & Divergence ➔ [🔒 Creative Lock] ➔ [🔒 Pre-Production Visual Bible Lock] ➔ Build Micro-Scene & Motion Chain ➔ [🔒 Root Content Lock] ➔ Multi-Hook Atomization, Cover & Marketing Expansion ➔ [🛑 Master Pre-Flight QA]`.
 
 ---
 
@@ -27,45 +27,64 @@ $$\text{Performance Optimization} + \text{Creative Exploration} + \text{Anti-Rep
   2. **Lateral / Visual Metaphor (`استعارة بصرية ملموسة`)**: Turn an invisible problem into a physical visual spectacle.
   3. **Emotional Truth (`مصارحة وجدانية`)**: Speak the unspoken inner monologue of the viewer.
   4. **Cross-Domain Collision (`التصادم البنيوي بين مجالين`)**: Fuse `Primary Domain A` with an unrelated `Secondary Domain B` sharing a hidden structural truth.
-  5. **Cultural / Heritage Narrative (`جذر ثقافي أو سردي أصيل`)**: Anchor the concept in authentic Gulf, Arab, or heritage storytelling.
+  5. **Authentic Local Narrative (`جذر سردي أصيل`)**: Anchor the concept in authentic Gulf, Arab, or everyday human storytelling.
 
 ---
 
-## 3. Multi-Hook Atomization (`استنساخ الهوك الرباعي للمشهد الأول`)
+## 3. Multi-Hook Atomization & Direct-Response Video Ad Pacing (`الهوك الرباعي وإيقاع الإعلانات البيعية`)
 
+### 3.1 Multi-Hook Atomization (`استنساخ الهوك الرباعي للمشهد الأول`)
 To maximize viral retention without wasting production credits, keep `Scenes 2..N` locked and generate **4 psychological variants for `Scene 1 (0–3s / 0–4s Hook)`**:
 1. **`Variant 1 — Contrarian Hook (كسر المعتقد السائد)`**: Contradicts a common belief immediately with a striking physical visual.
 2. **`Variant 2 — Visual Payoff First (النتيجة البصرية الصادمة أولاً)`**: Shows the climax or final transformation at `t = 0.0s` before explaining how.
 3. **`Variant 3 — Pain-Point Mirror (لمس الجرح مباشرة)`**: Dramatizes the exact moment of frustration the viewer experiences daily.
 4. **`Variant 4 — Authority / Proof Hook (البرهان الرقمي أو التجريبي)`**: Opens with tangible physical proof, a macro test, or a stark visual comparison.
 
+### 3.2 The 6-Stage Direct-Response Video Ad Curve (`منحنى الإعلانات عالية التحويل 15s–30s`)
+When producing a commercial or performance video ad (`Commercials & TVCs` / `Commercial Promo`), structure the pacing across six high-conversion beats:
+
+| Time Window | Ad Phase | Visual & Programmatic Execution | Target Cut Cadence |
+| :--- | :--- | :--- | :--- |
+| **`0.0s – 2.0s`** | **1. Pattern-Interrupt Hook** | Immediate motion in Frame 1 (`hookZoom`, `/whippan`, or 3-layer `stack` hook behind head) + transient sub-bass hit at `t=0.05s`. Zero static opening frames. | `0.7s – 1.2s` |
+| **`2.0s – 6.0s`** | **2. Problem Agitation** | Tangible visualization of the daily pain point; cool/desaturated contrast on the "Before" state + negative metric callout. | `1.2s – 1.8s` |
+| **`6.0s – 13.0s`** | **3. Product Hero Showcase** | `Lock [Product ID]` macro reveal (`/dollyin /macro /goldenhour`), warm luxury LUT, 3 kinetic feature callouts anchored to product geometry. | `1.5s – 2.2s` |
+| **`13.0s – 19.0s`** | **4. Social Proof & Authority** | 2-up/3-up vertical split-screen of customer proof, verified `claim-proof` receipt card, or 5-star animated rating bar. | `1.5s – 2.0s` |
+| **`19.0s – 23.0s`** | **5. Value & Offer Stack** | Clear `ticket-offer` or `meter-receipt` comparison card showing value vs. cost with tabular numerals. | `1.2s – 1.5s` |
+| **`23.0s – 27.0s+`** | **6. Safe-Zone CTA End-Card** | Clean brand lockup in `Y: 420..820` + directional CTA in `Y: 950..1280` pointing action toward the bio/button while looping lighting back to Scene 1. | `3.0s` Hold |
+
 ---
 
-## 4. Multi-Format Marketing Architecture (`التوسع إلى الهندسة التسويقية الشاملة`)
+## 4. Mandatory First-Frame Video Cover (`هندسة غلاف الفيديو الأول — قاعـدة المربع الآمن`)
 
-Whenever the user requests a campaign, commercial, product launch, educational series, or social sketch, **CineFlow AI Studio** expands the locked `Core Insight` and `Identity Locks` into three synchronized marketing deliverables:
+Instagram and TikTok display `9:16` (`1080x1920`) Reels inside `4:5` and `1:1` profile grids, cropping the top and bottom edges. Every delivered video blueprint must specify a **First-Frame Cover (`first_frame_cover`)** injected into the first `0.1s` of the video:
+1. **The `1080x1080` Center Safe-Square (`Y: 420 to 1500`)**:
+   - Place 100% of critical cover elements—the presenter's face, headline hook, and comparison logos—strictly inside the central `1080x1080` square (`Y: 420..1500`) so zero text or facial features are clipped in `9:16`, `4:5`, or `1:1` grid views.
+2. **Mobile Grid Readability Floors (12% Thumbnail Scale)**:
+   - **Short Hook Copy**: Maximum **2 lines, 5 words total** (`~9 characters per line`), positioned on or slightly below the chest (`never covering the face—keep chin at least 30px above the top of the headline`). Use `|` for line break and `*word*` for accent-colored keyword highlight.
+   - **Minimum Font & Icon Sizes**: Main Headline **`>= 170px`**, Sub-label **`>= 110px`**, Brand/Comparison Logos **`>= 200px`**.
 
-### A. High-Conversion Marketing Posters & Ad Creatives (`بوسترات تسويقية وإعلانات ذكية`)
-- **Visual Continuity**: Reuses the exact `Lock [Character ID]`, `Lock [Product ID]`, and `Color Grading Theme` from the video blueprint so the campaign looks 100% unified.
-- **Poster Layout Architecture (`poster_layout_prompt`)**:
-  - **Aspect Ratios**: `4:5` (`1080x1350` Instagram/Facebook Feed), `9:16` (`1080x1920` Story/Snap Ad), or `1:1` (`1080x1080`).
-  - **Visual Composition**: Rule-of-thirds hero placement with deliberate negative space (`30%–35%` clean backdrop area) for Arabic headline typography.
-  - **Typography Hierarchy**:
-    1. **Hook Headline (`العنوان الرئيسي الخاطف`)**: 4–6 bold words in **Cairo Black / Noto Kufi Arabic Bold**.
-    2. **Value Sub-headline (`العنوان الفرعي التوضيحي`)**: 6–10 words in **Tajawal Bold / Almarai**.
-    3. **Call-To-Action Badge (`زر الدعوة للإجراء`)**: High-contrast pill button in the lower safe zone.
+---
 
-### B. Community & Personal Social Designs (`تصميمات مجتمعية وشخصية متناسقة`)
-- **Quote Cards & Insight Graphics**: Distills the video's `Emotional Truth` into a shareable single-frame visual metaphor with creator/brand identity lock.
-- **Thumbnail & Cover Frame Blueprint**: High-contrast facial expression (`Micro-Expression Peak`) + 3-word Arabic hook in `#FFD60A` (Vibrant Yellow) or `#FFFFFF` (Crisp White) with deep drop shadow.
+## 5. Multi-Format Marketing & Social Publishing Pack (`التوسع التسويقي وحقيبة النشر الذكية`)
 
-### C. Arabic Instagram & LinkedIn Carousels (`منشورات دائرية احترافية بالفصحى أو العامية الخليجية/العربية`)
-- **Strict Readability Guardrail**: Maximum **15 to 20 words per slide** (`4:5` aspect ratio, `1080x1350`) with generous whitespace.
-- **Dialect Choice**: Written seamlessly in either **Flawless Modern Standard Arabic (`الفصحى العصرية الرشيقة`)** or **Authentic Gulf / Bahraini / Saudi / Iraqi Colloquial (`العامية الدارجة الأصيلة`)** matching the video's `Dialect Lock`.
-- **Standard 5-to-7 Slide Viral Sequence (`carousel_arabic_copy`)**:
-  - **Slide 1 (`THE HOOK — الغلاف الصادم`)**: Bold contrarian statement or urgent question + visual curiosity gap (`اسحب لليسار ⬅`).
-  - **Slide 2 (`THE AGITATION — تعميق المشكلة`)**: Articulate why the traditional approach fails.
-  - **Slide 3 (`THE PIVOT — نقطة التحول والبصيرة`)**: Introduce the `Core Insight` (`FACT + EMOTIONAL TRUTH`).
-  - **Slides 4–5 (`THE CORE VALUE — الخطوات العملية المركزة`)**: Actionable, numbered takeaways (1 idea per slide, supported by a clean visual diagram or `Lock [Product ID]` angle).
-  - **Slide 6 (`THE PROOF / EXAMPLE — المثال الواقعي`)**: Before/After contrast or concrete case study.
-  - **Slide 7 (`THE CTA & SAVE TRIGGER — الخاتمة المعيارية`)**: Direct Save/Share command (`"احفظ البوست عشان ترجع له وقت التطبيق، وشاركه مع شخص يحتاج هذي المعلومة"`).
+Whenever the user requests a video, commercial, or educational reel, expand the locked `Core Insight` and `Identity Locks` into four synchronized deliverables:
+
+### A. Smart Marketing Posters (`poster_layout_prompt`)
+- **Aspect Ratios**: `4:5` (`1080x1350` Feed Ad), `9:16` (`1080x1920` Story Ad), or `1:1` (`1080x1080`).
+- **Visual Continuity**: Locks the exact `@Character_01`, `@Product_01`, and `Color Grading Theme` from the video blueprint with `35%` clean negative space in the upper third for bold Arabic **Cairo Black / Noto Kufi Arabic** headline typography.
+
+### B. Community & Personal Social Designs (`social_design_brief`)
+- High-contrast shareable quote card + YouTube/Reels thumbnail blueprint (`cover_grid`: verified side-by-side in `9:16`, `4:5`, and `1:1`).
+
+### C. Arabic Instagram & LinkedIn Carousels (`carousel_arabic_copy`)
+- **Readability Guardrail**: Maximum **15 to 20 words per slide** (`4:5` `1080x1350`) written seamlessly in either **Modern Standard Arabic (`الفصحى العصرية`)** or **Authentic Gulf/Arabic Dialect (`العامية الدارجة`)**.
+- **7-Slide Viral Sequence**: `Slide 1 (Hook Cover) ➔ Slide 2 (Problem Agitation) ➔ Slide 3 (Core Insight Pivot) ➔ Slides 4–5 (Actionable Value Steps) ➔ Slide 6 (Proof / Comparison) ➔ Slide 7 (Save & Share CTA)`.
+
+### D. Platform-Specific Social Publishing Pack (`social_publish_pack` — وصف المنشور وبطاقة البحث)
+The post description **under** the video is a **Search Card + Teaser**, never a transcript or retelling of the video:
+1. **Anti-Duplication & Anti-Retelling Rules**:
+   - **Re-say, don't repeat**: Never copy 6 consecutive words from the spoken script, and keep 3-word phrase overlap `< 20%`.
+   - **Distinct Platform Copy**: Write separate, platform-native descriptions for **Instagram**, **TikTok**, and **YouTube Shorts** (never paste identical text across platforms).
+   - **Search Window Front-Loading**: Place the **Primary Search Phrase** (what users type in search) inside the first **`125 characters` on Instagram**, first **`100 characters` on TikTok**, and inside both the **`<= 100-char` Title and first `150 characters` of the Description on YouTube Shorts**.
+2. **Comment-Keyword Orthography Check (`فحص بدائل كتابة كلمة التعليق`)**:
+   - When using a comment-keyword CTA (e.g., `"اكتب كلمة (إبداع) في التعليقات"`), automatically list all Arabic orthographic variants (`أ/إ/ا`, `ي/ى`, `ة/ه`, `ؤ/ئ` — e.g., `إبداع / ابداع`) so the creator can add all variants to their auto-reply automation.

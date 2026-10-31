@@ -34,6 +34,7 @@ jobs:
           test -f references/cinematic_macros_and_continuity.md
           test -f references/creative_strategy_and_marketing.md
           test -f references/scriptwriting_and_lip_sync_guide.md
+          test -f references/programmatic_editing_and_motion_guide.md
           test -f resources/blueprint_schema.json
           test -f scripts/cineflow_compiler.py
           test -f scripts/Compile-CineFlowBlueprint.ps1
