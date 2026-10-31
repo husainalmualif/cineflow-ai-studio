@@ -88,3 +88,42 @@ The post description **under** the video is a **Search Card + Teaser**, never a 
    - **Search Window Front-Loading**: Place the **Primary Search Phrase** (what users type in search) inside the first **`125 characters` on Instagram**, first **`100 characters` on TikTok**, and inside both the **`<= 100-char` Title and first `150 characters` of the Description on YouTube Shorts**.
 2. **Comment-Keyword Orthography Check (`فحص بدائل كتابة كلمة التعليق`)**:
    - When using a comment-keyword CTA (e.g., `"اكتب كلمة (إبداع) في التعليقات"`), automatically list all Arabic orthographic variants (`أ/إ/ا`, `ي/ى`, `ة/ه`, `ؤ/ئ` — e.g., `إبداع / ابداع`) so the creator can add all variants to their auto-reply automation.
+
+---
+
+## 6. Taste Direction Profile, Scored Provider Selector, Slideshow Risk Scorer & CHAI Self-Review Governance (`حوكمة الذوق، تقييم المزودين، ومنع الشرائح الثابتة`)
+
+### 6.1 Video Taste Profile Contract (`taste_profile`)
+Before locking a visual identity or authoring scenes, generate a compact `taste_profile` that travels across proposal, scene planning, asset prompts, edit, and review:
+- **`design_read`**: Specific audience-and-subject-grounded creative statement (never vague adjectives like `"modern and clean"`).
+- **Three `1–10` Integer Dials**:
+  - **`visual_variance` (`1–10`)**: `1–3` tight repeated grammar | `4–7` purposeful scene families | `8–10` distinct visual mode per beat.
+  - **`motion_intensity` (`1–10`)**: `1–3` calm holds | `4–7` clear motion accents & reveals | `8–10` high-tempo kinetic beats.
+  - **`information_density` (`1–10`)**: `1–3` one idea per frame | `4–7` main idea + support detail | `8–10` dense diagrams/callouts.
+- **`anti_patterns`**: Explicit visual clichés forbidden for this piece (e.g., `"generic AI-purple gradient backgrounds"`, `"same transition on every cut"`).
+
+### 6.2 7-Dimension Scored Provider Selection & Append-Only `decision_log`
+Every provider choice (`video_generation`, `image_generation`, `tts`, `music`) is scored across **7 weighted dimensions**:
+$$\text{Provider Score} = 0.30(\text{Task Fit}) + 0.20(\text{Output Quality}) + 0.15(\text{Control Features}) + 0.15(\text{Reliability}) + 0.10(\text{Cost Efficiency}) + 0.05(\text{Latency}) + 0.05(\text{Continuity})$$
+- **Append-Only Decision Audit Trail (`decision_log`)**: Log every major decision (`provider_selection`, `render_runtime_selection`, `composition_mode`, `voice_selection`, `music_selection`, `style_selection`) keyed by `(category, subject)` with at least 2 `options_considered`, realistic `confidence` (`0.70–0.95`), and `reason`.
+- **Budget Governance**: Enforce `estimate ➔ reserve ➔ reconcile` with configurable modes (`observe`, `warn`, `cap`).
+
+### 6.3 6-Dimension Slideshow Risk Scorer (`score_slideshow_risk`) & 8-Point Scene Variation Checker (`check_scene_variation`)
+Prevent "animated PowerPoint" outputs before rendering:
+1. **6-Dimension Slideshow Risk (`0.0–5.0` each; `< 2.0 strong`, `< 3.0 acceptable`, `< 4.0 revise`, `>= 4.0 fail`)**:
+   - `repetition`: Dominant scene type `<= 70%`, unique descriptions `>= 60%`, shot-size diversity.
+   - `decorative_visuals`: Every scene must declare an `information_role`, `narrative_role`, or `shot_intent`.
+   - `weak_motion`: Every moving camera must be backed by a concrete `shot_intent`.
+   - `weak_shot_intent`: Coverage of `shot_intent` across scenes.
+   - `typography_overreliance`: Text/stat cards must not exceed `40%` of scenes.
+   - `unsupported_cinematic_claims`: Cinematic blueprints must include at least one `hero_moment`, `>= 30%` moving camera shots, and `>= 30%` explicit `lighting_key` definitions.
+2. **Delivery Promise Enforcement (`DeliveryPromise`)**:
+   - For `motion_led` promises, at least **`70%` of cuts must be real motion** (`video / animation / avatar` — animated text cards do not count as motion), and silent downgrade to still images is strictly blocked.
+
+### 6.4 CHAI Critique Quality Rules & 5-Point Post-Render Self-Review (`final_review`)
+1. **The 3 CHAI Critique Axes (CMU/Harvard arXiv 2604.21718v2)**:
+   - **Accurate**: Every finding must cite a concrete artifact field, timestamp, or frame.
+   - **Complete**: Scan for all instances of a defect class across all scenes in one pass.
+   - **Constructive**: Every `CRITICAL` finding **must carry a concrete `proposed_fix`** (otherwise it is downgraded to `investigation`). Maximum 2 revision rounds per stage.
+2. **Mandatory 5-Point Post-Render Self-Review (`final_review`)**:
+   - `technical_probe` (`ffprobe` container, duration within `1.0s`, resolution), `visual_spotcheck` (`>= 4` sampled frames checked for black frames, letterbox traps, and safe-zone compliance), `audio_spotcheck` (`-14 LUFS`, zero clipping/unexpected silence), `promise_preservation` (`silent_downgrade_detected == false`, `runtime_swap_detected == false`), and `subtitle_check` (presence + zero duplication with on-screen `SerifLine` text).

@@ -94,3 +94,32 @@ AI video diffusion models frequently garble dynamic Arabic calligraphy if asked 
 2. **Dynamic Titles, Subtitles & CTAs (`عزل النصوص التفاعلية لطبقة المونتاج`)**:
    - Place all dynamic headlines, captions, and CTAs in the dedicated `text_overlay` JSON field with verified, spell-checked Arabic text.
    - Recommend clean post-production rendering in `Cairo Black`, `Tajawal Bold`, `Almarai`, or `Noto Kufi Arabic` within the standardized `9:16` / `16:9` Safe Zones.
+
+---
+
+## 5. The 5-Batch Deep Research Protocol (`بروتوكول البحث المعمق قبل كتابة السكربت — research_brief`)
+
+Before writing a single word of an educational, explainer, documentary, or strategic brand script, ground the script in verifiable reality using 5 parallel search batches (`10 to 21 targeted searches`, zero API cost):
+
+| Search Batch | Query Strategy | Required Output in `research_brief` |
+| :--- | :--- | :--- |
+| **1. Landscape Scan (`مسح المحتوى الحالي`)** | `"[topic] explained" site:youtube.com`, `"[topic] [current year]"`, `"best [topic]"` | Minimum 3 existing videos/articles with explicit **Gap Analysis** (what angles are saturated vs. what remains unanswered). |
+| **2. Trending Pulse (`النبض الآني`)** | `"[topic]" (announcement OR launch OR controversy)`, `"[topic]" site:reddit.com`, `site:news.ycombinator.com` | Active debates, community sentiment, and `timeliness_window` (`trending_now` vs. `evergreen`). |
+| **3. Data & Evidence (`الأرقام والبراهين`)** | `"[topic]" statistics [year]`, `"[topic]" "according to" (study OR report)`, `"[topic]" "surprisingly"` | **3 to 8 specific, citable data points** with `source_url`, credibility tier (`primary_source` > `secondary_source` > `anecdotal`), and `surprise_factor`. |
+| **4. Audience Mining (`أسئلة الجمهور والمفاهيم الخاطئة`)** | `"[topic]" site:reddit.com "confused" OR "why does"`, `"[topic]" "common mistakes" OR "myths"` | **3 to 5 real audience questions** and **1 to 3 common myths vs. reality** for high-retention myth-busting hooks. |
+| **5. Expert & Contrarian Voices (`آراء الخبراء والزاوية المخالفة`)** | `"[topic]" (creator OR pioneer) interview`, `"[topic]" "unpopular opinion" OR "nobody talks about"` | Named expert quotes, negative-space insights, and **3–5 distinct Angle Candidates** (`trending`, `evergreen`, `contrarian`, `narrative`, `data_driven`). |
+
+---
+
+## 6. Reference-Video Analyst & Differentiated Cloner Protocol (`تحليل فيديو مرجعي وبناء نسخ مبتكرة`)
+
+When the user shares a video URL (`YouTube, Shorts, Reels, TikTok`) or local clip and says *"اصنع لي فيديو مثل هذا"* (*"Make me something like this"*):
+1. **Motion Classification & 5-Aspect Breakdown (`VideoAnalysisBrief`)**:
+   - Inspect per-scene `motion_type` (`motion_clip`, `animated_still`, `static_image`) and `flow_variance` so you never confuse a true AI-video piece with an animated-still piece.
+   - Break down each reference shot across the **5 CHAI Aspects**: `Subject`, `Subject Motion`, `Scene (with overlays listed separately)`, `Spatial Framing`, and `Camera`.
+2. **Audio Architecture Lock**:
+   - Lock the storytelling voice mode before scripting: **`Single Narrator`** (one voice drives the piece), **`Character Dialogue`** (characters speak to each other), or **`Narrator + Character Voices`**.
+3. **Never Propose a Carbon Copy (`5 Differentiation Patterns`)**:
+   - Present **2 to 3 differentiated concept options** (`Option A / B / C`) showing **what it keeps** (pacing, hook rhythm, structural beats), **what it changes** (`Same structure/different subject`, `Same subject/different angle`, `Same tone/different visual treatment`, `Same content/different platform`, or `Counter-take`), and an itemized cost/tool comparison.
+4. **Mandatory `10–15s` Sample-First Gate**:
+   - Before committing credits/time to a long production (`> 30s`), produce or specify a **10–15 second sample** (`Scene 1 Hook + 1 Middle Proof Scene`) to lock voice, visual style, and pacing early.

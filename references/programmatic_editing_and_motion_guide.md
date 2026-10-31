@@ -4,18 +4,24 @@ This reference manual documents the programmatic post-production, talking-head e
 
 ---
 
-## 1. Six Production & Editing Routes (`مسارات الإنتاج والمونتاج الستة`)
+## 1. Twelve Autonomous Production & Editing Pipelines (`مسارات الإنتاج والمونتاج الاثنا عشر`)
 
-Automatically route the user's input to the matching production mode without interrogating them with unnecessary questionnaires:
+Automatically route the user's input to the matching production pipeline without interrogating them with unnecessary questionnaires:
 
-| Input / User Request | Active Route | Core Pipeline |
+| Input / User Request | Active Pipeline (`pipeline_type`) | Core Execution Architecture |
 | :--- | :--- | :--- |
-| **1. Raw Idea, Topic, or Script for AI Video** | **`Generative AI Cinema Studio`** | Scriptwriting ➔ `Nano Banana 2 Lite` (0-credit Keyframes) ➔ `Gemini Omni Flash 1.1` / `Veo 3.1` with `@Character`/`@Product` Lock & Scene Handshake |
-| **2. Talking-Head Camera Recording (`فيديو متحدث للكاميرا`)** | **`Talking-Head Reel & Ad Editor`** | Dropped-frame & HDR check ➔ Dual-threshold silence cut ➔ Whisper word-level transcription & hallucination check ➔ Dynamic zoom & 4-state layout ➔ Word-anchored motion & RTL captions |
-| **3. Folder of Silent Clips (`مقاطع بلا كلام: مقهى، منتج، فعالية`)** | **`Beat-Synced B-Roll Montage`** | Multi-clip quality scan (`Clarity × Motion × Exposure × Color`, trim first/last `0.33s`) ➔ Contact sheet review ➔ Beat/Onset grid cut (`[1.0, 0.82, 1.24, 0.94]` cadence) ➔ `-14 LUFS` audio master |
-| **4. Multi-Cam or Long Episode (`بودكاست / حلقة 16:9`)** | **`Podcast & Long-Form Clipper`** | Topic segmentation ➔ Dynamic face-tracked `9:16` crop (`facetrack`) ➔ Mandatory 3-variant Hook Banner from strongest quote ➔ Multi-clip Reel delivery |
-| **5. Text/Script Only — No Presenter (`فيلم موشن جرافيك من نص`)** | **`60fps Full Motion Graphics Film`** | Voiceover generation/ingest ➔ 60fps 3D/2D Canvas/Remotion stage (`one-take`, `slideWall`, kinetic Arabic typography, action-verb actors) |
-| **6. Website URL or App Walkthrough (`شرح موقع أو تطبيق`)** | **`3D Device & Screen Explainer`** | Automated screen/scroll capture ➔ `1080x1220` safe-zone framing (`max 1.25x` zoom to preserve text sharpness) ➔ Pointer click ripples, highlight callouts, & 3D iPhone/MacBook framing |
+| **1. Raw Idea, Topic, or Script for AI Cinema** | **`route_1_generative_cinema`** | 5-Batch Research ➔ `Nano Banana 2 Lite` (0-credit Keyframes) ➔ `Gemini Omni Flash 1.1` / `Veo 3.1` / `Seedance 2.0` with `@Character`/`@Product` Lock & Scene Handshake |
+| **2. Talking-Head Camera Recording (`فيديو متحدث للكاميرا`)** | **`route_2_talking_head_reel`** | Dropped-frame & HDR check ➔ Dual-threshold silence cut (`120ms/150ms` breath pad) ➔ Whisper hallucination & dialect fix ➔ 4-state layout (`R_FULL/R_DOWN/R_LOWER/R_OFF`) + Depth Moments + RTL captions |
+| **3. Text/Script Only — 60fps Motion Film** | **`route_3_motion_stage_60fps`** | Voiceover ➔ 60fps `Remotion` or `HyperFrames` HTML/CSS/GSAP stage (`one-take`, `slideWall`, Action-Verb Stage actors anchored to spoken words) |
+| **4. Folder of Silent Clips (`مقاطع بلا كلام`)** | **`route_4_silent_broll_montage`** | Multi-clip quality scan (`Clarity × Motion × Exposure × Color`, trim first/last `0.33s`) ➔ Contact sheet review ➔ Beat/Onset grid cut (`[1.0, 0.82, 1.24, 0.94]` cadence) ➔ `-14 LUFS` master |
+| **5. Multi-Cam or Long Episode (`بودكاست / حلقة 16:9`)** | **`route_5_multicam_podcast`** | Diarized transcript mining ➔ Dynamic face-tracked `9:16` crop (`facetrack`) ➔ Mandatory 3-variant Hook Banner from strongest quote ➔ Batch Clip Factory delivery |
+| **6. Website URL or App Walkthrough (`شرح موقع أو تطبيق`)** | **`route_6_3d_device_explainer`** | Automated screen/scroll capture (`website-to-video` or synthetic `TerminalScene`) ➔ `1080x1220` safe-zone framing (`<= 1.25x` zoom) ➔ Pointer click ripples & 3D iPhone/MacBook framing |
+| **7. Real-Footage Documentary Montage (`مونتاج وثائقي من لقطات حقيقية`)** | **`route_7_documentary_montage`** | **Retrieval-First Real-Footage Engine**: Builds CLIP-searchable corpus from `Archive.org`, `NASA`, `Wikimedia Commons`, `Pexels`, & `Unsplash` (`corpus >= 8x slots`, `score >= 0.22`, semantic `diversify`), cuts by Kuleshov juxtaposition, applies uniform LUT across mixed-era footage, and composites a mandatory philosophical Remotion ProRes 4444 alpha `end_tag` |
+| **8. Hand-Drawn Doodle or Rigged Cartoon (`تحريك شخصيات / Ink Theater`)** | **`route_8_character_animation_ink_theater`** | **3-Step Xiaohei Metaphor (`Abstract Concept ➔ Physical Action ➔ Low-Tech Contraption`)** + `InkPuppet` CMU Mocap catalog (`walk, run, climb, march, shuffle, jump, kick, sit, wave, twist, dance_spin, dance_glide` — never hand-tuned sine curves, never looping a single clip) + FABRIK inverse kinematics (`.reachL/.reachR`) |
+| **9. Continuous 3D World Fly-Through (`عالم ثلاثي الأبعاد متصل`)** | **`route_9_3d_world_generation`** | Coarse-to-fine semantic terrain (`blockout` ➔ `production`), CC0 GLTF/GLB catalogs + `Atlas Tripo H3.1` / `fal Hunyuan 3D`, slope/contact constraints, and continuous `global ➔ regional ➔ walk` camera path rendered in **Blender 4.5 LTS (`Eevee Next`)** or **HyperFrames + Three.js** |
+| **10. Reference Video URL / Clip (`فيديو مرجعي: اصنع لي مثل هذا`)** | **`route_10_reference_video_cloner`** | Inspects `motion_type` (`motion_clip / animated_still / static_image`) + `flow_variance` ➔ Outputs **CHAI 5-Aspect Shot Breakdown** ➔ Proposes **2–3 differentiated concepts** (never a carbon copy) ➔ Renders **10–15s Sample-First Preview** before full production |
+| **11. Avatar Presenter & Lip-Sync Spokesperson (`مذيع ذكي`)** | **`route_11_avatar_spokesperson`** | `Google Flow Voice Lock`, `Kling Official Avatar / Lip-Sync`, or local `SadTalker / MuseTalk / Wav2Lip` + Remotion `TalkingHead` composition (`<= 6 words` per fast cut) |
+| **12. Multi-Language Localization & Dubbing (`ترجمة ودبلجة`)** | **`route_12_localization_dub`** | Diarized transcript truth ➔ Glossary-locked translation ➔ Timing-risk mapping ➔ `Google Chirp3-HD` (700+ voices) / `ElevenLabs` / `Azure SSML` dubbing + optional lip-sync |
 
 ---
 
@@ -172,3 +178,35 @@ Before rendering, design **2 to 3 signature depth moments** so the video feels c
    - Call background audio `"ملف صوتي بالخلفية"` (`bg-audio.mp3`) rather than assuming music, and auto-duck it under speech (`sidechaincompress` `attack=15ms, release=450ms`).
 3. **Multi-Target Export & Live Timeline Editor**:
    - Deliver the mastered `.mp4` (with the `1080x1080` Safe-Square Cover injected into the first `0.1s` frame and file size optimized `< 29 MB`), alongside `.srt` subtitles, `.txt` transcript, **CapCut editable project (`draft_content.json`)**, or launch the **Interactive Browser Timeline Editor (`editor.mjs` / `studio.html`)** so the creator can tweak cuts, captions, and scene timings visually.
+
+---
+
+## 8. Dual Composition Runtimes (`Remotion` vs. `HyperFrames` HTML/CSS/GSAP) & Bespoke `Atelier` Doctrine
+
+### 8.1 Runtime Decision Matrix (`render_runtime`: `remotion` | `hyperframes` | `ffmpeg`)
+Lock `render_runtime` at the proposal stage and carry it through `edit_decisions` without silent swaps:
+
+| Production Scenario | Optimal `render_runtime` | Engineering Rationale |
+| :--- | :--- | :--- |
+| **Talking-Head Reels, Word-by-Word RTL Captions (`remotion_caption_burn`), Avatar `TalkingHead`, ProRes 4444 End-Tags, `TerminalScene`** | **`remotion`** | React-based frame-accurate composition, native word-level caption overlays, and alpha-channel ProRes 4444 overlays. |
+| **Kinetic Typography, Product Promos, Launch Reels, `website-to-video`, `Ink Theater` / Rigged SVG Characters (`npx hyperframes`)** | **`hyperframes`** | HTML/CSS/GSAP native medium with **36+ atomic motion rules** (`kinetic-beat-slam`, `3d-text-depth-layers`, `motion-blur-streak`), **7 runtime adapters** (`GSAP, Lottie, Three.js, Anime.js, CSS, WAAPI, TypeGPU` + `html-in-canvas` WebGL UnrealBloom), and `npx hyperframes beats` music-drop locking. |
+| **Pure Multi-Clip Concat, Trim, LUT Grading, or Blender PNG Sequence Packaging** | **`ffmpeg`** | Zero browser overhead; direct stream copy or high-speed filtergraph mastering. |
+
+### 8.2 Authoring Mode (`composition_mode`: `atelier` vs. `templated`) & No-Hero-Component-Spine Law
+1. **Reuse Engine Knowledge, Never Creative Components (`Atelier` Default for Hero Work)**:
+   - For marketing launches, brand films, and hero explainers, lock `composition_mode = "atelier"` (hand-authored composition with a custom `art_direction` and `taste_profile`). Reserve `"templated"` (`text_card, stat_card, bar_chart`) strictly for batch output, localization variants, or rapid internal drafts.
+2. **The No-Hero-Component-Spine Law (`منع تكرار العنصر البصري بين المشاهد`)**:
+   - Never reuse the same primary visual subject across multiple scenes with only the text changed underneath. Every scene must earn its own primary visual subject (a character, a diagram, a piece of evidence, a spatial transformation, a typographic beat).
+   - The piece's **Signature Visual Device** may appear in **at most 1 to 2 climactic beats** — never as visual scaffolding across every scene.
+3. **Captions vs. On-Screen Text Dedup Law (`منع ازدواجية الكابشن والنص المرسوم`)**:
+   - Never display an on-screen headline (`SerifLine` / `TextCard`) and an auto-caption that echo the exact same spoken phrase simultaneously. Set `captions = []` (`nocap: true`) on any scene where the on-screen typography already carries the spoken line.
+
+### 8.3 Hard-Earned HyperFrames & Stock-Footage Production Fixes
+- **Preventing the `640x360` Letterbox Trap (Scale-to-COVER, Never Scale-to-FIT)**:
+  Free stock clips often download at `640x360`. Pre-transforming with `force_original_aspect_ratio=decrease,pad=...` creates a tiny centered box inside black bars. Always pre-transform footage-forward clips with **Scale-to-COVER + Unsharp**:
+  ```bash
+  ffmpeg -i input.mp4 -vf "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,unsharp=3:3:0.6" -c:v libx264 -r 30 -g 30 -keyint_min 30 -sc_threshold 0 -movflags +faststart prepped.mp4
+  ```
+- **Dense Keyframes (`-g 30 -keyint_min 30`) & `--workers 1`**: Prevents `video_heavy_parallel_timeout` and frame freezes in headless Chrome when rendering `> 5` video elements.
+- **Deterministic Font Whitelist**: In HyperFrames, use `Outfit`, `Montserrat`, `Inter`, `JetBrains Mono`, `Poppins`, `Playfair Display`, or local full-charset `@font-face` `.ttf` files (`Cairo`, `Tajawal`, `PatrickHand`) — never `Space Grotesk` or subsetted Google Fonts `woff2` URLs.
+- **Mandatory Pre-Render Gate**: Always run `npx hyperframes lint . && npx hyperframes validate . && npx hyperframes snapshot . --at <times>` before executing `npx hyperframes render`.

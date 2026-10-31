@@ -148,3 +148,48 @@ For all **Live-Action**, **Commercial**, and **Documentary** scenes, automatical
 - **Physical Materiality**: `microscopic skin pores, natural skin subsurface scattering, authentic fabric weave texture, tangible surface dust`.
 - **Mandatory Defensive Guardrail Suffix**:
   `--no CGI, no 3D render, no plastic skin, no smooth airbrushed textures, no unreal engine 5, no video game look, no AI sheen, no warped hands, no extra fingers, no garbled text, no identity drift`
+
+---
+
+## 5. CMU/Harvard CHAI 5-Aspect Universal Video Language & Model-Specific Prompt Architectures (`اللغة البصرية الخماسية وهندسة النماذج`)
+
+### 5.1 The Canonical 5-Aspect Prompt Skeleton (CHAI Standard)
+Vision-language and video diffusion models reliably render Subject and Scene when prompted casually, but fail on Motion, Spatial Framing, and Camera unless all **five slots** are explicitly populated in order:
+
+```text
+[1. Subject]        Type + 3-6 disambiguating visual attributes repeated VERBATIM in every shot (never use pronouns or "the same character" across cuts) + Subject Transitions (revealing / disappearing / switching / complex-alternating + cause: "by subject movement" or "by camera movement")
+[2. Subject Motion] Actions in strict temporal order ("First X enters, then Y reacts"); locomotion vs. gesture vs. facial micro-expression (replace emotional adjectives like "sad" with physical causes like "tears on cheek, shoulders slumped")
+[3. Scene]          Overlays listed SEPARATELY (titles, HUD, lower-thirds are NEVER part of FG/MG/BG depth) + POV (first-person, drone, OTS, top-down oblique, dashcam, objective) + setting + time of day + environmental dynamics
+[4. Spatial]        Shot size (ECU/CU/MCU/MS/FS/WS/EWS) + subject position in frame + depth (FG/MG/BG) + camera height relative to ground (aerial, overhead, eye, hip, ground, water, underwater) & angle relative to subject (bird's-eye = strict 90° top-down ≠ aerial, high, level, low, worm's-eye, Dutch fixed/rolling) — and how framing changes across the shot
+[5. Camera]         Playback speed (time-lapse, fast-motion, slow-motion, stop-motion, speed-ramp, time-reversed) -> Lens distortion (fisheye vs. barrel vs. anamorphic) -> Focus/DoF (deep focus, shallow DoF, rack focus [snap], pull focus [gradual], focus tracking) -> Steadiness (locked, handheld, gimbal) -> Movement
+```
+
+> [!IMPORTANT]
+> **Strict Camera Motion Separation (`dolly ≠ zoom`, `pan ≠ truck`, `static = strict zero motion`)**:
+> - **Translation (Rig Physically Moves)**: `dolly in/out` (along lens axis), `truck left/right` (lateral), `pedestal up/down` (vertical).
+> - **Rotation (Rig Stays Put, Camera Pivots)**: `pan left/right` (yaw), `tilt up/down` (pitch), `roll CW/CCW` (Dutch Z-axis).
+> - **Lens-Only (No Rig or Camera Move)**: `zoom in/out` (focal length change), `rack focus` / `pull focus` / `focus tracking`.
+> - **Strict Stillness (`static`)**: Zero camera movement, zero focus change, zero zoom. If any optical or physical shift occurs, never write `"static camera"`.
+
+### 5.2 Model-Specific Prompt Structures & Empirical Word-Count Sweet Spots
+| Target Model | Optimal Word Count | Structural Formula & Model-Specific Rules |
+| :--- | :--- | :--- |
+| **`Google Veo 3.1 / Veo 3`** | **`100 – 250 words`** (plateaus past 250w) | **14-Component Structure**: `Subject + Action + Scene/Context + Camera Angles + Camera Movements + Lens/Optical Effects (rack/pull/tracking focus, split diopter, vertigo) + Lighting + Tone/Mood + Artistic Style/Art Movement + Ambiance + Temporal Elements + Audio (dialogue in quotes) + Cinematic Terms (match cut, jump cut) + Negative Prompt ("no subtitles, no captions, no text overlays")`. |
+| **`Seedance 2.0` (`Standard / Fast`)** | **`200 – 400 words`** (hero / multi-shot) \| `80–150w` (inserts) | **8-Component Multi-Shot Structure**: Supports `Shot 1 (...) / Shot 2 (...) / Shot 3 (...)` inside a single generation with native synchronized audio (`generate_audio=true`) and lip-sync (`Character says: "..."`, max `<= 6 words` on fast cuts). Repeat the character's 3–6 visual attributes verbatim in every `Shot N` block. |
+| **`Gemini Omni Flash 1.1`** | **`80 – 180 words`** | Conversational turn-by-turn multimodal video generation and editing; start at `360p` draft (`half credit`) and upscale to `720p` (`0 credits`) with `@Voice` and `@Character` locks. |
+| **`Sora 2 / Sora 2 Pro`** | **`100 – 250 words`** | Structured cinematography template emphasizing lens filtration, photochemical grade, wardrobe materiality, and diegetic soundstage. |
+| **`Kling 2.6 / Kling Official Omni`** | **`80 – 160 words`** | 4-part structure (`Subject + Movement + Scene + Camera/Lighting`) supporting `++emphasis++` tokens, multi-reference Omni syntax, and explicit face-selected lip-sync. |
+| **`Wan 2.2 / HunyuanVideo 1.5`** | **`200 – 400 words`** | Fine-tuned on dense 5-aspect descriptive captions (`Subject + Motion + Scene + Shot + Camera + Lighting + Style + Atmosphere`). |
+| **`LTX-2` / `Runway Gen-4`** | **`<= 60 – 80 words`** | Keep prompts tight and motion-focused (`"Focus on motion, not appearance"`; one clear action per clip). |
+
+---
+
+## 6. Continuous Semantic 3D World & Blender / Three.js Production (`توليد العوالم ثلاثية الأبعاد المستمرة`)
+
+When a cinematic trailer, game/product showcase, or architectural film requires a continuous, navigable 3D environment rather than isolated 2D clips:
+1. **Two Fidelity Tiers (`fidelity_tier`)**:
+   - **`blockout`**: Coarse semantic layout and camera path iteration in Three.js.
+   - **`production`**: Hero/reference-grade world using licensed CC0 GLTF/GLB PBR catalogs for repeated environment assets, `Atlas Cloud Tripo H3.1` (text-to-3D) or `fal.ai Hunyuan 3D / SAM 3D` (image-conditioned 3D) for unique hero meshes, and **Blender 4.5 LTS (`Eevee Next` / `Cycles`)** or **HyperFrames + Three.js (`html-in-canvas` WebGL + UnrealBloom)** for final rendering.
+2. **Continuous Coordinate System & Diagnostics**:
+   - Define `global`, `regional`, and `walk-level` camera beats inside one continuous coordinate system (`world.json`).
+   - Enforce terrain slope and ground-contact constraints on all scattered instances, and verify via semantic/wireframe passes that the camera never tunnels through terrain or clips the far plane.

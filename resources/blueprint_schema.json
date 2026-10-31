@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CineFlow AI Studio Production & Programmatic Editing Blueprint Schema",
+  "title": "CineFlow AI Studio Production, Programmatic Editing & OpenMontage Governance Blueprint Schema",
   "type": "object",
   "required": [
     "production_profile",
@@ -8,6 +8,7 @@
     "global_parameters",
     "scene_breakdown",
     "post_production_timeline",
+    "production_governance",
     "outro_standardization",
     "marketing_expansion",
     "qa_audit"
@@ -15,7 +16,7 @@
   "properties": {
     "production_profile": {
       "type": "object",
-      "required": ["purpose", "format", "style_variant", "target_platform", "aspect_ratio"],
+      "required": ["purpose", "format", "style_variant", "pipeline_type", "target_platform", "aspect_ratio"],
       "properties": {
         "purpose": {
           "type": "string",
@@ -51,12 +52,29 @@
             "Narrative Continuity Sequence"
           ]
         },
+        "pipeline_type": {
+          "type": "string",
+          "enum": [
+            "route_1_generative_cinema",
+            "route_2_talking_head_reel",
+            "route_3_motion_stage_60fps",
+            "route_4_silent_broll_montage",
+            "route_5_multicam_podcast",
+            "route_6_3d_device_explainer",
+            "route_7_documentary_montage",
+            "route_8_character_animation_ink_theater",
+            "route_9_3d_world_generation",
+            "route_10_reference_video_cloner",
+            "route_11_avatar_spokesperson",
+            "route_12_localization_dub"
+          ]
+        },
         "execution_route": {
           "type": "string"
         },
         "target_platform": {
           "type": "string",
-          "default": "Google Flow (Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro) + Remotion/FFmpeg Studio"
+          "default": "Google Flow (Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro / Seedance 2.0) + Remotion/HyperFrames/FFmpeg Studio"
         },
         "aspect_ratio": {
           "type": "string",
@@ -76,6 +94,7 @@
         "audience_emotional_truth": { "type": "string" },
         "expected_cliche_rejected": { "type": "string" },
         "chosen_divergence_angle": { "type": "string" },
+        "research_brief_summary": { "type": "object" },
         "hook_variants_scene_1": {
           "type": "object",
           "properties": {
@@ -122,6 +141,7 @@
         "required": [
           "scene_id",
           "duration_seconds",
+          "shot_intent",
           "visual_prompt",
           "audio_foley_sync",
           "dialogue_lip_sync",
@@ -134,6 +154,29 @@
           "layout_mode": {
             "type": "string",
             "enum": ["R_FULL", "R_DOWN", "R_LOWER", "R_OFF"]
+          },
+          "type": { "type": "string" },
+          "shot_intent": { "type": "string" },
+          "information_role": { "type": "string" },
+          "narrative_role": { "type": "string" },
+          "hero_moment": { "type": "boolean" },
+          "shot_language": {
+            "type": "object",
+            "properties": {
+              "shot_size": { "type": "string" },
+              "camera_movement": { "type": "string" },
+              "camera_angle": { "type": "string" },
+              "focus_dof": { "type": "string" },
+              "lighting_key": { "type": "string" }
+            }
+          },
+          "chai_5_aspect_breakdown": {
+            "type": "object",
+            "required": ["subject", "subject_motion", "scene", "spatial_framing", "camera"]
+          },
+          "texture_keywords": {
+            "type": "array",
+            "items": { "type": "string" }
           },
           "flow_mode": { "type": "string" },
           "continuity_handshake": { "type": "string" },
@@ -148,6 +191,8 @@
     "post_production_timeline": {
       "type": "object",
       "required": [
+        "render_runtime",
+        "composition_mode",
         "visual_design_style",
         "color_palette",
         "silence_cut_config",
@@ -156,6 +201,14 @@
         "audio_mastering_spec"
       ],
       "properties": {
+        "render_runtime": {
+          "type": "string",
+          "enum": ["remotion", "hyperframes", "ffmpeg"]
+        },
+        "composition_mode": {
+          "type": "string",
+          "enum": ["atelier", "templated"]
+        },
         "visual_design_style": { "type": "string" },
         "color_palette": { "type": "string" },
         "silence_cut_config": { "type": "object" },
@@ -169,6 +222,29 @@
           "type": "array",
           "items": { "type": "string" }
         }
+      }
+    },
+    "production_governance": {
+      "type": "object",
+      "required": [
+        "taste_profile",
+        "delivery_promise",
+        "slideshow_risk_report",
+        "scene_variation_report",
+        "scored_provider_selection",
+        "decision_log",
+        "budget_governance",
+        "chai_final_review_checklist"
+      ],
+      "properties": {
+        "taste_profile": { "type": "object" },
+        "delivery_promise": { "type": "object" },
+        "slideshow_risk_report": { "type": "object" },
+        "scene_variation_report": { "type": "object" },
+        "scored_provider_selection": { "type": "object" },
+        "decision_log": { "type": "array" },
+        "budget_governance": { "type": "object" },
+        "chai_final_review_checklist": { "type": "object" }
       }
     },
     "outro_standardization": {
@@ -206,7 +282,11 @@
         "outro_safe_zone_verified": { "type": "boolean" },
         "kashida_and_rtl_caption_verified": { "type": "boolean" },
         "calmness_and_hold_laws_verified": { "type": "boolean" },
-        "audio_lufs_and_sfx_cap_verified": { "type": "boolean" }
+        "audio_lufs_and_sfx_cap_verified": { "type": "boolean" },
+        "slideshow_risk_passed": { "type": "boolean" },
+        "scene_variation_passed": { "type": "boolean" },
+        "delivery_promise_verified": { "type": "boolean" },
+        "chai_critique_and_decision_log_verified": { "type": "boolean" }
       }
     }
   }

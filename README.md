@@ -1,69 +1,71 @@
 # استوديو سينما فلو الذكي — CineFlow AI Studio 🎬
 
-**الاستوديو الذكي الشامل لكتابة المحتوى والسكربت، والتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • Gemini Omni Flash 1.1 • Nano Banana Pro`)، والمونتاج البرمجي والموشن جرافيك (`Remotion • FFmpeg • Whisper • Action-Verb Stage`)، والهندسة التسويقية الشاملة**
+**الاستوديو الذكي الشامل لكتابة المحتوى والسكربت، والبحث المعمق، والتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • Seedance 2.0 • Gemini Omni Flash 1.1 • Nano Banana Pro`)، والمونتاج البرمجي والموشن جرافيك (`Remotion • HyperFrames HTML/GSAP • FFmpeg • Whisper • Ink Theater • 3D Worlds`)، والحوكمة الإنتاجية والتسويق المتكامل**
 
-تم تصميم مهارة **`cineflow-ai-studio`** لتكون المحرك الإبداعي والإنتاجي والمونتاجي الأقوى لصنّاع المحتوى، وكتّاب السيناريو، والمخرجين، والمسوّقين. تجمع المهارة بين **التوليد السينمائي بالذكاء الاصطناعي** وبين **المونتاج البرمجي الاحترافي لفيديوهات المتحدث والإعلانات والموشن جرافيك**، لتحوّل أي فكرة خام، أو سيناريو، أو تسجيل كاميرا، أو مجلد مقاطع إلى فيديو احترافي متكامل مع غلافه الآمن (`First-Frame Safe-Square Cover`)، وبوستره الإعلاني (`4:5`)، وكاروسيل إنستجرام (`5–7 شرائح`)، وحقيبة النشر الذكية (`Social Publishing Pack`).
+تم تصميم مهارة **`cineflow-ai-studio`** لتكون المحرك الإبداعي والإنتاجي والمونتاجي الأقوى لصنّاع المحتوى، وكتّاب السيناريو، والمخرجين، والمسوّقين. تجمع المهارة بين **التوليد السينمائي بالذكاء الاصطناعي**، و**المونتاج البرمجي الاحترافي لفيديوهات المتحدث والإعلانات والموشن جرافيك والأنيميشن والعوالم ثلاثية الأبعاد**، و**الحوكمة الهندسية الصارمة (`Taste Profile + Slideshow Risk Scorer + CHAI Self-Review`)**، لتحوّل أي فكرة خام، أو فيديو مرجعي، أو سيناريو، أو تسجيل كاميرا إلى فيديو احترافي متكامل مع غلافه الآمن (`First-Frame Safe-Square Cover`)، وبوستره الإعلاني (`4:5`)، وكاروسيل إنستجرام (`5–7 شرائح`)، وحقيبة النشر الذكية (`Social Publishing Pack`).
 
 ---
 
 ## 🌟 الهيكل الشامل لقدرات المهارة (Core Architecture)
 
-### أولاً: التصنيف الأساسي ومسارات الإنتاج والمونتاج الستة (`Master Classification & 6 Execution Routes`)
+### أولاً: التصنيف الأساسي ومسارات الإنتاج والمونتاج الاثنا عشر (`Master Classification & 12 Autonomous Pipelines`)
 
 1. **حسب الغرض والهدف (`By Purpose — 8 مسارات`):**
    - **الفيديوهات التجارية والإعلانية (`Commercials & TVCs`):** الترويج المباشر للمنتجات والخدمات وفق منحنى التحويل السداسي (`6-Stage Direct-Response Curve`).
    - **الفيديوهات المؤسسية (`Corporate Videos`):** الهوية المؤسسية، القيم، والتدريب الداخلي.
-   - **الفيديوهات التعليمية والتدريبية (`Educational & Training`):** تبسيط المعرفة والدورات بأسلوب بصري متسلسل.
+   - **الفيديوهات التعليمية والتدريبية (`Educational & Training`):** تبسيط المعرفة والدورات بأسلوب بصري متسلسل مبني على البحث المعمق (`5-Batch Web Research`).
    - **فيديوهات الشرح (`Explainer Videos`):** تبسيط المنتجات المعقدة وطريقة عمل التطبيقات والمواقع (`Problem ➔ Agitation ➔ Solution`).
    - **فيديوهات الشهادات والتوصيات (`Testimonial Videos`):** آراء العملاء لبناء الموثوقية والثقة.
-   - **الأفلام الوثائقية (`Documentaries`):** السرد الواقعي وتوثيق الأحداث الحقيقية (`archive` style, `map-route`, `claim-proof`).
+   - **الأفلام الوثائقية (`Documentaries`):** السرد الواقعي وتوثيق الأحداث الحقيقية (`CLIP Archival Corpus`, `archive` style, `map-route`, `claim-proof`, `Remotion ProRes 4444 Alpha End-Tag`).
    - **فيديوهات الفعاليات (`Event Videos`):** التغطيات الحية وملخصات الطاقة (`Sizzle Reels`).
-   - **فيديوهات الترفيه (`Entertainment Videos`):** السينما القصيرة، البرامج، والأغاني المصورة (`Music Videos`).
+   - **فيديوهات الترفيه (`Entertainment Videos`):** السينما القصيرة، تحريك الشخصيات، البرامج، والأغاني المصورة (`Music Videos`).
 2. **حسب الأسلوب والشكل الفني (`By Format — 5 أنماط`):**
-   - **التصوير الحي (`Live-Action`)** | **الرسوم المتحركة (`Animation 2D / 3D`)** | **الموشن جرافيك (`Motion Graphics`)** | **البث المباشر (`Live Streaming`)** | **الفيديو التفاعلي و360 درجة (`360 & Interactive`)**.
+   - **التصوير الحي (`Live-Action`)** | **الرسوم المتحركة (`Animation 2D / 3D`)** | **الموشن جرافيك (`Motion Graphics`)** | **البث المباشر (`Live Streaming`)** | **الفيديو التفاعلي والعوالم ثلاثية الأبعاد (`360 & Interactive / 3D Worlds`)**.
 3. **أسلوب المونتاج الإيقاعي والتجميعي (`Rhythmic Montage & Edits — 5 أساليب`):**
    - **المونتاج السينمائي (`Montage Sequence`)** | **الأغاني المصورة (`Music Videos`)** | **الإعلانات الحركية (`Commercial Promo`)** | **المونتاج القصير (`Short-Form Edits / AMV 10–15s`)** | **ملخص الفعاليات الحركي (`Sizzle Reel`)**.
-4. **مسارات التنفيذ والمونتاج الستة (`The 6 Autonomous Production & Editing Routes`):**
-   - **المسار 1 — استوديو التوليد السينمائي (`Generative AI Cinema Studio`):** من فكرة أو سكربت إلى مشاهد سينمائية داخل `Google Flow` مع قفل الهوية (`@Character_01`, `@Product_01`) والمصافحة البصرية (`Scene Handshake`).
-   - **المسار 2 — محرّر ريلز وإعلانات المتحدث للكاميرا (`Talking-Head Viral Reel & Ad Editor`):** فحص وإصلاح الفريمات الساقطة (`minterpolate`) وتحويل `HDR-to-SDR` ⟵ قص الوقفات الذكي مع حماية التنفس (`120ms pre-roll / 150ms post-roll`) ⟵ تدقيق تفريغ `Whisper` وحذف الجمل المعادة ⟵ التخطيط البصري الرباعي (`R_FULL / R_DOWN / R_LOWER / R_OFF`) ولحظات العمق.
-   - **المسار 3 — مسرح الموشن جرافيك المربوط بالفعل والكلمة (`Action-Verb Stage & 60fps Motion Film`):** تحويل فعل كل جملة (`تجميع، استيراد، تحويل، استبدال، نمو، خطر، مقارنة`) إلى عناصر مرسومة متحركة (`50+ Stage Objects`) مربوطة بلحظة نطق الكلمة (`word`, `toWord`, `pulseWord`) بدون قوالب نصية مكررة.
-   - **المسار 4 — مونتاج اللقطات الصامتة على الإيقاع (`Beat-Synced Silent B-Roll Montage`):** تقييم جودة المقاطع تلقائياً (`Clarity × Motion × Exposure × Color`) مع قص أول وآخر ثلث ثانية، ومزامنة القطع على نبضات الصوت الفعلية (`[1.0, 0.82, 1.24, 0.94]` cadence).
-   - **المسار 5 — تقطيع البودكاست والحلقات الطويلة (`Multi-Cam Podcast & 16:9-to-9:16 Clipper`):** تتبع الوجه تلقائياً (`facetrack`) لتحويل الفيديوهات العرضية إلى طولية مع توليد 3 بدائل لهوك مكتوب من أقوى جملة في اللقاء.
-   - **المسار 6 — شرح المواقع والتطبيقات ثلاثي الأبعاد (`3D Device & Web/App Explainer`):** التقاط الشاشة والتمرير داخل المنطقة الآمنة (`1080x1220`، أقصى زوم `1.25x`) مع دوائر النقر التفاعلية ومجسمات آيفون وماك بوك ثلاثية الأبعاد.
+4. **مسارات التنفيذ والمونتاج الاثنا عشر (`The 12 Autonomous Production & Editing Pipelines`):**
+   - **المسار 1 (`route_1_generative_cinema`) — استوديو التوليد السينمائي:** من فكرة أو سكربت إلى مشاهد سينمائية داخل `Google Flow` (`Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro`) أو `Seedance 2.0` مع قفل الهوية (`@Character_01`, `@Product_01`) والمصافحة البصرية (`Scene Handshake`).
+   - **المسار 2 (`route_2_talking_head_reel`) — محرّر ريلز وإعلانات المتحدث للكاميرا:** فحص وإصلاح الفريمات الساقطة (`minterpolate`) وتحويل `HDR-to-SDR` ⟵ قص الوقفات الذكي مع حماية التنفس (`120ms pre-roll / 150ms post-roll`) ⟵ تدقيق تفريغ `Whisper` وحذف الجمل المعادة ⟵ التخطيط البصري الرباعي (`R_FULL / R_DOWN / R_LOWER / R_OFF`) ولحظات العمق.
+   - **المسار 3 (`route_3_motion_stage_60fps`) — مسرح الموشن جرافيك (`60fps Remotion & HyperFrames HTML/GSAP`):** تحويل فعل كل جملة (`تجميع، استيراد، تحويل، استبدال، نمو، خطر، مقارنة`) إلى عناصر مرسومة متحركة (`50+ Stage Objects`) أو `36+ Atomic GSAP Motion Rules` مربوطة بلحظة نطق الكلمة (`word`, `toWord`, `pulseWord`).
+   - **المسار 4 (`route_4_silent_broll_montage`) — مونتاج اللقطات الصامتة على الإيقاع:** تقييم جودة المقاطع تلقائياً (`Clarity × Motion × Exposure × Color`) مع قص أول وآخر ثلث ثانية، ومزامنة القطع على نبضات الصوت الفعلية (`[1.0, 0.82, 1.24, 0.94]` cadence).
+   - **المسار 5 (`route_5_multicam_podcast`) — تقطيع البودكاست والحلقات الطويلة (`Clip Factory & Podcast Repurpose`):** تتبع الوجه تلقائياً (`facetrack`) لتحويل الفيديوهات العرضية `16:9` إلى طولية `9:16` مع توليد 3 بدائل لهوك مكتوب من أقوى جملة في اللقاء.
+   - **المسار 6 (`route_6_3d_device_explainer`) — شرح المواقع والتطبيقات والـ CLI (`website-to-video & TerminalScene`):** التقاط الشاشة والتمرير داخل المنطقة الآمنة (`1080x1220`، أقصى زوم `1.25x`) أو محاكاة الطرفية (`TerminalScene`) مع دوائر النقر ومجسمات آيفون وماك بوك ثلاثية الأبعاد.
+   - **المسار 7 (`route_7_documentary_montage`) — المونتاج الوثائقي من اللقطات الحقيقية (`CLIP Archival Corpus`):** بناء فهرس دلالي (`CLIP`) من اللقطات الأرشيفية والواقعية المجانية (`Archive.org, NASA, Wikimedia Commons, Pexels, Unsplash` بحد أدنى `8x` حجم المشاهد وتنويع دلالي `score >= 0.22`)، والمونتاج بأسلوب التجاور الدلالي (`Kuleshov Juxtaposition`) مع توحيد اللوت (`Uniform LUT`) وخاتمة فلسفية شفافة (`Remotion ProRes 4444 Alpha End-Tag`).
+   - **المسار 8 (`route_8_character_animation_ink_theater`) — تحريك الشخصيات الكرتونية ومسرح الحبر (`Ink Theater & CMU Mocap`):** تحويل الفكرة المجردة عبر معادلة `Xiaohei` الثلاثية (`مفهوم مجرد ⟵ فعل فيزيائي ⟵ آلة ميكانيكية يبتكرها الماسكوت`) مع تحريك الهيكل العظمي (`FABRIK .reachL/.reachR`) ومكتبة التموضع الحركي الحقيقي (`12 CMU Mocap Clips: walk, run, climb, march, shuffle, jump, kick, sit, wave, twist, dance_spin, dance_glide` — بدون تكرار حلقي ممل).
+   - **المسار 9 (`route_9_3d_world_generation`) — بناء العوالم ثلاثية الأبعاد المتصلة (`Three.js + Blender 4.5 LTS`):** بناء تضاريس ومناطق دلالية متصلة (`blockout ➔ production`) مع مكتبات `CC0 GLTF/GLB PBR` وتوليد المجسمات الفريدة عبر `Atlas Tripo H3.1` و`fal Hunyuan 3D` ومسار كاميرا متصل (`global ➔ regional ➔ walk`).
+   - **المسار 10 (`route_10_reference_video_cloner`) — محلل الفيديوهات المرجعية وبناء البدائل المبتكرة (`Start From A Video You Love`):** تحليل أي رابط فيديو (`YouTube, Shorts, Reels, TikTok`) وتصنيف نوع الحركة (`motion_clip / animated_still / static_image`) وتفكيك اللقطات عبر الأبعاد الخمسة (`CHAI 5-Aspect Breakdown`)، ثم اقتراح **2–3 مفاهيم مبتكرة غير مقلدة** مع إنتاج **عينة اختبارية (`10–15 ثانية`)** قبل الإنتاج الكامل.
+   - **المسار 11 (`route_11_avatar_spokesperson`) — المذيع الذكي ومزامنة الشفاه متعددة المزودين (`Avatar Spokesperson`):** ربط `Google Flow Voice Lock` أو `Kling Official Avatar / Lip-Sync` أو `SadTalker / MuseTalk / Wav2Lip` مع مكون `TalkingHead` في Remotion.
+   - **المسار 12 (`route_12_localization_dub`) — الترجمة والدبلجة متعددة اللغات (`Localization & Dubbing`):** تفريغ النص بدقة المتحدثين، قفل المصطلحات (`Glossary Lock`)، وحساب مخاطر التوقيت لكل لغة مع دبلجة طبيعية (`Google Chirp3-HD` بـ 700+ صوت / `ElevenLabs` / `Azure SSML`).
 
 ---
 
-### ثانياً: التخطيط البصري الرباعي وبنك الـ 17 ستايل ولحظات العمق (`Spatial Layouts, 17 Styles & Depth Moments`)
+### ثانياً: التخطيط البصري الرباعي، محركا `Remotion` و`HyperFrames`، وبنك الـ 17 ستايل ولحظات العمق
 
 1. **قاعدة التخطيط البصري الرباعية (`4-State Spatial Layout`):**
    - **`R_FULL` (المتحدث ملء الشاشة):** للهوك الافتتاحي واللحظات الوجدانية، مع زوم متناوب (`1.0x <-> 1.12x–1.18x`) وكابشن تحت الذقن (`Y: 1395–1460`).
    - **`R_DOWN` (رسم علوي + متحدث سفلي بعرض الشاشة):** قص ثابت من فوق أعلى نقطة للرأس بـ `1.5%` (`cardTop`) — بلا قطع للجبهة وبلا سقف فارغ، والكابشن يوضع دائماً **فوق** حافة الكرت ولا يغطي الوجه أبداً.
    - **`R_LOWER` + `Headout` (لوحة شرح ثلثي الشاشة + متحدث صغير برأس بارز خارج الإطار):** للإنفوجرافيك والمشاهد الغنية، مع إخفاء الكابشن (`nocap: true`) لمنع التشتيت البصري، والعودة لملء الشاشة عبر تكبير عنصر التغطية (`>= 1080x1920`).
    - **`R_OFF` (المشهد البصري يملأ الشاشة بالكامل `Takeover`):** للأرقام والقوائم ومشاهد `Veo 3.1` السينمائية بينما يستمر الصوت (`J-Cut / L-Cut`).
-2. **بنك الـ 17 ستايل والـ 8 باقات لونية:**
-   - **17 ستايل تصميمي (مع إمكانية الدمج `A+B` مثل `explainer+keynote`):** `keynote`, `glassUI` (`liquid-glass`), `explainer` (`section-deck`), `paperCut` (`kinetic-paper`), `archive` (`documentary`), `editorial` (`magazine-interview`), `swiss`, `doodle`, `terminal`, `riso`, `newsprint`, `blueprint`, `vhs` (لحظة فقط), `brutal` (لحظة فقط), `studio3D`, `stickerToon` (`cartoon`), `devCard` (`calligraphic-receipts` / `grid-glide`).
-   - **8 باقات ألوان جاهزة:** `midnight` (ليلي كهربائي)، `ocean` (بحر فيروزي)، `sunset` (غروب)، `emerald` (زمردي)، `gold` (ذهبي فاخر)، `neon` (أسود ونيون)، `mono` (أسود وأبيض)، `paper` (ورقي فاتح).
-3. **لحظات العمق (`2–3 Signature Depth Moments`) وقواعد الكشيدة العربية الصارمة:**
-   - **هوك الطبقات الثلاث (`3-Layer Stack Hook`) والكتابة خلف الرأس (`Behind-Text`):** كلمة ضخمة فوق الرأس + كلمة أو اثنتين خلف الرأس + باقي الجملة أمام الصدر.
-   - **قانون الكشيدة العربية الصارم:** لا تُدرج الكشيدة (`ـ`) إلا بعد حرف يتصل بما بعده (تُمنع بعد `ا أ إ آ د ذ ر ز و ؤ ة ء ى`)، وتوضع **بعد** التشكيل (`تحـــرّك` وليس `تحرّـــك`)، ولا تفك لام ألف (`لا`)، وتتمدد بالبكسل (لا بعدد الحروف) بحيث تبقى الحروف يمين ويسار الرأس وتمر الكشيدة وحدها خلف الرأس.
-   - **قاعدة بقاء العنصر بعد آخر كلمة (`+0.45s Post-Word Hold`):** لا يختفي أي موشن أو كابشن مع آخر حرف ينطقه المتحدث، بل يبقى `0.45 ثانية` بعد نهاية الكلمة ثم يخرج بنعومة خلال `0.40 ثانية`.
+2. **محركا التركيب البرمجي (`Remotion` vs. `HyperFrames` HTML/CSS/GSAP) وعقيدة الـ `Atelier`:**
+   - **`Atelier Mode` (الافتراضي للأعمال الاحترافية):** كتابة تكوين بصري مخصص لكل عمل (`Reuse engine knowledge, never creative components`) مع منع تكرار نفس العنصر البصري في كل مشهد (`No-Hero-Component-Spine Law`) ومنع ازدواجية الكابشن مع النص المرسوم (`Caption vs. SerifLine Dedup`).
+   - **معالجة لقطات الأرشيف في `HyperFrames`:** تحويل أبعاد الفيديو بقاعدة `Scale-to-COVER + Unsharp + Dense Keyframes (-g 30)` لمنع ظهور الفيديو المصغر داخل إطار أسود (`640x360 Letterbox Trap`).
+3. **بنك الـ 17 ستايل والـ 8 باقات لونية ولحظات العمق (`Depth Moments`):**
+   - **17 ستايل تصميمي (مع إمكانية الدمج `A+B` مثل `studio3D+keynote`):** `keynote`, `glassUI`, `explainer`, `paperCut`, `archive`, `editorial`, `swiss`, `doodle` (`ink-sketch`), `terminal`, `riso`, `newsprint`, `blueprint`, `vhs`, `brutal`, `studio3D`, `stickerToon`, `devCard`.
+   - **قانون الكشيدة العربية الصارم:** لا تُدرج الكشيدة (`ـ`) إلا بعد حرف يتصل بما بعده (تُمنع بعد `ا أ إ آ د ذ ر ز و ؤ ة ء ى`)، وتوضع **بعد** التشكيل (`تحـــرّك`)، ولا تفك لام ألف (`لا`)، وتتمدد بالبكسل خلف رأس المتحدث، مع بقاء كل عنصر **`+0.45s` بعد آخر كلمة منطوقة**.
 
 ---
 
-### ثالثاً: المعاملات الإخراجية، هندسة الصوت (`-14 LUFS`)، والتوسع التسويقي الشامل
+### ثالثاً: اللغة البصرية الخماسية (`CHAI 5-Aspect Language`)، الحوكمة الإنتاجية (`OpenMontage Governance`)، والتوسع التسويقي
 
-1. **التوجيه الإخراجي المتكامل وقفل الهوية:** تحديد نبرة الصوت، لغة الجسد الفيزيائية، نوع الكاميرا والعدسة (`ARRI, RED, Sony Venice, Canon, RedMagic, iPhone 16 Pro`)، أكثر من `180+ /macros`، محو اللمسة البلاستيكية (`Anti-AI Sheen`)، وحماية بشرة المتحدث الحقيقي من أي تلوين مصطنع (`grade: false`).
-2. **مزامنة الشفاه (`Lip-Sync`) ومعايرة الصوت (`4-Bus Audio Mastering`):**
-   - معادلة **`Words <= Duration_Seconds * 2.5`** مع فواصل التنفس `.. [0.3s breath pause]`.
-   - معايرة الصوت النهائي إلى **`-14.0 LUFS`** والذروة **`-1.5 dBTP`**، مع خفض تلقائي للملف الصوتي بالخلفية (`sidechaincompress` `attack=15ms, release=450ms`)، وبحد أقصى **15 مؤثراً صوتياً في الدقيقة** (`< -18 dBFS`) مربوطة بلحظات التحول البصري.
+1. **اللغة البصرية الخماسية لدراسة `CMU/Harvard CHAI` (`5-Aspect Video Prompting`):**
+   - تفكيك كل مشهد إلى 5 حقول إلزامية: **`Subject`** (مع تكرار 3–6 سمات شكلية حرفياً في كل لقطة لمنع ضياع الهوية وتحديد انتقالات العنصر `revealing / disappearing / switching`)، **`Subject Motion`** (ترتيب زمني للأفعال واستبدال الصفات العاطفية بالسبب البصري الفيزيائي)، **`Scene`** (فصل النصوص العلوية `Overlays` تماماً عن عمق المشهد)، **`Spatial Framing`**، و**`Camera`** (فصل صارم بين الحركة الفيزيائية `dolly / truck / pedestal` والدوران `pan / tilt / roll` والعدسة فقط `zoom / rack focus / pull focus`).
+2. **الحوكمة الإنتاجية وفاحص خطر الشرائح الثابتة (`Slideshow Risk Scorer` & `Provider Selector`):**
+   - **ملف الذوق الفني (`taste_profile`):** ضبط 3 مؤشرات رقمية من 1 إلى 10 (`visual_variance`, `motion_intensity`, `information_density`) وقائمة الأنماط الممنوعة (`anti_patterns`).
+   - **فاحص خطر الشرائح (`score_slideshow_risk`):** تقييم المخطط عبر 6 أبعاد (`0.0–5.0`) لمنع الفيديوهات الشبيهة بعروض البوربوينت، مع التحقق من وعد التسليم الحركي (`motion_led >= 70% real motion`).
+   - **اختيار المزودين الموزون (`7-Dimension Provider Selector`):** تقييم المزودين عبر 7 أبعاد موزونة وتسجيل كل قرار في سجل تدقيق تراكمي (`decision_log`).
+   - **مراجعة `CHAI` الذاتية ذات المحاور الثلاثة (`Accurate, Complete, Constructive`):** إلزام كل ملاحظة حرجة (`CRITICAL`) بتقديم حل تنفيذي مباشر (`proposed_fix`) مع 5 فحوصات ما بعد الرندر (`final_review`).
 3. **الغلاف الإلزامي (`1080x1080 Safe-Square Cover`)، البوستر، الكاروسيل، وحقيبة النشر (`Social Publish Pack`):**
-   - **غلاف أول فريم (`0.1s` First-Frame Cover):** جميع العناصر المهمة (الوجه، عنوان الهوك من سطرين بحد أقصى 5 كلمات `>= 170px`، والشعارات `>= 200px`) داخل المربع الآمن الأوسط **`1080x1080` (`Y: 420..1500`)** ليظهر كاملاً في شبكات `9:16` و`4:5` و`1:1` دون أن يغطي الكلام الوجه (`الذقن أعلى من النص بـ >= 30px`).
-   - **بوستر إعلاني (`4:5`) + كاروسيل إنستجرام (`5–7 شرائح` بالفصحى أو العامية).**
-   - **حقيبة النشر الذكية (`social_publish_pack`):** أوصاف منشورات مستقلة لكل منصة تعمل كـ **بطاقة بحث وتشويق (`Search Card + Teaser`)** دون إعادة سرد الفيديو:
-     - **Instagram:** العبارة البحثية في أول `125 حرفاً` + تشويق + كلمة التعليق + `altText` + `pinnedComment`.
-     - **TikTok:** العبارة البحثية في أول `100 حرف` + تشويق خاطف.
-     - **YouTube Shorts:** عنوان بحث `<= 100 حرف` + وصف يبدأ بالعبارة البحثية في أول `150 حرفاً`.
-     - **فحص بدائل إملاء كلمة التعليق (`أ/إ/ا، ة/ه، ي/ى`):** لضمان عمل الرد التلقائي مع كافة كتابات الجمهور.
+   - غلاف أول فريم (`0.1s`) داخل المربع الآمن الأوسط **`1080x1080` (`Y: 420..1500`)** + بوستر إعلاني (`4:5`) + كاروسيل إنستجرام (`5–7 شرائح`) + حقيبة نشر ذكية (`Instagram, TikTok, YouTube Shorts`) مع بدائل إملاء كلمة التعليق (`أ/إ/ا، ة/ه، ي/ى`).
 
 ---
 
@@ -87,11 +89,15 @@ npx skills add husainalmualif/cineflow-ai-studio
 **مثال للأمر (Prompt) الذي تكتبه للوكيل:**
 > «اكتب لي سكربت وصمم لي مخطط إعلان 15 ثانية لقهوة مختصة فاخرة باللهجة البحرينية، الحوار: "ويش سر القهوة اللي تعدل المزاج من أول رشفة؟ جربها الحين وعيش الفخامة" مع أوامر `/dollyin /macro /goldenhour /4k /ar 9:16`، وأعطني معه الغلاف الآمن والبوستر الإعلاني وكاروسيل إنستجرام وحقيبة النشر»
 
-### السيناريو 2: مونتاج فيديو متحدث للكاميرا (`Talking-Head Reel / Video Ad`)
+### السيناريو 2: البدء من فيديو مرجعي يعجبك (`Start From A Reference Video — Route 10`)
 **مثال للأمر:**
-> «منتج هذا الفيديو `src.mov` إلى ريل احترافي `9:16` — شيل السكتات والجمل المعادة، ركّب كابشن عربي بكبسولة `chunk`، وصمّم مشاهد موشن جرافيك تشرح الكلام مع 3 لحظات عمق (طبقات الهوك ورا الراس + إضاءة الهوية) وافتح لي المحرّر»
+> «أعجبني إيقاع وأسلوب الهوك في هذا الفيديو المرجعي — حلل لي الفيديو بالأبعاد الخمسة (`CHAI 5-Aspect Breakdown`) واعطني 3 مفاهيم مبتكرة لفيديو 30 ثانية يشرح الأمن السيبراني مع عينة اختبارية 12 ثانية أولاً»
 
-### السيناريو 3: التشغيل البرمجي عبر سطر الأوامر (`Python & PowerShell CLI Compiler`)
+### السيناريو 3: مونتاج فيديو متحدث للكاميرا أو وثائقي لقطات حقيقية (`Routes 2 & 7`)
+**مثال للأمر:**
+> «منتج هذا الفيديو `src.mov` إلى ريل احترافي `9:16` — شيل السكتات والجمل المعادة، ركّب كابشن عربي بكبسولة `chunk`، وصمّم مشاهد موشن جرافيك بوضع `Atelier` مع 3 لحظات عمق (طبقات الهوك ورا الراس + إضاءة الهوية)»
+
+### السيناريو 4: التشغيل البرمجي عبر سطر الأوامر (`Python & PowerShell CLI Compiler`)
 
 #### أ) باستخدام Python (على جميع الأنظمة Windows / macOS / Linux):
 ```bash
@@ -106,6 +112,8 @@ python scripts/cineflow_compiler.py \
   --runtime 15 \
   --palette "gold" \
   --keyword "إبداع" \
+  --render-runtime "remotion" \
+  --composition-mode "atelier" \
   --output examples/generated_perfume_ad.json
 
 pytest -v tests/test_cineflow_compiler.py
@@ -122,6 +130,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Compile-CineFlowBlueprint.ps1
   -TotalRuntimeSeconds 15 `
   -ColorPalette "gold" `
   -CommentKeyword "إبداع" `
+  -RenderRuntime "remotion" `
+  -CompositionMode "atelier" `
   -OutputPath ".\examples\example_01_commercial_promo.json"
 ```
 
@@ -131,24 +141,24 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Compile-CineFlowBlueprint.ps1
 
 ```text
 cineflow-ai-studio/
-├── SKILL.md                                                 # الدستور الرئيسي للمهارة والـ System Prompt الشامل
+├── SKILL.md                                                 # الدستور الرئيسي للمهارة والـ System Prompt الشامل (12 مساراً + 15 ضابطاً)
 ├── README.md                                                # دليل التثبيت والاستخدام التفصيلي (هذا الملف)
 ├── requirements.txt                                         # متطلبات الفحص والاختبار الآلي (pytest, pylint)
 ├── references/
-│   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 180+ أمر اختصار (/macros) + Scene Handshake + Anti-AI Sheen
-│   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة كتابة المحتوى والسكربت + قفل اللهجات + مزامنة الشفاه
-│   ├── programmatic_editing_and_motion_guide.md             # المونتاج البرمجي + التخطيط الرباعي + مسرح الأفعال + 17 ستايل + الكشيدة والصوت
-│   └── creative_strategy_and_marketing.md                   # الانحراف الإبداعي + الغلاف الآمن 1080x1080 + البوستر والكاروسيل وحقيبة النشر
+│   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 180+ (/macros) + CHAI 5-Aspect Language + Veo/Seedance + 3D Worlds
+│   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة السكربت + قفل اللهجات + Lip-Sync + البحث الخماسي + تحليل الفيديو المرجعي
+│   ├── programmatic_editing_and_motion_guide.md             # الـ 12 مساراً + التخطيط الرباعي + Remotion/HyperFrames Atelier + Ink Theater + الصوت
+│   └── creative_strategy_and_marketing.md                   # الانحراف الإبداعي + Taste Profile + Slideshow Risk Scorer + الغلاف وحقيبة النشر
 ├── resources/
-│   └── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات
+│   └── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والحوكمة الإنتاجية
 ├── scripts/
-│   ├── cineflow_compiler.py                                 # المترجم الآلي ومحرك الكشيدة وفاحص الجودة بلغة Python
-│   └── Compile-CineFlowBlueprint.ps1                        # المترجم الآلي ومحرك الكشيدة وفاحص الجودة بلغة PowerShell
+│   ├── cineflow_compiler.py                                 # المترجم الآلي ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة Python
+│   └── Compile-CineFlowBlueprint.ps1                        # المترجم الآلي ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة PowerShell
 ├── tests/
-│   └── test_cineflow_compiler.py                            # اختبارات الوحدات الآلية (Unit Tests) لفحص السكربت والكشيدة والـ QA
+│   └── test_cineflow_compiler.py                            # اختبارات الوحدات الآلية (Unit Tests) لفحص السكربت والكشيدة والحوكمة والـ QA
 ├── examples/
-│   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي + تخطيط وموشن + غلاف وبوستر وحقيبة نشر
-│   └── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي متكامل
+│   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي + تخطيط وموشن وحوكمة + غلاف وبوستر وحقيبة نشر
+│   └── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي (HyperFrames Atelier)
 └── .github/
     └── workflows/
         └── ci.yml                                           # الفحص الآلي المستمر (GitHub Actions CI)
