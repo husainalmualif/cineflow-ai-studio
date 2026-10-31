@@ -1,5 +1,10 @@
 """Unit tests for CineFlow AI Studio Scriptwriter, Prompt Compiler, Kashida Engine, Lip-Sync Phraser, Slideshow Risk Scorer, and QA Validator."""
 
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from scripts.cineflow_compiler import (
     apply_safe_arabic_kashida,
     build_taste_profile,
@@ -13,6 +18,10 @@ from scripts.cineflow_compiler import (
     score_slideshow_risk,
     select_pipeline_route,
     validate_delivery_promise,
+)
+from scripts.multi_agent_orchestrator import (
+    build_execution_plan,
+    validate_arabic_phonetics,
 )
 
 
@@ -135,3 +144,65 @@ def test_compile_blueprint_commercial_and_explainer() -> None:
     assert explainer_bp["post_production_timeline"]["render_runtime"] == "hyperframes"
     assert explainer_bp["post_production_timeline"]["visual_design_style"] == "glassUI+explainer"
     assert "exploded-view" in explainer_bp["scene_breakdown"][0]["visual_prompt"]
+
+
+def test_seven_agent_orchestrator_and_arabic_phonetic_gate() -> None:
+    """Verify the 7-Agent Orchestration Plan and the Arabic Broadcast Phonetic Gate."""
+    plan = build_execution_plan(
+        topic="إعلان سينمائي يستعرض منظومة الوكلاء السبعة",
+        pipeline_type="route_3_motion_stage_60fps",
+    )
+    assert plan["agent_count"] == 7
+    assert len(plan["agents"]) == 7
+    assert plan["quality_gates"]["motion_fps"] == 60
+
+    report = validate_arabic_phonetics("مِنْ فِكْرَةٍ وَاحِدَهْ، إِلَى عَمَلٍ سِينَمَائِيٍّ مُتَكَامِلْ.")
+    assert report["valid"] is True
+    assert report["diacritic_ratio"] >= 0.75
+
+
+def test_showrunner_package_validator_and_cost_estimator() -> None:
+    """Verify Showrunner validate_package.py, estimate_cost.py, and field-tested lessons."""
+    import subprocess
+    root = Path(__file__).resolve().parent.parent
+    pkg = root / "examples" / "example_03_showrunner_package.json"
+    assert pkg.exists()
+    assert (root / "references" / "07-field-tested-production-lessons.md").exists()
+
+    res_val = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_package.py"), str(pkg)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert res_val.returncode == 0
+    assert "PASS (0 errors, 0 warnings)" in res_val.stdout
+
+    res_cost = subprocess.run(
+        [sys.executable, str(root / "scripts" / "estimate_cost.py"), str(pkg), "10", "1"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert res_cost.returncode == 0
+    assert "blocks=2 | minimum=20 | expected=40" in res_cost.stdout
+
+
+if __name__ == "__main__":
+    suite = [
+        test_detect_arabic_dialect,
+        test_apply_safe_arabic_kashida,
+        test_generate_keyword_variants,
+        test_optimize_arabic_lip_sync_word_limit_and_pauses,
+        test_resolve_slash_macros,
+        test_openmontage_governance_scorers,
+        test_compile_blueprint_commercial_and_explainer,
+        test_seven_agent_orchestrator_and_arabic_phonetic_gate,
+        test_showrunner_package_validator_and_cost_estimator,
+    ]
+    for fn in suite:
+        fn()
+        print(f"PASS: {fn.__name__}")
+    print(f"\nALL {len(suite)} CINEFLOW-AI-STUDIO UNIT TEST SUITES PASSED!")

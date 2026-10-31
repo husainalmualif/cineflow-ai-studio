@@ -1,0 +1,104 @@
+{
+  "project": {
+    "title": "",
+    "purpose": "",
+    "format": "",
+    "style": "",
+    "platform": "Google Flow",
+    "aspect_ratio": "9:16",
+    "total_runtime_s": 0,
+    "language_dialect": "",
+    "verified_capabilities": {
+      "per_clip_s_options": [4, 6, 8, 10],
+      "extend_cap_s": 40,
+      "audio": "native_or_post_dsp",
+      "status": "UNVERIFIED"
+    },
+    "motion_engine_60fps": {
+      "enabled": false,
+      "renderer": "Three.js WebGL + HTML5 2D Canvas",
+      "bloom": { "strength": 0.42, "radius": 0.45, "threshold": 0.78 },
+      "safe_preview_verified": true
+    }
+  },
+  "identity_bible": [
+    {
+      "id": "CHAR_01",
+      "descriptor": "",
+      "reference_prompt": "",
+      "reference_images": []
+    }
+  ],
+  "style_bible": {
+    "look": "",
+    "palette": [],
+    "lens_language": "",
+    "grade": ""
+  },
+  "audio_map": {
+    "bpm": 120,
+    "music_prompt": "",
+    "voice_direction": "",
+    "whisper_asr_verified": true,
+    "sfx_cues": [{ "t": "00:00", "cue": "" }],
+    "mix": "-14.0 LUFS integrated, <= -1.0 dBTP, 180ms sidechain ducking (-9.5 dB)"
+  },
+  "blocks": [
+    {
+      "block_id": 1,
+      "mode": "Text",
+      "duration_s": 10,
+      "extend_from_block": null,
+      "ids_used": ["CHAR_01"],
+      "shots": [
+        {
+          "shot_id": "1A",
+          "t_range": "0-4",
+          "visual_prompt_en": "",
+          "camera": "",
+          "lighting_grade": "",
+          "emotion_body_language": "",
+          "dialogue_ar": "",
+          "dialogue_tts_ar": "",
+          "dialogue_gloss_en": "",
+          "audio_sync": "",
+          "negatives": "no extra fingers, no distorted or random text, no logo morphing, no watermark, no burned-in subtitles, no extra characters, no face drift, no static-photo mouth cutout"
+        }
+      ],
+      "continuity_note": ""
+    }
+  ],
+  "overlays": [
+    {
+      "start_s": 0,
+      "end_s": 2,
+      "text_ar": "",
+      "position": "center",
+      "style": ""
+    }
+  ],
+  "outro": {
+    "safe_zone": "bottom 20%",
+    "cta_ar": "",
+    "handles": ""
+  },
+  "audit_report": {
+    "score": 26,
+    "max_score": 26,
+    "status": "PENDING",
+    "fixes": []
+  },
+  "generation_order": [],
+  "credit_estimate": {
+    "blocks": 0,
+    "expected_rerolls": 0,
+    "notes": ""
+  },
+  "marketing_expansion": {
+    "poster_prompt": "",
+    "carousel_ar": [],
+    "caption_ar": "",
+    "hashtags": [],
+    "thumbnail_prompt": ""
+  }
+}

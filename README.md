@@ -69,7 +69,25 @@
 
 ---
 
-## رابعاً: طريقة التثبيت والتفعيل (Installation & Setup)
+### رابعاً: منظومة الفريق المتكامل — سبعة وكلاء أذكياء (`The 7-Agent Specialized Production Team`)
+
+تعمل مهارة **`cineflow-ai-studio`** عبر معمارية فريق إنتاج ذكي مكوّن من **7 وكلاء متخصصين** يديرهم وكيل مايسترو مركزي (`scripts/multi_agent_orchestrator.py` + `references/multi-agent-orchestrator.md`):
+
+1. **الوكيل 01 — المايسترو المنسق (`Master Orchestrator Agent`):** يفكك فكرة المستخدم إلى مهام متوازية، ويدير عقود تسليم المخرجات (`JSON Contracts`) بين الوكلاء الستة، ويمنع التصدير قبل اجتياز بوابات الفحص.
+2. **الوكيل 02 — وكيل البحث والتوثيق المعمق (`Google Search Grounding Agent` — `https://www.google.com/` `AI Mode`):** ينفذ البحث المعمق في 5 دفعات متوازية (`5-Batch Grounding`) ويبني سجل الحقائق الموثقة (`Facts Ledger`) بنسبة هلوسة صفرية (`0% Hallucination`).
+3. **الوكيل 03 — وكيل الذكاء متعدد الوسائط (`Gemini Multimodal Agent` — `https://gemini.google.com/`):** يبني السكربت الإذاعي المشكول بالكامل (`100% Vocalized Arabic Script`) ويترجم كل مشهد إلى أمر هندسي خماسي الطبقات (`5-Layer CHAI Master Prompt`).
+4. **الوكيل 04 — وكيل مختبر الابتكار (`Google Labs Creative Agent` — `https://labs.google/`):** يضبط المراجع البصرية وقفل الهوية (`@Character_01`, `@Environment_01`, `@Style_Seed`) لضمان ثبات الملامح والإضاءة عبر جميع اللقطات.
+5. **الوكيل 05 — مخرج التدفق السينمائي (`Google Flow Video Director Agent` — `https://flow.google.com/`):** يوجه نماذج `Veo 3.1 Quality` و`Gemini Omni 1.1 Flash` مع بروتوكول المصافحة البصرية (`Scene Handshake: -0.04s Last Frame -> <FIRST_FRAME>`)، ويطبق **قانون منع تحريك الشفاه الكرتوني على الصور الثابتة (`Strict No Static JPEG Lip-Flapping Law`)**.
+6. **الوكيل 06 — مهندس الصوت والموسيقى (`FlowMusic & Audio DSP Agent` — `https://www.flowmusic.app/`):** يؤلف الهوية الموسيقية على شبكة الإيقاع (`120 BPM Beat Grid`)، ويدير المازج الرباعي (`4-Bus Broadcast Mixer`) مع الخفض التلقائي للموسيقى أثناء الكلام (`Sidechain Ducking`) والمعايرة الإذاعية الصارمة (`-14.0 LUFS / -1.0 dBTP`).
+7. **الوكيل 07 — وكيل المراجعة والنقد العابر للنماذج (`Cross-Model Critique & Code QA Agent` — `https://chatgpt.com/` + `https://claude.ai/`):** يدقق الكود البرمجي لمحرك الـ `60fps 3D WebGL (Three.js) + 2D Canvas`، ويفحص النطق الصوتي عبر `Whisper ASR`، ويطبق بوابة الجودة (`CHAI Score >= 80/100` و`Slideshow Risk <= 2.0/10`).
+
+#### القوانين الصوتية والمرئية الصارمة للمنظومة:
+- **قانون التشكيل الإذاعي الكامل (`100% Diacritics + Pause Haa`):** فصل نص النطق الصوتي (`tts_text` المشكول بنسبة `>= 75%` مع كتابة كل تاء مربوطة عند الوقف `هْ` لمنع نطقها كـ `-tu/-ta` مكسورة، وحذف الألف الخنجرية `ٰ`، وتعريب المصطلحات التقنية بالكامل) عن نص العرض البصري على الشاشة (`display_text`).
+- **قانون منع الشفاه الكرتونية (`No Static JPEG Mouth-Patch Blending`):** يُمنع منعاً باتاً قص ولصق شفاه متحركة على صورة وجه ثابتة؛ إما فيديو متحدث أصيل أو مسرح موشن جرافيك ثلاثي الأبعاد بسرعة **60 إطاراً في الثانية (`60fps Three.js + UnrealBloomPass + Remotion`)**.
+
+---
+
+## خامساً: طريقة التثبيت والتفعيل (Installation & Setup)
 
 ### 1. التثبيت السريع عبر سطر الأوامر (CLI):
 ```bash
@@ -83,7 +101,7 @@ npx skills add husainalmualif/cineflow-ai-studio
 
 ---
 
-## خامساً: كيفية الاستخدام خطوة بخطوة (How to Use This Skill)
+## سادساً: كيفية الاستخدام خطوة بخطوة (How to Use This Skill)
 
 ### السيناريو 1: كتابة سكربت وإخراج إعلان تجاري أو ريلز فيروسي (`10–15 ثانية`) مع الموشن وحقيبة النشر
 **مثال للأمر (Prompt) الذي تكتبه للوكيل:**
@@ -135,16 +153,44 @@ powershell -ExecutionPolicy Bypass -File .\scripts\Compile-CineFlowBlueprint.ps1
   -OutputPath ".\examples\example_01_commercial_promo.json"
 ```
 
+#### ج) تشغيل منسق الوكلاء السبعة وفاحص التشكيل الإذاعي (`7-Agent Orchestrator & Arabic Phonetic Gate`):
+```bash
+# 1. توليد خطة عمل متكاملة للوكلاء السبعة (Master Orchestration Plan)
+python scripts/multi_agent_orchestrator.py \
+  --brief "إعلان سينمائي 50 ثانية يستعرض منظومة استوديو سينما فلو الذكي" \
+  --pipeline route_3_motion_stage_60fps \
+  --duration 51.5 \
+  --output examples/multi_agent_plan.json
+
+# 2. الفحص الصارم للتشكيل الإذاعي وتحويل التاء المربوطة عند الوقف (ة -> هْ)
+python scripts/multi_agent_orchestrator.py --validate-script examples/script_source.json
+
+# 3. فحص حزمة الإنتاج القياسية للـ Showrunner (06_package.json) وحساب التكلفة وتوليد الترجمة (.srt)
+python scripts/validate_package.py examples/example_03_showrunner_package.json
+python scripts/estimate_cost.py examples/example_03_showrunner_package.json 10 1
+python scripts/make_srt.py examples/example_03_showrunner_package.json out.srt
+```
+
 ---
 
-## سادساً: هيكل ملفات المستودع (Repository Structure — 14 Files)
+## سابعاً: هيكل ملفات المستودع (Repository Structure)
 
 ```text
 cineflow-ai-studio/
-├── SKILL.md                                                 # الدستور الرئيسي للمهارة والـ System Prompt الشامل (12 مساراً + 15 ضابطاً)
+├── SKILL.md                                                 # الدستور الرئيسي للمهارة والـ System Prompt الشامل (12 مساراً + 7 وكلاء + Showrunner)
 ├── README.md                                                # دليل التثبيت والاستخدام التفصيلي (هذا الملف)
 ├── requirements.txt                                         # متطلبات الفحص والاختبار الآلي (pytest, pylint)
+├── templates/
+│   └── package.template.json                                # قالب حزمة الإنتاج القياسي للـ Showrunner (06_package.json)
 ├── references/
+│   ├── 01-team-and-roles.md                                 # مصفوفة الـ 13 وكيلاً متخصصاً (A1..A12 + Alt) وبروتوكول التسليم
+│   ├── 02-flow-rules.md                                     # قواعد Google Flow، المدة، وبنية البرومبت (<= 120 كلمة)
+│   ├── 03-direction-and-audio.md                            # معايير الإخراج الـ 8، التصنيف، الصوت (-14 LUFS)، والموشن 60fps
+│   ├── 04-qa-and-errors.md                                  # جدول التدقيق من 26 نقطة (13 معياراً) وبروتوكول إصلاح الأخطاء
+│   ├── 05-postproduction-marketing.md                       # المونتاج، الترجمة (.srt)، التصدير، والتوسع التسويقي
+│   ├── 06-browser-ops.md                                    # تشغيل المنصات عبر المتصفح وبطاقات التسليم اليدوي (Manual Handoff Cards)
+│   ├── 07-field-tested-production-lessons.md                # خلاصة التجارب الميدانية (حظر الشفاه الثابتة، Whisper ASR، معايرة 3D Bloom، Pure-NumPy DSP)
+│   ├── multi-agent-orchestrator.md                          # معمارية الوكلاء السبعة + بروتوكولات المتصفح الحي + قانون التشكيل الإذاعي
 │   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 180+ (/macros) + CHAI 5-Aspect Language + Veo/Seedance + 3D Worlds
 │   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة السكربت + قفل اللهجات + Lip-Sync + البحث الخماسي + تحليل الفيديو المرجعي
 │   ├── programmatic_editing_and_motion_guide.md             # الـ 12 مساراً + التخطيط الرباعي + Remotion/HyperFrames Atelier + Ink Theater + الصوت
@@ -152,13 +198,18 @@ cineflow-ai-studio/
 ├── resources/
 │   └── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والحوكمة الإنتاجية
 ├── scripts/
+│   ├── multi_agent_orchestrator.py                          # المايسترو المنسق للوكلاء السبعة + بوابة الفحص الصوتي الإذاعي (Tashkeel Gate)
+│   ├── validate_package.py                                  # مدقق حزمة الإنتاج القياسية (06_package.json) والتشكيل الصوتي
+│   ├── estimate_cost.py                                     # حاسبة الأرصدة المتوقعة والقصوى قبل بوابة الاعتماد الثانية (GATE 2)
+│   ├── make_srt.py                                          # مولد ملفات الترجمة العربية (.srt) من الحزمة
 │   ├── cineflow_compiler.py                                 # المترجم الآلي ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة Python
 │   └── Compile-CineFlowBlueprint.ps1                        # المترجم الآلي ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة PowerShell
 ├── tests/
-│   └── test_cineflow_compiler.py                            # اختبارات الوحدات الآلية (Unit Tests) لفحص السكربت والكشيدة والحوكمة والـ QA
+│   └── test_cineflow_compiler.py                            # اختبارات الوحدات الآلية (9 Unit Test Suites)
 ├── examples/
 │   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي + تخطيط وموشن وحوكمة + غلاف وبوستر وحقيبة نشر
-│   └── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي (HyperFrames Atelier)
+│   ├── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي (HyperFrames Atelier)
+│   └── example_03_showrunner_package.json                   # نموذج تطبيقي 3: حزمة إنتاج Showrunner متكاملة (20 ثانية)
 └── .github/
     └── workflows/
         └── ci.yml                                           # الفحص الآلي المستمر (GitHub Actions CI)

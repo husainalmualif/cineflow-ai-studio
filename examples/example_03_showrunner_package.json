@@ -1,0 +1,175 @@
+{
+  "project": {
+    "title": "Qahwat Al-Fajr — Specialty Gulf Coffee Launch",
+    "purpose": "commercial/TVC",
+    "format": "live-action + 60fps 3D motion",
+    "style": "cinematic warm + gold keynote",
+    "platform": "Google Flow",
+    "aspect_ratio": "9:16",
+    "total_runtime_s": 20,
+    "language_dialect": "Gulf Arabic (MSA/Khaleeji Broadcast)",
+    "verified_capabilities": {
+      "per_clip_s_options": [4, 6, 8, 10],
+      "extend_cap_s": 40,
+      "audio": "native_or_post_dsp",
+      "status": "VERIFIED"
+    },
+    "motion_engine_60fps": {
+      "enabled": true,
+      "renderer": "Three.js WebGL + HTML5 2D Canvas",
+      "bloom": { "strength": 0.42, "radius": 0.45, "threshold": 0.78 },
+      "safe_preview_verified": true
+    }
+  },
+  "identity_bible": [
+    {
+      "id": "CHAR_01",
+      "descriptor": "32-year-old Gulf barista, trimmed dark beard, charcoal linen apron with brass buckle, warm olive skin",
+      "reference_prompt": "32-year-old Gulf barista, trimmed dark beard, charcoal linen apron with brass buckle, warm studio light, clean neutral background",
+      "reference_images": ["assets/CHAR_01_turnaround.png"]
+    },
+    {
+      "id": "PROD_01",
+      "descriptor": "Matte obsidian ceramic pour-over carafe with embossed gold emblem",
+      "reference_prompt": "Matte obsidian ceramic pour-over carafe with embossed gold emblem, macro product studio shot",
+      "reference_images": ["assets/PROD_01_hero.png"]
+    },
+    {
+      "id": "ENV_01",
+      "descriptor": "Warm limestone specialty coffee bar at sunrise with brass espresso fixtures",
+      "reference_prompt": "Warm limestone specialty coffee bar at sunrise with volumetric golden rays",
+      "reference_images": ["assets/ENV_01_plate.png"]
+    }
+  ],
+  "style_bible": {
+    "look": "Anamorphic warm golden hour with 35mm ISO 800 film grain and 60fps 3D gold HUD overlays",
+    "palette": ["#050811", "#F59E0B", "#14B8A6", "#F8FAFC"],
+    "lens_language": "85mm f/1.4 macro & medium close-up",
+    "grade": "cinematic warm"
+  },
+  "audio_map": {
+    "bpm": 120,
+    "music_prompt": "Warm acoustic oud and deep cinematic sub-bass pulse at 120 BPM, D minor, no vocals",
+    "voice_direction": "Warm, confident Gulf/MSA broadcast voiceover, measured pace",
+    "whisper_asr_verified": true,
+    "sfx_cues": [
+      { "t": "00:00", "cue": "crisp coffee bean crack and warm sub riser" },
+      { "t": "00:10", "cue": "gentle pour-over stream and glass chime" }
+    ],
+    "mix": "-14.0 LUFS integrated, <= -1.0 dBTP, 180ms sidechain ducking (-9.5 dB)"
+  },
+  "blocks": [
+    {
+      "block_id": 1,
+      "mode": "Ingredients",
+      "duration_s": 10,
+      "extend_from_block": null,
+      "ids_used": ["CHAR_01", "PROD_01", "ENV_01"],
+      "shots": [
+        {
+          "shot_id": "1A",
+          "t_range": "0-5",
+          "visual_prompt_en": "[CHAR_01] pours steaming golden espresso into [PROD_01] inside [ENV_01], rising aromatic steam catching sunlight, 35mm film grain ISO 800",
+          "camera": "85mm f/1.4, ECU to MS, slow dolly-in",
+          "lighting_grade": "warm golden sunrise rim key, cinematic warm grade",
+          "emotion_body_language": "proud, calm, steady hands, focused eye line",
+          "dialogue_ar": "نكهة الصباح تبدأ من أول قطرة.",
+          "dialogue_tts_ar": "نَكْهَةُ الصَّبَاحِ تَبْدَأُ مِنْ أَوَّلِ قَطْرَهْ.",
+          "dialogue_gloss_en": "The flavor of morning begins from the very first drop.",
+          "audio_sync": "SFX: coffee pour stream and subtle ceramic clink, no background music",
+          "negatives": "no extra fingers, no distorted or random text, no logo morphing, no watermark, no burned-in subtitles, no extra characters, no face drift, no static-photo mouth cutout"
+        },
+        {
+          "shot_id": "1B",
+          "t_range": "5-10",
+          "visual_prompt_en": "[CHAR_01] lifts [PROD_01] toward camera with a warm confident smile in [ENV_01]",
+          "camera": "50mm f/1.4, MS frontal, subtle gimbal push",
+          "lighting_grade": "motivated warm window key light, natural skin tones",
+          "emotion_body_language": "warm, confident, relaxed shoulders, frontal gaze",
+          "dialogue_ar": "تحميص متقن يجمع الأصالة والفخامة.",
+          "dialogue_tts_ar": "تَحْمِيصٌ مُتْقَنٌ يَجْمَعُ الْأَصَالَةَ وَالْفَخَامَهْ.",
+          "dialogue_gloss_en": "Masterful roasting uniting authenticity and luxury.",
+          "audio_sync": "SFX: soft warm whoosh on beat 10, no background music",
+          "negatives": "no extra fingers, no distorted or random text, no logo morphing, no watermark, no burned-in subtitles, no extra characters, no face drift, no static-photo mouth cutout"
+        }
+      ],
+      "continuity_note": "End on [PROD_01] centered on limestone counter for Extend into Block 2."
+    },
+    {
+      "block_id": 2,
+      "mode": "Extend",
+      "duration_s": 10,
+      "extend_from_block": 1,
+      "ids_used": ["PROD_01", "ENV_01"],
+      "shots": [
+        {
+          "shot_id": "2A",
+          "t_range": "10-20",
+          "visual_prompt_en": "[PROD_01] rests on the warm limestone bar in [ENV_01] with clean negative space in top and bottom safe zones for brand outro",
+          "camera": "50mm f/2.0, hero MS, slow orbital arc",
+          "lighting_grade": "warm golden rim light, clean background bokeh",
+          "emotion_body_language": "serene luxury hero product stillness",
+          "dialogue_ar": "اطلب خلطتك الخاصة الآن.",
+          "dialogue_tts_ar": "اطْلُبْ خَلْطَتَكَ الْخَاصَّةَ الْآنَ مِنْ مَتْجَرِنَا الرَّسْمِيِّ بِكُلِّ سُهُولَهْ.",
+          "dialogue_gloss_en": "Order your signature blend now.",
+          "audio_sync": "SFX: deep resonant bass bloom and subtle shimmer, no background music",
+          "negatives": "no extra fingers, no distorted or random text, no logo morphing, no watermark, no burned-in subtitles, no extra characters, no face drift, no static-photo mouth cutout"
+        }
+      ],
+      "continuity_note": "Loops seamlessly back to sunrise steam of Shot 1A."
+    }
+  ],
+  "overlays": [
+    {
+      "start_s": 0.2,
+      "end_s": 4.8,
+      "text_ar": "نكهة الصباح من أول قطرة",
+      "position": "center-safe",
+      "style": "Cairo Bold 52px gold Kashida"
+    },
+    {
+      "start_s": 5.2,
+      "end_s": 9.8,
+      "text_ar": "تحميص متقن يجمع الأصالة والفخامة",
+      "position": "center-safe",
+      "style": "Cairo Bold 48px"
+    },
+    {
+      "start_s": 10.5,
+      "end_s": 19.5,
+      "text_ar": "اطلب خلطتك الخاصة الآن",
+      "position": "outro-safe",
+      "style": "Cairo Black 56px CTA"
+    }
+  ],
+  "outro": {
+    "safe_zone": "bottom 20% and top 8% reserved",
+    "cta_ar": "اطلب خلطتك الخاصة الآن",
+    "handles": "@QahwatAlFajr"
+  },
+  "audit_report": {
+    "score": 26,
+    "max_score": 26,
+    "status": "PASS",
+    "fixes": []
+  },
+  "generation_order": [1, 2],
+  "credit_estimate": {
+    "blocks": 2,
+    "expected_rerolls": 1,
+    "notes": "Stage 1 references at 0 credits via Nano Banana 2 Lite; 2 blocks in Veo 3.1."
+  },
+  "marketing_expansion": {
+    "poster_prompt": "4:5 vertical luxury poster featuring [PROD_01] on warm limestone bar in [ENV_01], 35% clean upper negative space for Arabic typography",
+    "carousel_ar": [
+      "١. لماذا تختلف القهوة المختصة في أول ٣٠ ثانية من التحضير؟",
+      "٢. سر التحميص المتدرج الذي يحفظ الزيوت العطرية الكاملة.",
+      "٣. حرارة الماء المثالية لاستخلاص متوازن بلا مرارة.",
+      "٤. تصميم إناء التقطير لحفظ الحرارة والنكهة.",
+      "٥. اطلب خلطتك الخاصة الآن واستمتع بصباح استثنائي."
+    ],
+    "caption_ar": "نكهة الصباح تبدأ من أول قطرة. اكتشف خلطتنا الخاصة المحمصة بعناية.",
+    "hashtags": ["#قهوة_مختصة", "#الصباح", "#SpecialtyCoffee", "#GulfCoffee"],
+    "thumbnail_prompt": "1080x1080 safe-square close-up of [PROD_01] with golden steam and 3-word Arabic hook"
+  }
+}
