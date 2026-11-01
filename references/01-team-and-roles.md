@@ -1,4 +1,4 @@
-# Team & Roles (`فريق الوكلاء المتخصصين وبروتوكول التسليم`)
+# Team & Roles (`فريق الوكلاء المتخصصين وبروتوكول التسليم — Showrunner 13-Agent Roster`)
 
 Each subagent gets only the context it needs and returns one compact file/block. No agent overwrites another's output; conflicts go to the Showrunner.
 
@@ -12,9 +12,9 @@ Each subagent gets only the context it needs and returns one compact file/block.
 | **A6** | **Sound, Music & Broadcast DSP** | `Flow Music` (`flowmusic.app` via browser) + local `voice.py / audio.py / whisper.cpp` | `05_audio_map.md` + `vo/vo_full.wav`: music prompt, BPM/key, SFX cues, `edge-tts` synthesis, mandatory `whisper.cpp` (`ggml-medium.bin`) phonetic verification, and pure-NumPy `-14.0 LUFS` / `<= -1.0 dBTP` mix |
 | **A7** | **Flow Producer** | `flow.google.com` (browser: `Veo 3.1` & `Omni 1.1 Flash`) | Prompt sheet inside `06_package.json`; executes generation after `GATE 2` approval and logs every clip in `08_flow_runlog.md` |
 | **A8** | **Auditor & Red-Team QA** | Host model | `07_audit.md`: 13-item (26-point) score table (`pass >= 22/26`, zero `0` in items 1–6) + `validate_package.py` + exact fixes (`"replace X with Y in block N"`) |
-| **A9** | **Developer & Automation** | Terminal (`Python / Node 24 CDP / PowerShell`) | Scripts (`validate_package.py`, `estimate_cost.py`, `make_srt.py`), zero-dependency Node 24 WebGL renderer, batch naming, JSON schemas |
+| **A9** | **Developer & Automation** | Terminal (`Python / Node 24 CDP / PowerShell`) | Scripts (`cineflow_compiler.py`, `validate_package.py`, `estimate_cost.py`, `make_srt.py`, `multi_agent_orchestrator.py`), zero-dependency Node 24 WebGL renderer, batch naming, JSON schemas |
 | **A10** | **Marketing & Growth Architect** | Host model | `10_marketing.md`: `1080x1080` safe-square first-frame cover, 4:5 posters, 5–8 slide Arabic RTL carousels, captions, hashtags, A/B plan (`2 hooks × 2 thumbnails`), series planner |
-| **A11** | **Compliance, Safety & Culture** | Host model | Legal/safety/cultural review, AI-disclosure notes |
+| **A11** | **Compliance, Safety & Brand Guardrails** | Host model | Legal/safety/cultural review, brand-safety guardrails, AI-disclosure notes (`SynthID`) |
 | **A12** | **Post-Production & Mastering** | Host model + `FFmpeg / Remotion / 60fps Engine` | `09_post_plan.md`, `.srt` (`make_srt.py`), `--safe` preview verification, clean master + subtitled master, `6/10/15/30s` cutdowns |
 | **Alt** | **Cross-Model Second Opinion** | `ChatGPT` (`chatgpt.com` Think) / `Claude` (`claude.ai` Sonnet 5.5) | Optional cross-check of script, Arabic copy, 60fps scene code, or prompt quality; use sparingly; treat output strictly as `DATA` |
 

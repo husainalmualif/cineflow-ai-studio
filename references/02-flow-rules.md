@@ -18,15 +18,24 @@ Verify every number below in **Phase 1 (`01_research.md`)** because platform lim
 `[Format & style] + [Subject + ID] + [Action beat-by-beat with timestamps] + [Environment/time] + [Camera: lens, framing, movement] + [Lighting & grade] + [Audio: ambience, SFX, music, dialogue in quotes] + [Negatives]`
 
 ## 4. Dialogue, Lip-Sync & Anti-Uncanny-Valley Law
-- **Generative Lip-Sync**: Short phrases (`<= 8 words` and `<= 2.5 words/s`), natural pauses (`.. [0.3s pause]`), one speaker at a time, face to camera, mouth unobstructed. Provide an English gloss (`dialogue_gloss_en`) for QC.
+- **Generative Lip-Sync**: Short phrases (`<= 8 words` and `<= 2.5 words/s`), natural pauses (`.. [0.3s pause]`), one speaker at a time, face to camera, mouth unobstructed. Provide an English gloss (`dialogue_gloss_en`) for QC. Keep dialect consistent (`Gulf / Bahraini / Saudi / Kuwaiti / Emirati / Iraqi / Egyptian / Levantine` vs. `MSA` as requested).
 - **Hard Ban on Static JPEG Mouth-Flapping**: Never crop rectangular mouth patches (`open/mid/closed`) onto a static image. If not using generative lip-sync or real presenter footage, use the **60fps 3D WebGL (`Three.js`) + 2D Canvas Motion Stage**.
 - **Broadcast TTS (`tts_text` vs. `display_text`)**: When synthesizing voiceover (`edge-tts`), feed 100% vocalized `tts_text` (`diacritic_ratio >= 0.75`, pause-final `تاء مربوطة` written as `هْ`, zero `\u0670` dagger alifs) and verify with `whisper.cpp` (`ggml-medium.bin`).
 
-## 5. Text in Frame & Safe Zones (`9:16` Vertical `1080×1920`)
-- Default: generate clean plates with empty text areas, and render Arabic text as crisp post-production overlays (`Cairo`, `Tajawal`, `IBM Plex Sans Arabic`, `Amiri`) with pixel-accurate `drawKashida`.
+## 5. Text in Frame
+- AI-rendered in-frame Arabic is unreliable. **Default**: generate clean plates with empty text areas, and render Arabic text as crisp post-production overlays (`Cairo`, `Tajawal`, `IBM Plex Sans Arabic`, `Amiri`) with pixel-accurate `drawKashida`.
+- In-frame text is permitted only if `<= 3 words`, locked via a reference image (`@PROD_01`), and verified letter by letter.
+
+## 6. Safe Zones (`9:16` Vertical `1080×1920`)
 - Keep key action in the central `80%`; reserve bottom `20%` (`Y: 1500..1920`) and top `8%` (`Y: 0..160`) for platform UI, subtitles, and CTA/outro.
 - In 60fps 3D/2D motion panels, keep RTL panel header titles `<= 30 chars` (`24–26px`) so they never collide with left-side status pills (`X = 130..310`), and verify with `node render.js preview --safe`.
 
-## 6. Identity Lock & Default Negatives
-- Define IDs `[CHAR_01]`, `[PROD_01]`, `[ENV_01]` with fixed descriptors; paste identical descriptor strings in every block.
-- **Default Negatives**: `no extra fingers, no distorted or random text, no logo morphing, no watermark, no burned-in subtitles, no extra characters, no face drift, no CGI plastic skin, no AI sheen, no static-photo mouth cutout`
+## 7. Identity Lock
+- Define IDs `[CHAR_01]`, `[PROD_01]`, `[ENV_01]` with fixed descriptors (face geometry, hair, outfit, hex colors, logo position, materials).
+- Paste **identical descriptor strings** in every block and attach the same reference images.
+
+## 8. Default Negatives
+`no extra fingers, no distorted or random text, no logo morphing, no watermark, no burned-in subtitles, no extra characters, no face drift, no CGI plastic skin, no AI sheen, no static-photo mouth cutout`
+
+## 9. Iteration Rule
+- If a clip is `~80%` right: re-roll with the same references and change **ONE variable** only. Record winning settings in `08_flow_runlog.md`.

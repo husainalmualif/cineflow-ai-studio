@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Estimate credits. Usage: estimate_cost.py PACKAGE.json CREDITS_PER_GENERATION [EXPECTED_REROLLS_PER_BLOCK=1]"""
+"""Estimate credits. Usage: estimate_cost.py PACKAGE.json CREDITS_PER_GENERATION [EXPECTED_REROLLS_PER_BLOCK=1]
+CREDITS_PER_GENERATION must be the value shown by the platform (verify on screen)."""
 import json, sys
 if len(sys.argv) < 3 or sys.argv[1] in ("-h", "--help"):
     print(__doc__); sys.exit(0)

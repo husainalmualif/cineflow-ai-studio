@@ -9,7 +9,7 @@ Score **`0–2` each** (`2 = Pass`, `1 = Minor Warning`, `0 = Fail`).
 3. **Arabic text, dialogue & broadcast phonetics correct** (100% dialect-consistent; `tts_text` has `>= 75%` Tashkeel + pause `هْ` + zero `\u0670` + `whisper.cpp` verified; `display_text` typo-free)
 4. **Lip-sync & Anti-Uncanny-Valley compliance** (`<= 8 words/phrase` with `dialogue_gloss_en` for generative lip-sync, OR 60fps 3D/2D motion stage — **zero static-JPEG mouth-patch flapping**)
 5. **Safe zones & Outro compliance** (`9:16` central `80%`, bottom `20%` & top `8%` clear, `--safe` preview verified with zero header-pill overlap)
-6. **Safety, legal & cultural pass (`A11`)** (no unauthorized likeness/voice/trademarks)
+6. **Safety, legal & brand compliance pass (`A11`)** (no unauthorized likeness/voice/trademarks)
 7. **Hook strength (first `2 s`)** (visual shock, 3D slideWall zoom, or contrarian hook within `0–2s`)
 8. **Story logic & block continuity** (`Scene Handshake` `-sseof -0.04` or match-cut transition between blocks)
 9. **Camera & lighting specificity** (explicit lens, framing, single strong camera move, motivated lighting, `UnrealBloomPass` `{0.42, 0.45, 0.78}`)
@@ -20,7 +20,25 @@ Score **`0–2` each** (`2 = Pass`, `1 = Minor Warning`, `0 = Fail`).
 
 Output **`07_audit.md`**: full 13-row score table + exact constructive fixes (`"replace X with Y in block N"`).
 
-## 2. Error & Re-Roll Protocol (Max `2 Re-Rolls` per Block, Then Redesign the Shot)
+---
+
+## 2. Compliance & Brand Safety (`A11`)
+- No real-person likeness or voice cloning without explicit consent.
+- No trademarked characters or copyrighted music/lyrics.
+- No misleading deepfakes, unsafe minor contexts, or unsubstantiated medical/financial claims.
+- Follow platform AI-content disclosure labels and note that generated media may carry invisible watermarks (`SynthID`).
+
+---
+
+## 3. Post-Render Clip & Frame Review (`each clip / scene`)
+Inspect every rendered clip or `--safe` preview frame for:
+`identity drift` · `hands/objects distortion` · `text artifacts / header-pill overlap` · `lip-sync accuracy` · `motion/bloom artifacts` · `audio clash / Whisper ASR mismatch` · `continuity with previous block`.
+Mark each block: **`KEEP` / `RE-ROLL` / `REDESIGN`**.
+
+---
+
+## 4. Error & Re-Roll Protocol (Max `2 Re-Rolls` per Block, Then Redesign the Shot)
+
 | Symptom | Root Cause & Exact Fix |
 |---|---|
 | **Face / outfit drift** | Attach more reference plates (`Ingredients`), repeat identical descriptor string verbatim, shorten block to `4–6s`, or use previous block's last frame (`-sseof -0.04`) as `<FIRST_FRAME>`. |
@@ -28,4 +46,8 @@ Output **`07_audit.md`**: full 13-row score table + exact constructive fixes (`"
 | **Garbled in-frame Arabic text** | Remove in-frame text from generator prompt (`--no text`); render clean Arabic in post-production (`display_text` + `drawKashida`). |
 | **Lip-sync off / uncanny mouth** | Shorten phrase to `<= 5–8 words` with `.. [0.3s pause]`, switch to frontal unobstructed framing, or replace static-photo avatar with 60fps 3D WebGL + 2D Motion Stage. |
 | **TTS mispronunciation (`Whisper` fail)** | Add 100% Tashkeel (`>= 75%` ratio) in `tts_text`, replace pause-final `ة` with `هْ`, remove `\u0670`, replace English transliterations with pure Arabic, and re-run `voice.py`. |
+| **Motion artifacts / camera jitter** | Restrict to **one motion source at a time** (camera movement OR subject movement, never conflicting simultaneous vectors). |
 | **3D card white-out / header collision** | Lower `UnrealBloomPass` to `{ strength: 0.42, radius: 0.45, threshold: 0.78 }` and shorten RTL panel header title to `<= 30 chars` (`24–26px`); verify with `render.js preview --safe`. |
+| **Style mismatch** | Add 2 explicit style anchors + 1 negative guardrail + lock palette hex tokens. |
+| **Audio clash / muddy voiceover** | Split ambience, music, and dialogue; generate video with `"no background music"` and master in post with `audio.py` (`180ms` sidechain ducking `-9.5 dB`, `-14.0 LUFS`). |
+| **Policy block** | Rephrase neutrally, remove real person/brand names; if persistent after 1 retry, stop and ask the user. |

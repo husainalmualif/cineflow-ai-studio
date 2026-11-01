@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """Validate a production package (06_package.json).
 Usage: python scripts/validate_package.py <package.json>
+
+Checks:
+1. Required top-level sections (project, identity_bible, blocks, outro).
+2. Verified platform capabilities & allowed per-clip durations (4, 6, 8, 10s).
+3. Shot density (1..3 shots per block), Identity Bible ID references, and Extend chain links.
+4. Prompt concision (<= 120 words per block) and mandatory negative prompts.
+5. Lip-sync phrase length (<= 8 words per sentence), English gloss, and anti-uncanny-valley rules.
+6. Optional Arabic broadcast phonetic validation on dialogue_tts_ar (>= 70% diacritic ratio, pause هْ, zero dagger alif ٰ).
 """
 import json
 import re
