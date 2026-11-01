@@ -6,19 +6,26 @@ Single Source of Truth (fixes H2, H3, H5, H6, D4, D6):
   make_srt.py, multi_agent_orchestrator.py) import thresholds from this module.
 """
 
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 # ---------------------------------------------------------------------------
 # 1. Empirical Defaults & Hard Guardrails (Single Source of Truth)
 # ---------------------------------------------------------------------------
 # Percentage of Arabic base letters that must carry at least one diacritic mark
 # in broadcast TTS scripts (tts_text / dialogue_tts_ar).
-# Empirical basis: < 0.75 causes neural TTS (edge-tts / Chirp) to guess case endings.
+# CR3: Default 0.75 for standard text and 1.0 target for AI-spoken text (tuned_default).
 MIN_DIACRITIC_RATIO: float = 0.75
+MIN_DIACRITIC_RATIO_AI_TTS: float = 1.0
 
-# Allowed per-clip generative durations (seconds) in Google Flow / Veo 3.1 / Omni 1.1
+# CR1: Allowed per-clip generative durations (seconds) vs. Short-Form total video duration
 ALLOWED_CLIP_DURATIONS: Tuple[int, ...] = (4, 6, 8, 10)
+ALLOWED_CLIP_SECONDS: List[int] = [4, 6, 8, 10]
 HARD_ALLOWED_CLIP_DURATIONS: Set[int] = {4, 6, 8, 10}
+MAX_SINGLE_SHOT_SECONDS: int = 10
+SHORT_FORM_TOTAL_SECONDS: Tuple[int, int] = (10, 15)
+LONG_FORM_CHAPTER_THRESHOLD_SECONDS: int = 60
+LONG_FORM_CHAPTER_RANGE_SECONDS: Tuple[int, int] = (60, 90)
+CAPABILITY_VERIFICATION_STATUS: str = "verify_live"
 
 # Cumulative duration cap (seconds) for chained Extend blocks before requiring a new sequence
 MAX_EXTEND_CHAIN_SECONDS: int = 40
@@ -29,6 +36,23 @@ MAX_PROMPT_WORDS_PER_BLOCK: int = 120
 MAX_LIPSYNC_WORDS_PER_PHRASE: int = 8
 MAX_WORDS_PER_SECOND_AR: float = 2.5
 MAX_OVERLAY_WORDS: int = 6
+
+# Rhythmic Montage & Beat Grid tuned defaults (CR2 & rhythmic_montage_engine)
+SNAP_TOLERANCE_MS: float = 40.0
+MIN_RAMP_SPEED: float = 0.25
+MAX_RAMP_SPEED: float = 4.0
+MAX_RAMPS_PER_CLIP: int = 1
+MAX_SFX_PER_TWO_BEATS: int = 1
+MAX_SFX_EVENTS_PER_MIN_STANDARD: int = 15
+
+# Outro Safe-Zone tuned defaults (9:16)
+OUTRO_SAFE_ZONES: Dict[str, Any] = {
+    "aspect_ratio": "9:16",
+    "logo_zone": "Y 420..820",
+    "cta_zone": "Y 950..1280, X 120..900",
+    "avoid": ["أعلى 220", "أسفل من 1500", "يمين من 920"],
+    "status": "tuned_default",
+}
 
 # Runtime bounds (seconds)
 MIN_TOTAL_RUNTIME_SECONDS: int = 4
@@ -77,6 +101,53 @@ VALID_STYLE_VARIANTS: Set[str] = {
     "Sizzle Reel",
     "Sizzle Reel / Recap",
     "Narrative Continuity Sequence",
+    "montage_sequence",
+    "music_video",
+    "commercial_promo",
+    "short_form_edit",
+    "sizzle_reel",
+    "none",
+}
+
+VALID_MONTAGE_STYLES: Set[str] = {
+    "montage_sequence",
+    "music_video",
+    "commercial_promo",
+    "short_form_edit",
+    "sizzle_reel",
+    "none",
+}
+
+MONTAGE_STYLE_ALIAS_MAP: Dict[str, str] = {
+    "Montage Sequence": "montage_sequence",
+    "montage_sequence": "montage_sequence",
+    "Music Videos": "music_video",
+    "music_video": "music_video",
+    "Commercial Promo": "commercial_promo",
+    "commercial_promo": "commercial_promo",
+    "Short-Form Edits / AMV": "short_form_edit",
+    "Edits / AMV": "short_form_edit",
+    "short_form_edit": "short_form_edit",
+    "Sizzle Reel": "sizzle_reel",
+    "Sizzle Reel / Recap": "sizzle_reel",
+    "sizzle_reel": "sizzle_reel",
+    "Narrative Continuity Sequence": "none",
+    "none": "none",
+}
+
+VALID_PLATFORMS: Set[str] = {
+    "tiktok_reels_shorts_9x16",
+    "youtube_16x9",
+    "feed_4x5",
+    "square_1x1",
+    "cinema_21x9",
+}
+
+VALID_DELIVERY_PROMISES: Set[str] = {
+    "motion_led",
+    "dialogue_led",
+    "music_led",
+    "info_led",
 }
 
 # Protected Arabic words that must NEVER receive a tatweel/kashida (ـ)

@@ -1,4 +1,4 @@
-name: CineFlow AI Studio CI (Skill, 7-Agent Orchestrator & Showrunner Validation)
+name: CineFlow AI Studio CI (Skill, Rhythmic Montage, 7-Agent Orchestrator & Showrunner Validation)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-skill-and-compiler:
-    name: Validate Skill Structure, Pylint, Unit Tests & Showrunner Package Tools
+    name: Validate Skill Structure, Pylint, Unit Tests, Beat Grid & Showrunner Package Tools
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +32,11 @@ jobs:
           test -f README.md
           test -f requirements.txt
           test -f templates/package.template.json
+          test -f references/taxonomy.md
+          test -f references/rhythmic-montage.md
+          test -f references/scene-direction.md
+          test -f references/arabic-text-and-lipsync.md
+          test -f references/model-registry.md
           test -f references/01-team-and-roles.md
           test -f references/02-flow-rules.md
           test -f references/03-direction-and-audio.md
@@ -47,13 +52,17 @@ jobs:
           test -f references/programmatic_editing_and_motion_guide.md
           test -f resources/blueprint_schema.json
           test -f resources/evals.json
+          test -f evals/evals.json
           test -f scripts/studio_config.py
+          test -f scripts/beat_grid.py
           test -f scripts/cineflow_compiler.py
           test -f scripts/multi_agent_orchestrator.py
           test -f scripts/validate_package.py
           test -f scripts/estimate_cost.py
           test -f scripts/make_srt.py
           test -f scripts/Compile-CineFlowBlueprint.ps1
+          test -f tests/test_cineflow_compiler.py
+          test -f tests/test_montage.py
           test -f examples/example_01_commercial_promo.json
           test -f examples/example_02_explainer_and_story_script.json
           test -f examples/example_03_showrunner_package.json
@@ -61,14 +70,16 @@ jobs:
 
       - name: Lint All Scripts & Unit Tests with Pylint
         run: |
-          pylint --disable=C0301,C0413,C0415,R0801,R0911,R0912,R0913,R0914,R0915,R0917 scripts/studio_config.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py tests/test_cineflow_compiler.py
+          pylint --disable=C0301,C0413,C0415,R0801,R0911,R0912,R0913,R0914,R0915,R0917 scripts/studio_config.py scripts/beat_grid.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py tests/test_cineflow_compiler.py tests/test_montage.py
 
-      - name: Run Automated Unit Tests with Pytest
+      - name: Run Automated Unit & Montage Tests with Pytest
         run: |
-          pytest -v tests/test_cineflow_compiler.py
+          pytest -v tests/test_cineflow_compiler.py tests/test_montage.py
 
-      - name: Test End-to-End Compiler -> Validator -> Cost -> SRT Interoperability
+      - name: Test End-to-End Beat Grid -> Compiler -> Validator -> Cost -> SRT Interoperability
         run: |
+          python scripts/beat_grid.py --bpm 120 --time-signature 4/4 --fps 30 --duration 15 --pattern build_up --output /tmp/test_beat_grid.json
+          test -s /tmp/test_beat_grid.json
           python scripts/cineflow_compiler.py --output /tmp/test_blueprint.json
           test -s /tmp/test_blueprint.json
           python scripts/validate_package.py /tmp/test_blueprint.json

@@ -1,0 +1,250 @@
+{
+  "suite": "CineFlow AI Studio Skill & Rhythmic Montage Evaluation Suite",
+  "version": "2.1.0",
+  "last_updated": "2026-11-01",
+  "trigger_evals": {
+    "should_trigger": [
+      "اصنع لي إعلاناً سريع الإيقاع لمنتج رياضي",
+      "اعمل Edit لتيك توك على إيقاع هذه الأغنية",
+      "صمم لي فيديو شرح تطبيق جوال ثلاثي الأبعاد مع تعليق صوتي عربي",
+      "منتج هذا الفيديو المتحدث للكاميرا وقص السكتات وضف كابشن عربي"
+    ],
+    "should_not_trigger": [
+      "اشرح لي تاريخ المونتاج",
+      "صحّح لي هذا النص العربي فقط",
+      "ترجم هذه الفقرة",
+      "اكتب لي قصيدة لطمية حسينية بطور شور"
+    ]
+  },
+  "cases": [
+    {
+      "id": "EVAL_POS_01",
+      "category": "positive_trigger",
+      "route": "route_1_generative_cinema",
+      "prompt": "اصنع لي إعلاناً سريع الإيقاع لمنتج رياضي لمدة 15 ثانية لمقاس ريلز 9:16",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Commercials & TVCs",
+        "format": "Live-Action",
+        "style_variant": "Commercial Promo",
+        "montage_style": "commercial_promo",
+        "has_beat_map": true,
+        "has_ramps": true
+      }
+    },
+    {
+      "id": "EVAL_POS_02",
+      "category": "positive_trigger",
+      "route": "route_2_talking_head_reel",
+      "prompt": "عندي فيديو لشخص يتكلم أمام الكاميرا، قص السكتات وضف كابشن عربي متزامن ومؤثرات صوتية خفيفة",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Educational & Training",
+        "format": "Live-Action",
+        "style_variant": "Short-Form Edits / AMV",
+        "silence_threshold_db": -32
+      }
+    },
+    {
+      "id": "EVAL_POS_03",
+      "category": "positive_trigger",
+      "route": "route_3_motion_stage_60fps",
+      "prompt": "Create a 60fps 3D WebGL & HTML5 motion graphics explainer video showing how our AI platform works",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Explainer Videos",
+        "format": "Motion Graphics",
+        "primary_provider": "hyperframes_remotion_60fps",
+        "render_runtime": "hyperframes"
+      }
+    },
+    {
+      "id": "EVAL_POS_04",
+      "category": "positive_trigger",
+      "route": "route_4_silent_broll_montage",
+      "prompt": "اعمل Edit لتيك توك على إيقاع هذه الأغنية 120 BPM مع قطع على النبض",
+      "should_trigger": true,
+      "expected": {
+        "montage_style": "short_form_edit",
+        "beat_frames_at_30fps": 15
+      }
+    },
+    {
+      "id": "EVAL_POS_05",
+      "category": "positive_trigger",
+      "route": "route_5_multicam_podcast",
+      "prompt": "منتج حلقة بودكاست من زاويتين كاميرا مع تبديل تلقائي للكاميرا حسب المتحدث",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Entertainment Videos",
+        "format": "Live-Action",
+        "pipeline_type": "route_5_multicam_podcast"
+      }
+    },
+    {
+      "id": "EVAL_POS_06",
+      "category": "positive_trigger",
+      "route": "route_6_3d_device_explainer",
+      "prompt": "اعمل فيديو استعراض تطبيق جوال ثلاثي الأبعاد iPhone 3D Device Showcase",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Explainer Videos",
+        "format": "Motion Graphics",
+        "primary_provider": "hyperframes_remotion_60fps"
+      }
+    },
+    {
+      "id": "EVAL_POS_07",
+      "category": "positive_trigger",
+      "route": "route_7_documentary_montage",
+      "prompt": "اصنع فيديو وثائقي تاريخي يربط اللقطات الأرشيفية بالمشاهد المولدة عبر CLIP",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Documentaries",
+        "primary_provider": "clip_archival_remotion_hybrid"
+      }
+    },
+    {
+      "id": "EVAL_POS_08",
+      "category": "positive_trigger",
+      "route": "route_8_character_animation_ink_theater",
+      "prompt": "صمم فيديو رسوم متحركة لشخصيات مرسومة بالحبر تتحرك ببيانات CMU Mocap",
+      "should_trigger": true,
+      "expected": {
+        "format": "Animation (2D / 3D)",
+        "primary_provider": "ink_theater_cmu_mocap"
+      }
+    },
+    {
+      "id": "EVAL_POS_09",
+      "category": "positive_trigger",
+      "route": "route_9_3d_world_generation",
+      "prompt": "نبغى جولة كاميرا مستمرة داخل عالم ثلاثي الأبعاد عبر Gaussian Splatting",
+      "should_trigger": true,
+      "expected": {
+        "format": "360 & Interactive",
+        "pipeline_type": "route_9_3d_world_generation"
+      }
+    },
+    {
+      "id": "EVAL_POS_10",
+      "category": "positive_trigger",
+      "route": "route_10_reference_video_cloner",
+      "prompt": "حلل هذا الفيديو المرجعي واستنسخ إيقاعه وزوايا الكاميرا لإعلان منتجنا الجديد",
+      "should_trigger": true,
+      "expected": {
+        "pipeline_type": "route_10_reference_video_cloner"
+      }
+    },
+    {
+      "id": "EVAL_POS_11",
+      "category": "positive_trigger",
+      "route": "route_11_avatar_spokesperson",
+      "prompt": "اصنع فيديو مؤسسي رسمي بلا موسيقى يشرح التقرير السنوي باللهجة السعودية البيضاء",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Corporate Videos",
+        "montage_style": "none"
+      }
+    },
+    {
+      "id": "EVAL_POS_12",
+      "category": "positive_trigger",
+      "route": "route_12_localization_dub",
+      "prompt": "دبلج هذا الإعلان من الإنجليزية إلى اللهجة العراقية مع ضبط حركة الشفاه والترجمة",
+      "should_trigger": true,
+      "expected": {
+        "pipeline_type": "route_12_localization_dub",
+        "dialect_code": "IRAQI"
+      }
+    },
+    {
+      "id": "EVAL_NEG_01",
+      "category": "negative_non_trigger",
+      "prompt": "اشرح لي تاريخ المونتاج",
+      "should_trigger": false,
+      "reason": "Purely theoretical history question without video production or editing task"
+    },
+    {
+      "id": "EVAL_NEG_02",
+      "category": "negative_non_trigger",
+      "prompt": "صحّح لي هذا النص العربي فقط",
+      "should_trigger": false,
+      "reason": "Standalone text proofreading task"
+    },
+    {
+      "id": "EVAL_NEG_03",
+      "category": "negative_non_trigger",
+      "prompt": "ترجم هذه الفقرة",
+      "should_trigger": false,
+      "reason": "Standalone text translation task"
+    },
+    {
+      "id": "EVAL_NEG_04",
+      "category": "negative_non_trigger",
+      "prompt": "اكتب لي قصيدة لطمية حسينية بطور شور كربلائي",
+      "should_trigger": false,
+      "reason": "Husayni/religious poetic production is separated into its own dedicated skill"
+    },
+    {
+      "id": "EVAL_EDGE_01",
+      "category": "edge_case",
+      "prompt": "Odd runtime request: 45-second documentary narrative on Google Flow",
+      "should_trigger": true,
+      "expected": {
+        "runtime_s": 45,
+        "never_truncated_to_17s": true,
+        "hard_allowed_durations_only": true
+      }
+    },
+    {
+      "id": "EVAL_EDGE_02",
+      "category": "edge_case",
+      "prompt": "Long 90-second narrative exceeding 40s single Extend chain cap",
+      "should_trigger": true,
+      "expected": {
+        "runtime_s": 90,
+        "max_extend_chain_s": 40,
+        "requires_chain_reset_to_ingredients": true
+      }
+    },
+    {
+      "id": "EVAL_EDGE_03",
+      "category": "edge_case",
+      "prompt": "English spoken script passed to dialect detector: 'Build the future today with AI.'",
+      "should_trigger": true,
+      "expected": {
+        "detected_dialect": "UNKNOWN (غير معروف)"
+      }
+    },
+    {
+      "id": "EVAL_EDGE_04",
+      "category": "edge_case",
+      "prompt": "Cut deviating 120ms from nearest beat at 120 BPM (snap_tolerance_ms = 40ms)",
+      "should_trigger": true,
+      "expected": {
+        "mq1_passed": false
+      }
+    },
+    {
+      "id": "EVAL_EDGE_05",
+      "category": "edge_case",
+      "prompt": "8 speed ramps placed inside a single clip_id",
+      "should_trigger": true,
+      "expected": {
+        "mq5_passed": false,
+        "max_ramps_per_clip": 1
+      }
+    },
+    {
+      "id": "EVAL_EDGE_06",
+      "category": "edge_case",
+      "prompt": "Slideshow anti-pattern: 6 identical scenes with static image zoom",
+      "should_trigger": true,
+      "expected": {
+        "slideshow_risk_verdict": "fail",
+        "scene_variation_verdict": "fail"
+      }
+    }
+  ]
+}

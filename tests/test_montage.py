@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Positive and Negative Acceptance Tests for Rhythmic Montage & Beat Grid (tests/test_montage.py).
+
+Compatible with both `pytest -v tests/test_montage.py` and direct CLI execution:
+`python tests/test_montage.py`.
+"""
+
+from __future__ import annotations
+
+import contextlib
+import copy
+import sys
+from pathlib import Path
+from typing import Iterator, Optional, Type
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+SCRIPTS_DIR = ROOT_DIR / "scripts"
+sys.path.insert(0, str(SCRIPTS_DIR))
+
+from beat_grid import (  # noqa: E402
+    build_project_montage,
+    compute_beat_grid,
+    validate_cuts_against_beats,
+    validate_montage_section,
+)
+from cineflow_compiler import (  # noqa: E402
+    compile_blueprint,
+    optimize_arabic_lip_sync,
+    partition_runtime_into_allowed_blocks,
+)
+from validate_package import validate_package_dict  # noqa: E402
+
+
+@contextlib.contextmanager
+def assert_raises(exc_type: Type[BaseException], match: Optional[str] = None) -> Iterator[None]:
+    """Portable replacement for pytest.raises."""
+    try:
+        yield
+    except exc_type as exc:
+        if match and match.lower() not in str(exc).lower():
+            raise AssertionError(f"Exception '{exc}' did not contain '{match}'") from exc
+        return
+    raise AssertionError(f"Expected {exc_type.__name__} to be raised, but no exception was raised.")
+
+
+def test_beat_math_120bpm_30fps_equals_15_frames() -> None:
+    """At 120 BPM and 30 fps, beat_seconds is 0.5s and beat_frames is 15 frames."""
+    grid = compute_beat_grid(bpm=120, time_signature="4/4", fps=30, duration_s=15, pattern="build_up")
+    assert grid["beat_seconds"] == 0.5
+    assert grid["beat_frames"] == 15.0
+    assert grid["bar_seconds"] == 2.0
+    assert grid["beats_s"][:4] == [0.0, 0.5, 1.0, 1.5]
+    assert len(grid["cut_points_s"]) == len(grid["frame_indices"])
+
+
+def test_positive_sports_commercial_15s_produces_commercial_promo_montage() -> None:
+    """Positive 1: 15s sports commercial produces commercial_promo montage with beat_map, cut_pattern, and ramps."""
+    bp = compile_blueprint(
+        idea="إعلان سريع الإيقاع لمنتج رياضي احترافي /dollyin /ar 9:16",
+        purpose="Commercials & TVCs",
+        video_format="Live-Action",
+        style_variant="Commercial Promo",
+        dialogue="انطلق بأقصى سرعة وحقق هدفك اليوم.",
+        total_runtime_seconds=15,
+    )
+    montage = bp["project"]["montage"]
+    assert montage["style"] == "commercial_promo"
+    assert isinstance(montage["beat_map"], dict)
+    assert montage["beat_map"]["bpm"] > 0
+    assert montage["cut_pattern"] in ("steady", "build_up", "call_response", "breathe")
+    assert len(montage["ramps"]) >= 1
+    errs, _ = validate_package_dict(bp)
+    assert errs == [], f"Sports commercial blueprint failed validation: {errs}"
+
+
+def test_positive_music_video_links_cuts_to_song_structure() -> None:
+    """Positive 2: Music video request links cuts and sections to song structure (verse, build, chorus_drop)."""
+    bp = compile_blueprint(
+        idea="فيديو كليب أغنية مصورة بإيقاع حماسي /orbit /ar 16:9",
+        purpose="Entertainment Videos",
+        video_format="Live-Action",
+        style_variant="Music Videos",
+        dialogue="نغني للحياة ونصنع الفرح في كل خطوة.",
+        total_runtime_seconds=20,
+    )
+    montage = bp["project"]["montage"]
+    assert montage["style"] == "music_video"
+    section_names = [s["name"] for s in montage["beat_map"]["sections"]]
+    assert any("verse" in n for n in section_names)
+    assert any("chorus" in n or "drop" in n for n in section_names)
+    errs, _ = validate_package_dict(bp)
+    assert errs == []
+
+
+def test_positive_corporate_video_without_music_disables_rhythmic_montage() -> None:
+    """Positive 3: Corporate video without music does not activate rhythmic montage (style == 'none')."""
+    bp = compile_blueprint(
+        idea="فيديو مؤسسي رسمي يستعرض قيم الشركة والتقرير السنوي",
+        purpose="Corporate Videos",
+        video_format="Live-Action",
+        style_variant="Commercial Promo",
+        dialogue="نلتزم بأعلى معايير الجودة والشفافية في خدمة عملائنا.",
+        total_runtime_seconds=16,
+    )
+    montage = bp["project"]["montage"]
+    assert montage["style"] == "none"
+    assert montage["beat_map"] is None
+    errs, _ = validate_package_dict(bp)
+    assert errs == []
+
+
+def test_negative_cut_deviating_120ms_from_beat_is_rejected() -> None:
+    """Negative 1: Cut deviating 120ms (> 40ms snap_tolerance_ms) from a beat is rejected (MQ1)."""
+    grid = compute_beat_grid(bpm=120, time_signature="4/4", fps=30, duration_s=10, pattern="steady")
+    bad_cuts = [0.0, 0.5, 1.12, 2.0]  # 1.12s is 120ms off the 1.0s beat
+    ok, errs = validate_cuts_against_beats(bad_cuts, grid["beats_s"], snap_tolerance_ms=40.0)
+    assert ok is False
+    assert any("120.0ms" in e or "MQ1 violation" in e for e in errs)
+
+    # Also verify via full validate_package_dict
+    bp = compile_blueprint(
+        idea="إعلان حركي /dollyin",
+        purpose="Commercials & TVCs",
+        video_format="Live-Action",
+        style_variant="Commercial Promo",
+        total_runtime_seconds=16,
+    )
+    bp_bad = copy.deepcopy(bp)
+    bp_bad["project"]["montage"]["cut_points_s"] = [0.0, 1.12]
+    pkg_errs, _ = validate_package_dict(bp_bad)
+    assert any("MQ1 violation" in e for e in pkg_errs)
+
+
+def test_negative_eight_ramps_in_single_clip_and_invalid_speed_rejected() -> None:
+    """Negative 2: 8 speed ramps in a single clip (or speed outside 0.25x..4.0x) is rejected."""
+    montage = build_project_montage("commercial_promo", duration_s=16.0, bpm=120.0)
+    montage_8_ramps = copy.deepcopy(montage)
+    montage_8_ramps["ramps"] = [
+        {
+            "clip_id": "1A",
+            "start_s": float(i),
+            "end_s": float(i + 0.8),
+            "from_speed": 2.0,
+            "to_speed": 0.5,
+            "curve": "ease_in_out",
+            "musical_reason": f"Beat hit {i}",
+        }
+        for i in range(8)
+    ]
+    errs, _ = validate_montage_section(montage_8_ramps, total_runtime_s=16.0)
+    assert any("has 8 speed ramps" in e for e in errs)
+
+    # Speed outside 0.25x..4.0x
+    montage_bad_speed = copy.deepcopy(montage)
+    montage_bad_speed["ramps"][0]["from_speed"] = 8.0
+    errs_sp, _ = validate_montage_section(montage_bad_speed, total_runtime_s=16.0)
+    assert any("outside allowed" in e for e in errs_sp)
+
+
+def test_negative_cr2_sfx_density_and_missing_beat_map_rejected() -> None:
+    """Negative 3: Missing beat_map when style != 'none' or excessive SFX (> 1 per 2 beats) is rejected."""
+    errs_no_bm, _ = validate_montage_section({"style": "commercial_promo", "beat_map": None})
+    assert any("beat_map is required" in e for e in errs_no_bm)
+
+    montage = build_project_montage("short_form_edit", duration_s=10.0, bpm=120.0)
+    # 10s at 120 BPM = 21 beats -> max 10 SFX cues. Inject 25 SFX cues:
+    montage["sfx_cues"] = [
+        {"t_s": round(i * 0.3, 2), "layer": "impact_hit", "name": f"hit_{i}", "pre_roll_ms": 0}
+        for i in range(25)
+    ]
+    errs_sfx, _ = validate_montage_section(montage, total_runtime_s=10.0)
+    assert any("CR2 violation" in e for e in errs_sfx)
+
+
+def test_negative_beat_grid_invalid_inputs_raise_clear_errors() -> None:
+    """Negative 4: beat_grid handles invalid/negative BPM, zero duration, bad time_signature, fps, and pattern."""
+    with assert_raises(ValueError, match="Invalid BPM"):
+        compute_beat_grid(bpm=-120, time_signature="4/4", fps=30, duration_s=15, pattern="steady")
+    with assert_raises(ValueError, match="Invalid BPM"):
+        compute_beat_grid(bpm=0, time_signature="4/4", fps=30, duration_s=15, pattern="steady")
+    with assert_raises(ValueError, match="Invalid duration_s"):
+        compute_beat_grid(bpm=120, time_signature="4/4", fps=30, duration_s=0, pattern="steady")
+    with assert_raises(ValueError, match="Unsupported time_signature"):
+        compute_beat_grid(bpm=120, time_signature="7/13", fps=30, duration_s=15, pattern="steady")
+    with assert_raises(ValueError, match="Invalid fps"):
+        compute_beat_grid(bpm=120, time_signature="4/4", fps=-30, duration_s=15, pattern="steady")
+    with assert_raises(ValueError, match="Unsupported cut pattern"):
+        compute_beat_grid(bpm=120, time_signature="4/4", fps=30, duration_s=15, pattern="random_chaos")
+
+    # Non-standard positive FPS returns a warning without crashing
+    grid_odd_fps = compute_beat_grid(bpm=120, time_signature="4/4", fps=48, duration_s=10, pattern="steady")
+    assert any("Non-standard fps" in w for w in grid_odd_fps["warnings"])
+
+
+def test_negative_runtime_45s_not_truncated_and_long_dialogue_split() -> None:
+    """Negative 5: 45s runtime is never silently shortened to 17s; long dialogue is split, never truncated."""
+    blocks_45 = partition_runtime_into_allowed_blocks(45)
+    assert sum(blocks_45) >= 45
+
+    long_ar = "هذا الحوار الإعلاني الطويل جدا مصمم لاختبار تقسيم الجمل الطويلة على عدة لقطات متتالية دون حذف أي كلمة"
+    synced = optimize_arabic_lip_sync(long_ar, duration_seconds=4)
+    for w in long_ar.split():
+        assert w in synced
+    assert "[SHOT_SPLIT]" in synced
+
+
+if __name__ == "__main__":
+    test_funcs = [obj for name, obj in list(globals().items()) if name.startswith("test_") and callable(obj)]
+    for fn in test_funcs:
+        fn()
+        print(f"PASS: {fn.__name__}")
+    print(f"\nALL {len(test_funcs)} MONTAGE TEST SUITES PASSED SUCCESSFULLY!")

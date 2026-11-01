@@ -1,21 +1,35 @@
 {
-  "suite": "CineFlow AI Studio Skill Evaluation Suite",
-  "version": "2.0.0",
+  "suite": "CineFlow AI Studio Skill & Rhythmic Montage Evaluation Suite",
+  "version": "2.1.0",
   "last_updated": "2026-11-01",
+  "trigger_evals": {
+    "should_trigger": [
+      "اصنع لي إعلاناً سريع الإيقاع لمنتج رياضي",
+      "اعمل Edit لتيك توك على إيقاع هذه الأغنية",
+      "صمم لي فيديو شرح تطبيق جوال ثلاثي الأبعاد مع تعليق صوتي عربي",
+      "منتج هذا الفيديو المتحدث للكاميرا وقص السكتات وضف كابشن عربي"
+    ],
+    "should_not_trigger": [
+      "اشرح لي تاريخ المونتاج",
+      "صحّح لي هذا النص العربي فقط",
+      "ترجم هذه الفقرة",
+      "اكتب لي قصيدة لطمية حسينية بطور شور"
+    ]
+  },
   "cases": [
     {
       "id": "EVAL_POS_01",
       "category": "positive_trigger",
       "route": "route_1_generative_cinema",
-      "prompt": "اصنع لي إعلان فيديو سينمائي ٢٠ ثانية لقهوة مختصة سعودية بصوت خليجي وموسيقى عود إلكترونية لمقاس ريلز 9:16",
+      "prompt": "اصنع لي إعلاناً سريع الإيقاع لمنتج رياضي لمدة 15 ثانية لمقاس ريلز 9:16",
       "should_trigger": true,
       "expected": {
         "purpose": "Commercials & TVCs",
         "format": "Live-Action",
         "style_variant": "Commercial Promo",
-        "primary_provider": "google_flow_veo_3_1",
-        "runtime_s": 20,
-        "allowed_block_durations": [10, 10]
+        "montage_style": "commercial_promo",
+        "has_beat_map": true,
+        "has_ramps": true
       }
     },
     {
@@ -48,12 +62,11 @@
       "id": "EVAL_POS_04",
       "category": "positive_trigger",
       "route": "route_4_silent_broll_montage",
-      "prompt": "صمم مونتاج لقطات B-Roll صامتة مع تايبوغرافي عربي وكشيدة خلف الرأس بدون تعليق صوتي",
+      "prompt": "اعمل Edit لتيك توك على إيقاع هذه الأغنية 120 BPM مع قطع على النبض",
       "should_trigger": true,
       "expected": {
-        "purpose": "Commercials & TVCs",
-        "style_variant": "Montage Sequence",
-        "has_kashida": true
+        "montage_style": "short_form_edit",
+        "beat_frames_at_30fps": 15
       }
     },
     {
@@ -127,11 +140,11 @@
       "id": "EVAL_POS_11",
       "category": "positive_trigger",
       "route": "route_11_avatar_spokesperson",
-      "prompt": "اصنع فيديو متحدث رسمي للشركة يشرح التقرير السنوي باللهجة السعودية البيضاء",
+      "prompt": "اصنع فيديو مؤسسي رسمي بلا موسيقى يشرح التقرير السنوي باللهجة السعودية البيضاء",
       "should_trigger": true,
       "expected": {
         "purpose": "Corporate Videos",
-        "pipeline_type": "route_11_avatar_spokesperson"
+        "montage_style": "none"
       }
     },
     {
@@ -148,46 +161,46 @@
     {
       "id": "EVAL_NEG_01",
       "category": "negative_non_trigger",
-      "prompt": "اكتب لي قصيدة لطمية حسينية بطور شور كربلائي مع هندسة صوتية للدمام والزنجيل",
+      "prompt": "اشرح لي تاريخ المونتاج",
       "should_trigger": false,
-      "reason": "Belongs exclusively to hussaini-production-studio, not cineflow-ai-studio"
+      "reason": "Purely theoretical history question without video production or editing task"
     },
     {
       "id": "EVAL_NEG_02",
       "category": "negative_non_trigger",
-      "prompt": "Debug the memory leak in my Node.js Express server using heap snapshots",
+      "prompt": "صحّح لي هذا النص العربي فقط",
       "should_trigger": false,
-      "reason": "Software debugging task belongs to memory-leak-debugging skill"
+      "reason": "Standalone text proofreading task"
     },
     {
       "id": "EVAL_NEG_03",
       "category": "negative_non_trigger",
-      "prompt": "ابحث في ملفات Google Drive عن جدول الميزانية وحوله إلى PDF",
+      "prompt": "ترجم هذه الفقرة",
       "should_trigger": false,
-      "reason": "File management task belongs to gdrive skill"
+      "reason": "Standalone text translation task"
     },
     {
       "id": "EVAL_NEG_04",
       "category": "negative_non_trigger",
-      "prompt": "Check whether our Canva presentation follows our brand kit colors and fonts",
+      "prompt": "اكتب لي قصيدة لطمية حسينية بطور شور كربلائي",
       "should_trigger": false,
-      "reason": "Static slide brand audit belongs to canva-brand-check skill"
+      "reason": "Husayni/religious poetic production is separated into its own dedicated skill"
     },
     {
       "id": "EVAL_EDGE_01",
       "category": "edge_case",
-      "prompt": "Odd runtime request: 15-second commercial on Google Flow",
+      "prompt": "Odd runtime request: 45-second documentary narrative on Google Flow",
       "should_trigger": true,
       "expected": {
-        "runtime_s": 15,
-        "partitioned_blocks": [8, 6],
+        "runtime_s": 45,
+        "never_truncated_to_17s": true,
         "hard_allowed_durations_only": true
       }
     },
     {
       "id": "EVAL_EDGE_02",
       "category": "edge_case",
-      "prompt": "Long 90-second documentary narrative exceeding 40s single Extend chain cap",
+      "prompt": "Long 90-second narrative exceeding 40s single Extend chain cap",
       "should_trigger": true,
       "expected": {
         "runtime_s": 90,
@@ -207,20 +220,20 @@
     {
       "id": "EVAL_EDGE_04",
       "category": "edge_case",
-      "prompt": "Zero-credit / fast draft budget constraint for a live-action promo",
+      "prompt": "Cut deviating 120ms from nearest beat at 120 BPM (snap_tolerance_ms = 40ms)",
       "should_trigger": true,
       "expected": {
-        "credit_governance_mode": "draft_fast_low_cost",
-        "primary_provider": "gemini_omni_flash_1_1"
+        "mq1_passed": false
       }
     },
     {
       "id": "EVAL_EDGE_05",
       "category": "edge_case",
-      "prompt": "Sacred name Kashida protection: 'بسم الله الرحمن الرحيم لا إله إلا الله'",
+      "prompt": "8 speed ramps placed inside a single clip_id",
       "should_trigger": true,
       "expected": {
-        "protected_words_unmodified": ["بسم", "الله", "الرحمن", "الرحيم", "لا"]
+        "mq5_passed": false,
+        "max_ramps_per_clip": 1
       }
     },
     {

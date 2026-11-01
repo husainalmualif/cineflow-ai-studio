@@ -20,8 +20,9 @@
     },
     "verified_capabilities": {
       "status": "VERIFIED",
+      "verification_policy": "verify_live",
       "last_verified_date": "2026-11-01",
-      "verification_note": "Verify on screen before spending credits (references/08-model-registry-and-benchmarks.md)",
+      "verification_note": "Verify on screen before spending credits (references/model-registry.md)",
       "per_clip_s_options": [
         4,
         6,
@@ -31,7 +32,257 @@
       "extend_cap_s": 40,
       "extend_max_s": 40,
       "max_ref_images": 7
+    },
+    "montage": {
+      "style": "commercial_promo",
+      "beat_map": {
+        "bpm": 120.0,
+        "time_signature": "4/4",
+        "fps": 30.0,
+        "downbeats_s": [
+          0.0,
+          2.0,
+          4.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          14.0,
+          16.0,
+          18.0,
+          20.0,
+          22.0,
+          24.0,
+          26.0,
+          28.0
+        ],
+        "beats_s": [
+          0.0,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          6.5,
+          7.0,
+          7.5,
+          8.0,
+          8.5,
+          9.0,
+          9.5,
+          10.0,
+          10.5,
+          11.0,
+          11.5,
+          12.0,
+          12.5,
+          13.0,
+          13.5,
+          14.0,
+          14.5,
+          15.0,
+          15.5,
+          16.0,
+          16.5,
+          17.0,
+          17.5,
+          18.0,
+          18.5,
+          19.0,
+          19.5,
+          20.0,
+          20.5,
+          21.0,
+          21.5,
+          22.0,
+          22.5,
+          23.0,
+          23.5,
+          24.0,
+          24.5,
+          25.0,
+          25.5,
+          26.0,
+          26.5,
+          27.0,
+          27.5,
+          28.0
+        ],
+        "drops_s": [
+          14.0
+        ],
+        "sections": [
+          {
+            "name": "verse_hook",
+            "start_s": 0.0,
+            "end_s": 2.0,
+            "energy": 7
+          },
+          {
+            "name": "build_up_bridge",
+            "start_s": 2.0,
+            "end_s": 14.0,
+            "energy": 8
+          },
+          {
+            "name": "chorus_drop",
+            "start_s": 14.0,
+            "end_s": 28.0,
+            "energy": 10
+          }
+        ],
+        "source": "generated_with_music",
+        "confidence": 0.85
+      },
+      "cut_pattern": "build_up",
+      "cut_points_s": [
+        0.0,
+        2.0,
+        3.0,
+        4.0,
+        4.5,
+        5.0,
+        5.25,
+        5.5,
+        6.0,
+        6.5,
+        7.5,
+        8.0,
+        8.5,
+        8.75,
+        9.0,
+        9.5,
+        10.5,
+        11.0,
+        11.5,
+        12.0,
+        12.25,
+        12.5,
+        13.5,
+        14.0,
+        14.5,
+        15.0,
+        15.5,
+        15.75,
+        16.0,
+        16.5,
+        17.0,
+        18.0,
+        18.5,
+        19.0,
+        19.25,
+        19.5,
+        20.0,
+        21.0,
+        22.0,
+        22.5,
+        23.0,
+        23.25,
+        23.5,
+        24.5,
+        25.0,
+        25.5,
+        26.5,
+        27.0,
+        27.5,
+        27.75
+      ],
+      "ramps": [
+        {
+          "clip_id": "1A",
+          "start_s": 13.5,
+          "end_s": 14.5,
+          "from_speed": 2.0,
+          "to_speed": 0.5,
+          "curve": "ease_in_out",
+          "musical_reason": "Slow-motion emphasis into primary drop at 14s"
+        }
+      ],
+      "sfx_cues": [
+        {
+          "t_s": 13.0,
+          "layer": "riser",
+          "name": "2-beat tension riser before drop",
+          "pre_roll_ms": 0
+        },
+        {
+          "t_s": 14.0,
+          "layer": "impact_hit",
+          "name": "sub_drop + impact hit on chorus/drop downbeat",
+          "pre_roll_ms": 0
+        },
+        {
+          "t_s": 2.0,
+          "layer": "whoosh_transition",
+          "name": "whip-pan whoosh transition",
+          "pre_roll_ms": 110
+        }
+      ]
     }
+  },
+  "project_state": {
+    "phase": "06_package_compiled",
+    "decisions": [
+      {
+        "category": "provider_selection",
+        "subject": "Primary Video Generation & Keyframe Stack",
+        "selected": "hyperframes_remotion_60fps",
+        "options_considered": [
+          "hyperframes_remotion_60fps",
+          "seedance_2_0",
+          "gemini_omni_flash_1_1",
+          "google_flow_veo_3_1",
+          "ink_theater_cmu_mocap",
+          "clip_archival_remotion_hybrid"
+        ],
+        "confidence": 0.92,
+        "reason": "Selected 60fps Three.js WebGL + Remotion/HyperFrames Atelier Motion Engine for Educational & Training (Motion Graphics).",
+        "user_visible": true
+      },
+      {
+        "category": "render_runtime_selection",
+        "subject": "Programmatic Composition Runtime",
+        "selected": "remotion",
+        "options_considered": [
+          "remotion",
+          "hyperframes",
+          "ffmpeg"
+        ],
+        "confidence": 0.9,
+        "reason": "Deterministic RTL caption burn, 4-state spatial layouts, and 60fps composition.",
+        "user_visible": true
+      },
+      {
+        "category": "composition_mode",
+        "subject": "Composition Authoring Mode (Templated vs Atelier)",
+        "selected": "atelier",
+        "options_considered": [
+          "atelier",
+          "templated"
+        ],
+        "confidence": 0.94,
+        "reason": "Bespoke atelier authoring with distinct primary visual subject per scene.",
+        "user_visible": true
+      }
+    ],
+    "approvals": {
+      "gate_1_concept_approved": true,
+      "gate_2_paid_credits_approved": false
+    },
+    "beat_map_status": "generated_with_music",
+    "credits_spent_vs_estimated": {
+      "spent": 0,
+      "estimated_minimum": 40,
+      "estimated_expected": 80
+    },
+    "open_issues": []
   },
   "identity_bible": [
     {
@@ -487,6 +738,8 @@
     },
     "slideshow_risk_report": {
       "average": 0.0,
+      "score": 0.0,
+      "total_score": 0.0,
       "verdict": "strong",
       "dimensions": {
         "repetition": {
@@ -694,6 +947,17 @@
     "aspect_ratio": "16:9 (Safe-Zone Enforced)",
     "brand_logo_safe_zone": "Y: 420..820, X: 120..960 (Upper-Center Clean Negative Space)",
     "cta_and_handles_safe_zone": "Y: 950..1280, X: 120..900 (Lower-Middle Safe Zone)",
+    "defaults_from_existing_skill": {
+      "aspect_ratio": "9:16",
+      "logo_zone": "Y 420..820",
+      "cta_zone": "Y 950..1280, X 120..900",
+      "avoid": [
+        "أعلى 220",
+        "أسفل من 1500",
+        "يمين من 920"
+      ],
+      "status": "tuned_default"
+    },
     "loop_back_visual_cue": "Final frame lighting and subject angle match Scene 1 Frame 0 for replay loop"
   },
   "marketing_expansion": {
@@ -703,17 +967,32 @@
       "hook_headline": "السر الحقيقي|*بك*",
       "typography_floors": "Headline >= 170px, Subtext >= 110px, Logo >= 200px, Chin >= 30px above headline"
     },
+    "marketing_poster": "4:5 poster (1080x1350) locking @Character_Lead_01 and @Product_Hero_01 with 35% upper negative space for Arabic headline",
     "poster_layout_prompt": "Commercial advertising poster (4:5 aspect ratio, 1080x1350) rendered in Nano Banana Pro: Hero composition featuring @Product_Hero_01 and @Character_Lead_01 in the lower two-thirds, matching Cinematic Warm Golden-Amber LUT with Skin-Tone Protection and ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens look, with 35% clean negative space in the top third, crisp high-precision digital rendering, coherent motion physics --no frame flicker, no garbled Arabic text, no subtitles, no geometry distortion, no identity drift",
+    "social_design_set": "Unified 9:16 cover, 4:5 feed card, and 1:1 profile/community graphic locking @Product_Hero_01 visual identity",
     "social_design_brief": "High-contrast 9:16 Reels Cover & 1:1 Quote Card featuring @Product_Hero_01 macro detail, #FFFFFF setup text + #FFD60A highlighted keyword in Cairo Black font.",
-    "carousel_arabic_copy": [
-      "الشريحة 1 (الغلاف الخاطف): ليش 90% من الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ (اسحب لليسار ⬅)",
-      "الشريحة 2 (المشكلة الخفية): المشكلة مو في كثرة المحاولات.. المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق.",
-      "الشريحة 3 (نقطة التحول): لما تجتمع الخامة الأصيلة مع الهندسة المتقنة، تتحول التجربة اليومية إلى معيار جديد للفخامة.",
-      "الشريحة 4 (القيمة العملية 1): ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر حتى وصولها بين يديك.",
-      "الشريحة 5 (القيمة العملية 2): تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون أي تعقيد.",
-      "الشريحة 6 (الخلاصة والبرهان): الفرق يبان من التجربة الأولى.. لأن الجودة الحقيقية تتكلم عن نفسها.",
-      "الشريحة 7 (دعوة الإجراء - CTA): احفظ المنشور للرجوع إليه، واكتب كلمة (إبداع) في التعليقات ليصلك الرابط فوراً!"
+    "arabic_carousel": [
+      "الشريحة 1: ليش الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ اسحب لليسار.",
+      "الشريحة 2: المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق الحقيقي.",
+      "الشريحة 3: لما تجتمع الخامة الأصيلة مع الإتقان، تتحول التجربة إلى معيار جديد.",
+      "الشريحة 4: ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر.",
+      "الشريحة 5: تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون تعقيد.",
+      "الشريحة 6: احفظ المنشور واكتب كلمة (إبداع) بالتعليقات ليصلك الرابط فوراً."
     ],
+    "carousel_arabic_copy": [
+      "الشريحة 1: ليش الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ اسحب لليسار.",
+      "الشريحة 2: المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق الحقيقي.",
+      "الشريحة 3: لما تجتمع الخامة الأصيلة مع الإتقان، تتحول التجربة إلى معيار جديد.",
+      "الشريحة 4: ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر.",
+      "الشريحة 5: تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون تعقيد.",
+      "الشريحة 6: احفظ المنشور واكتب كلمة (إبداع) بالتعليقات ليصلك الرابط فوراً."
+    ],
+    "publish_pack": {
+      "ab_test_plan": "Test Hook A (Contrarian Question) vs Hook B (Visual Macro Payoff) across first 3 seconds.",
+      "ai_content_disclosure": "Apply platform AI-generated / synthetic media disclosure label where applicable.",
+      "prohibited_claims_checked": true,
+      "post_publish_feedback_file": "project_state.json"
+    },
     "social_publish_pack": {
       "primary_search_phrase": "How to Use CineFlow AI Studio — 7-Agent Maste",
       "comment_keyword_variants": [

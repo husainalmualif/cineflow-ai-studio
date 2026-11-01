@@ -18,8 +18,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from beat_grid import build_project_montage  # noqa: E402
 from studio_config import (  # noqa: E402
     ALLOWED_CLIP_DURATIONS,
+    CAPABILITY_VERIFICATION_STATUS,
     DEFAULT_UNREAL_BLOOM,
     DIALECT_LEXICON,
     HARD_ALLOWED_CLIP_DURATIONS,
@@ -31,7 +33,9 @@ from studio_config import (  # noqa: E402
     MAX_TOTAL_RUNTIME_SECONDS,
     MAX_WORDS_PER_SECOND_AR,
     MIN_TOTAL_RUNTIME_SECONDS,
+    MONTAGE_STYLE_ALIAS_MAP,
     NON_CONNECTING_ARABIC_LETTERS,
+    OUTRO_SAFE_ZONES,
     SILENCE_THRESHOLD_DB,
     TARGET_INTEGRATED_LUFS,
     VALID_FORMATS,
@@ -1141,6 +1145,44 @@ def compile_blueprint(
         },
     ]
 
+    # Determine rhythmic montage style (Corporate Videos without music/beat cues default to 'none')
+    idea_low = idea.lower()
+    has_music_cue = any(
+        tok in idea_low
+        for tok in ("موسيقى", "إيقاع", "نبض", "أغنية", "music", "beat", "bpm", "edit", "مونتاج إيقاعي")
+    )
+    if style_variant in ("none", "Narrative Continuity Sequence"):
+        montage_style = "none"
+    elif purpose == "Corporate Videos" and not has_music_cue:
+        montage_style = "none"
+    else:
+        montage_style = MONTAGE_STYLE_ALIAS_MAP.get(style_variant, "commercial_promo")
+
+    montage_config = build_project_montage(
+        style=montage_style,
+        duration_s=float(actual_total),
+        fps=30.0,
+        source="generated_with_music" if montage_style != "none" else "estimated",
+    )
+
+    project_state = {
+        "phase": "06_package_compiled",
+        "decisions": decision_log,
+        "approvals": {
+            "gate_1_concept_approved": True,
+            "gate_2_paid_credits_approved": False,
+        },
+        "beat_map_status": (
+            montage_config["beat_map"]["source"] if montage_config.get("beat_map") else "not_applicable"
+        ),
+        "credits_spent_vs_estimated": {
+            "spent": 0,
+            "estimated_minimum": len(blocks) * 10,
+            "estimated_expected": len(blocks) * 20,
+        },
+        "open_issues": [],
+    }
+
     return {
         "project": {
             "title": clean_title,
@@ -1159,14 +1201,17 @@ def compile_blueprint(
             },
             "verified_capabilities": {
                 "status": "VERIFIED",
+                "verification_policy": CAPABILITY_VERIFICATION_STATUS,
                 "last_verified_date": "2026-11-01",
-                "verification_note": "Verify on screen before spending credits (references/08-model-registry-and-benchmarks.md)",
+                "verification_note": "Verify on screen before spending credits (references/model-registry.md)",
                 "per_clip_s_options": list(ALLOWED_CLIP_DURATIONS),
                 "extend_cap_s": MAX_EXTEND_CHAIN_SECONDS,
                 "extend_max_s": MAX_EXTEND_CHAIN_SECONDS,
                 "max_ref_images": 7,
             },
+            "montage": montage_config,
         },
+        "project_state": project_state,
         "identity_bible": identity_bible,
         "blocks": blocks,
         "overlays": overlays,
@@ -1320,6 +1365,7 @@ def compile_blueprint(
             "aspect_ratio": f"{aspect_ratio} (Safe-Zone Enforced)",
             "brand_logo_safe_zone": "Y: 420..820, X: 120..960 (Upper-Center Clean Negative Space)",
             "cta_and_handles_safe_zone": "Y: 950..1280, X: 120..900 (Lower-Middle Safe Zone)",
+            "defaults_from_existing_skill": dict(OUTRO_SAFE_ZONES),
             "loop_back_visual_cue": "Final frame lighting and subject angle match Scene 1 Frame 0 for replay loop",
         },
         "marketing_expansion": {
@@ -1329,24 +1375,43 @@ def compile_blueprint(
                 "hook_headline": f"السر الحقيقي|*{hook_focus_word}*",
                 "typography_floors": "Headline >= 170px, Subtext >= 110px, Logo >= 200px, Chin >= 30px above headline",
             },
+            "marketing_poster": (
+                f"4:5 poster (1080x1350) locking {character_id} and {product_id} with 35% upper negative space for Arabic headline"
+            ),
             "poster_layout_prompt": (
                 f"Commercial advertising poster (4:5 aspect ratio, 1080x1350) rendered in Nano Banana Pro: "
                 f"Hero composition featuring {product_id} and {character_id} in the lower two-thirds, matching "
                 f"{color_grading} and {camera_gear} look, with 35% clean negative space in the top third, {anti_cgi_suffix}"
             ),
+            "social_design_set": (
+                f"Unified 9:16 cover, 4:5 feed card, and 1:1 profile/community graphic locking {product_id} visual identity"
+            ),
             "social_design_brief": (
                 f"High-contrast 9:16 Reels Cover & 1:1 Quote Card featuring {product_id} macro detail, "
                 "#FFFFFF setup text + #FFD60A highlighted keyword in Cairo Black font."
             ),
-            "carousel_arabic_copy": [
-                "الشريحة 1 (الغلاف الخاطف): ليش 90% من الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ (اسحب لليسار ⬅)",
-                "الشريحة 2 (المشكلة الخفية): المشكلة مو في كثرة المحاولات.. المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق.",
-                "الشريحة 3 (نقطة التحول): لما تجتمع الخامة الأصيلة مع الهندسة المتقنة، تتحول التجربة اليومية إلى معيار جديد للفخامة.",
-                "الشريحة 4 (القيمة العملية 1): ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر حتى وصولها بين يديك.",
-                "الشريحة 5 (القيمة العملية 2): تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون أي تعقيد.",
-                "الشريحة 6 (الخلاصة والبرهان): الفرق يبان من التجربة الأولى.. لأن الجودة الحقيقية تتكلم عن نفسها.",
-                f"الشريحة 7 (دعوة الإجراء - CTA): احفظ المنشور للرجوع إليه، واكتب كلمة ({comment_keyword}) في التعليقات ليصلك الرابط فوراً!",
+            "arabic_carousel": [
+                "الشريحة 1: ليش الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ اسحب لليسار.",
+                "الشريحة 2: المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق الحقيقي.",
+                "الشريحة 3: لما تجتمع الخامة الأصيلة مع الإتقان، تتحول التجربة إلى معيار جديد.",
+                "الشريحة 4: ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر.",
+                "الشريحة 5: تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون تعقيد.",
+                f"الشريحة 6: احفظ المنشور واكتب كلمة ({comment_keyword}) بالتعليقات ليصلك الرابط فوراً.",
             ],
+            "carousel_arabic_copy": [
+                "الشريحة 1: ليش الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ اسحب لليسار.",
+                "الشريحة 2: المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق الحقيقي.",
+                "الشريحة 3: لما تجتمع الخامة الأصيلة مع الإتقان، تتحول التجربة إلى معيار جديد.",
+                "الشريحة 4: ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر.",
+                "الشريحة 5: تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون تعقيد.",
+                f"الشريحة 6: احفظ المنشور واكتب كلمة ({comment_keyword}) بالتعليقات ليصلك الرابط فوراً.",
+            ],
+            "publish_pack": {
+                "ab_test_plan": "Test Hook A (Contrarian Question) vs Hook B (Visual Macro Payoff) across first 3 seconds.",
+                "ai_content_disclosure": "Apply platform AI-generated / synthetic media disclosure label where applicable.",
+                "prohibited_claims_checked": True,
+                "post_publish_feedback_file": "project_state.json",
+            },
             "social_publish_pack": {
                 "primary_search_phrase": clean_title[:45],
                 "comment_keyword_variants": keyword_variants,

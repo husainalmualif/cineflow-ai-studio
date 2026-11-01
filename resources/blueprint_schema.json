@@ -1,7 +1,63 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CineFlow AI Studio Unified Production, Showrunner Package & OpenMontage Governance Schema",
+  "title": "CineFlow AI Studio Unified Production, Rhythmic Montage & Governance Blueprint Schema",
   "type": "object",
+  "$defs": {
+    "allowed_clip_seconds": {
+      "description": "Single generated clip duration in seconds (referenced from studio_config.ALLOWED_CLIP_SECONDS, status: verify_live)",
+      "type": "integer",
+      "enum": [4, 6, 8, 10]
+    },
+    "montage_style_enum": {
+      "type": "string",
+      "enum": [
+        "montage_sequence",
+        "music_video",
+        "commercial_promo",
+        "short_form_edit",
+        "sizzle_reel",
+        "none"
+      ]
+    },
+    "beat_map_schema": {
+      "type": ["object", "null"],
+      "properties": {
+        "bpm": { "type": "number", "exclusiveMinimum": 0 },
+        "time_signature": { "type": "string" },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "downbeats_s": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "beats_s": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "drops_s": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0 }
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "start_s", "end_s", "energy"],
+            "properties": {
+              "name": { "type": "string" },
+              "start_s": { "type": "number", "minimum": 0 },
+              "end_s": { "type": "number", "minimum": 0 },
+              "energy": { "type": "number", "minimum": 1, "maximum": 10 }
+            }
+          }
+        },
+        "source": {
+          "type": "string",
+          "enum": ["detected_from_audio", "generated_with_music", "user_supplied", "estimated"]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  },
   "required": [
     "project",
     "identity_bible",
@@ -37,7 +93,17 @@
             "Entertainment Videos"
           ]
         },
-        "format": { "type": "string" },
+        "format": {
+          "type": "string",
+          "enum": [
+            "Live-Action",
+            "Animation",
+            "Animation (2D / 3D)",
+            "Motion Graphics",
+            "Live Streaming",
+            "360 & Interactive"
+          ]
+        },
         "style": { "type": "string" },
         "platform": { "type": "string" },
         "aspect_ratio": {
@@ -53,14 +119,68 @@
             "per_clip_s_options": {
               "type": "array",
               "minItems": 1,
-              "items": { "type": "integer", "enum": [4, 6, 8, 10] }
+              "items": { "$ref": "#/$defs/allowed_clip_seconds" }
             },
             "extend_cap_s": { "type": "integer", "minimum": 4, "maximum": 40 },
             "audio": { "type": "string" },
             "status": { "type": "string" }
           }
         },
-        "motion_engine_60fps": { "type": "object" }
+        "motion_engine_60fps": { "type": "object" },
+        "montage": {
+          "type": "object",
+          "required": ["style"],
+          "properties": {
+            "style": { "$ref": "#/$defs/montage_style_enum" },
+            "beat_map": { "$ref": "#/$defs/beat_map_schema" },
+            "cut_pattern": { "type": "string" },
+            "cut_points_s": {
+              "type": "array",
+              "items": { "type": "number", "minimum": 0 }
+            },
+            "ramps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["clip_id", "start_s", "end_s", "from_speed", "to_speed", "curve"],
+                "properties": {
+                  "clip_id": { "type": "string" },
+                  "start_s": { "type": "number", "minimum": 0 },
+                  "end_s": { "type": "number", "minimum": 0 },
+                  "from_speed": { "type": "number", "minimum": 0.25, "maximum": 4.0 },
+                  "to_speed": { "type": "number", "minimum": 0.25, "maximum": 4.0 },
+                  "curve": { "type": "string" },
+                  "musical_reason": { "type": "string" }
+                }
+              }
+            },
+            "sfx_cues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["t_s", "layer", "name", "pre_roll_ms"],
+                "properties": {
+                  "t_s": { "type": "number", "minimum": 0 },
+                  "layer": { "type": "string" },
+                  "name": { "type": "string" },
+                  "pre_roll_ms": { "type": "number", "minimum": 0 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "project_state": {
+      "type": "object",
+      "required": ["phase", "decisions", "approvals", "beat_map_status", "credits_spent_vs_estimated", "open_issues"],
+      "properties": {
+        "phase": { "type": "string" },
+        "decisions": { "type": "array" },
+        "approvals": { "type": "object" },
+        "beat_map_status": { "type": "string" },
+        "credits_spent_vs_estimated": { "type": "object" },
+        "open_issues": { "type": "array" }
       }
     },
     "identity_bible": {
@@ -94,10 +214,7 @@
             "type": "string",
             "enum": ["Ingredients", "Frames", "Extend", "Text-to-Video"]
           },
-          "duration_s": {
-            "type": "integer",
-            "enum": [4, 6, 8, 10]
-          },
+          "duration_s": { "$ref": "#/$defs/allowed_clip_seconds" },
           "extend_from_block": {
             "type": ["integer", "null"]
           },
@@ -181,6 +298,7 @@
           "type": "string",
           "enum": [
             "Live-Action",
+            "Animation",
             "Animation (2D / 3D)",
             "Motion Graphics",
             "Live Streaming",
@@ -194,8 +312,16 @@
             "Music Videos",
             "Commercial Promo",
             "Short-Form Edits / AMV",
+            "Edits / AMV",
+            "Sizzle Reel",
             "Sizzle Reel / Recap",
-            "Narrative Continuity Sequence"
+            "Narrative Continuity Sequence",
+            "montage_sequence",
+            "music_video",
+            "commercial_promo",
+            "short_form_edit",
+            "sizzle_reel",
+            "none"
           ]
         },
         "pipeline_type": {
@@ -226,21 +352,7 @@
     },
     "script_and_content": {
       "type": "object",
-      "required": ["video_title", "narrative_framework", "full_spoken_script"],
-      "properties": {
-        "video_title": { "type": "string" },
-        "narrative_framework": { "type": "string" },
-        "audience_emotional_truth": { "type": "string" },
-        "expected_cliche_rejected": { "type": "string" },
-        "chosen_divergence_angle": { "type": "string" },
-        "research_brief_summary": { "type": "object" },
-        "hook_variants_scene_1": { "type": "object" },
-        "full_spoken_script": { "type": "string" },
-        "facts_ledger": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
+      "required": ["video_title", "narrative_framework", "full_spoken_script"]
     },
     "global_parameters": {
       "type": "object",
@@ -252,17 +364,7 @@
         "camera_gear_emulation",
         "identity_lock_target",
         "total_runtime_seconds"
-      ],
-      "properties": {
-        "tone": { "type": "string" },
-        "body_language_baseline": { "type": "string" },
-        "dialect_lock": { "type": "string" },
-        "color_grading": { "type": "string" },
-        "camera_gear_emulation": { "type": "string" },
-        "identity_lock_target": { "type": "string" },
-        "credit_governance_mode": { "type": "string" },
-        "total_runtime_seconds": { "type": "integer", "minimum": 4, "maximum": 600 }
-      }
+      ]
     },
     "scene_breakdown": {
       "type": "array",
@@ -280,66 +382,13 @@
         ],
         "properties": {
           "scene_id": { "type": "integer" },
-          "scene_role": { "type": "string" },
-          "duration_seconds": { "type": "integer", "enum": [4, 6, 8, 10] },
-          "layout_mode": {
-            "type": "string",
-            "enum": ["R_FULL", "R_DOWN", "R_LOWER", "R_OFF"]
-          },
-          "type": { "type": "string" },
-          "shot_intent": { "type": "string" },
-          "information_role": { "type": "string" },
-          "narrative_role": { "type": "string" },
-          "hero_moment": { "type": "boolean" },
-          "shot_language": { "type": "object" },
-          "chai_5_aspect_breakdown": {
-            "type": "object",
-            "required": ["subject", "subject_motion", "scene", "spatial_framing", "camera"]
-          },
-          "texture_keywords": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "flow_mode": { "type": "string" },
-          "continuity_handshake": { "type": "string" },
-          "visual_prompt": { "type": "string" },
-          "stage_motion_actors": { "type": "string" },
-          "audio_foley_sync": { "type": "string" },
-          "dialogue_lip_sync": { "type": "string" },
-          "text_overlay": { "type": "string" }
+          "duration_seconds": { "$ref": "#/$defs/allowed_clip_seconds" }
         }
       }
     },
-    "post_production_timeline": {
-      "type": "object",
-      "required": [
-        "render_runtime",
-        "composition_mode",
-        "visual_design_style",
-        "color_palette",
-        "silence_cut_config",
-        "depth_moments_planned",
-        "rtl_caption_config",
-        "audio_mastering_spec"
-      ]
-    },
-    "production_governance": {
-      "type": "object",
-      "required": [
-        "taste_profile",
-        "delivery_promise",
-        "slideshow_risk_report",
-        "scene_variation_report",
-        "scored_provider_selection",
-        "decision_log",
-        "budget_governance",
-        "chai_final_review_checklist"
-      ]
-    },
-    "outro_standardization": {
-      "type": "object",
-      "required": ["aspect_ratio", "brand_logo_safe_zone", "cta_and_handles_safe_zone"]
-    },
+    "post_production_timeline": { "type": "object" },
+    "production_governance": { "type": "object" },
+    "outro_standardization": { "type": "object" },
     "marketing_expansion": { "type": "object" },
     "qa_audit": { "type": "object" }
   }

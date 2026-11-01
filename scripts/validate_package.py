@@ -27,6 +27,7 @@ import sys
 from typing import Any, Dict, List, Set, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from beat_grid import validate_montage_section  # noqa: E402
 from multi_agent_orchestrator import CLAUSE_SPLIT_RE, validate_arabic_phonetics  # noqa: E402
 from studio_config import (  # noqa: E402
     ALLOWED_CLIP_DURATIONS,
@@ -98,6 +99,10 @@ def convert_scene_breakdown_to_package(data: Dict[str, Any]) -> Dict[str, Any]:
         shot_id = f"{idx}A"
         dl_ar = str(sc.get("dialogue_lip_sync") or "").strip()
         dl_tts = str(sc.get("dialogue_tts_ar") or "").strip()
+        if dl_ar.startswith("[") and dl_ar.endswith("]"):
+            dl_ar = ""
+        if dl_ar and not dl_tts:
+            dl_ar = " ".join(w for w in dl_ar.replace("[0.3s pause]", "").split() if not w.startswith("["))
         blocks.append(
             {
                 "block_id": idx,
@@ -216,6 +221,7 @@ def _validate_shot(
     # Validate dialogue_ar & dialogue_tts_ar lip-sync and consistency
     dl_ar = str(shot.get("dialogue_ar") or "").strip()
     dl_tts = str(shot.get("dialogue_tts_ar") or "").strip()
+    dl_gloss = str(shot.get("dialogue_gloss_en") or "").strip()
 
     for clause in split_clauses(dl_ar):
         if words(clause) > MAX_LIPSYNC_WORDS_PER_PHRASE:
@@ -223,8 +229,12 @@ def _validate_shot(
                 f"shot {sid}: dialogue_ar clause exceeds {MAX_LIPSYNC_WORDS_PER_PHRASE} words ({words(clause)} words)"
             )
 
-    if dl_ar and not str(shot.get("dialogue_gloss_en") or "").strip():
+    if dl_ar and not dl_gloss:
         warns.append(f"shot {sid}: missing English gloss (dialogue_gloss_en)")
+    if dl_gloss and not dl_ar and not dl_tts:
+        errs.append(f"shot {sid}: dialogue_gloss_en provided without spoken/display Arabic dialogue")
+    if (dl_ar and not dl_tts) or (dl_tts and not dl_ar):
+        errs.append(f"shot {sid}: dialogue_ar and dialogue_tts_ar must both be populated when dialogue is present")
 
     if not str(shot.get("negatives") or "").strip():
         errs.append(f"shot {sid}: missing mandatory negative prompts (negatives)")
@@ -422,6 +432,11 @@ def validate_package_dict(raw_data: Any) -> Tuple[List[str], List[str]]:
                 )
             if words(o.get("text_ar", "")) > MAX_OVERLAY_WORDS:
                 errs.append(f"overlay #{idx}: text_ar exceeds {MAX_OVERLAY_WORDS} words")
+
+    if "montage" in p and p["montage"] is not None:
+        m_errs, m_warns = validate_montage_section(p["montage"], max_valid_time)
+        errs.extend(m_errs)
+        warns.extend(m_warns)
 
     return errs, warns
 

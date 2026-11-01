@@ -223,6 +223,9 @@ python scripts/estimate_cost.py examples/example_03_showrunner_package.json 10 1
 
 # 5. توليد ملف الترجمة العربية (.srt) تلقائياً من الحزمة
 python scripts/make_srt.py examples/example_03_showrunner_package.json out.srt
+
+# 6. حساب شبكة النبض وخريطة القطع للمونتاج الإيقاعي (120 BPM, 30 fps -> 15 frames/beat)
+python scripts/beat_grid.py --bpm 120 --time-signature 4/4 --fps 30 --duration 15 --pattern build_up
 ```
 
 #### د) تشغيل خط إنتاج الفيديو المحلي (`60fps 3D WebGL + 2D Canvas + Whisper ASR + -14 LUFS Audio`):
@@ -253,6 +256,11 @@ cineflow-ai-studio/
 ├── templates/
 │   └── package.template.json                                # قالب حزمة الإنتاج القياسي للـ Showrunner (06_package.json)
 ├── references/
+│   ├── taxonomy.md                                          # التصنيف الخماسي القياسي (الغرض، الشكل، أسلوب المونتاج، المنصة، ووعد التسليم)
+│   ├── rhythmic-montage.md                                  # محرك المونتاج الإيقاعي الكامل (beat_math, beat_map, cut_cadence, speed_ramping, MQ1..MQ7)
+│   ├── scene-direction.md                                   # معاملات التوجيه الإخراجي (نبرة الصوت، لغة الجسد الفيزيائية، الكاميرا، قفل الهوية، والخاتمة الآمنة)
+│   ├── arabic-text-and-lipsync.md                           # سلامة النص العربي، الكشيدة، النص المزدوج (tts_text / display_text)، ومزامنة الشفاه
+│   ├── model-registry.md                                    # سجل النماذج المتقلبة وحدود المدد الزمنية (status: verify_live, CR1)
 │   ├── 01-team-and-roles.md                                 # مصفوفة الـ 13 وكيلاً متخصصاً (A0..A12) وبروتوكول التسليم
 │   ├── 02-flow-rules.md                                     # قواعد Google Flow، المدة ({4, 6, 8, 10}s)، وبنية البرومبت (<= 120 كلمة)
 │   ├── 03-direction-and-audio.md                            # معايير الإخراج الـ 8، التصنيف، الصوت (-14 LUFS)، والموشن 60fps
@@ -260,25 +268,29 @@ cineflow-ai-studio/
 │   ├── 05-postproduction-marketing.md                       # المونتاج، الترجمة (.srt)، التصدير، والتوسع التسويقي
 │   ├── 06-browser-ops.md                                    # تشغيل المنصات عبر المتصفح وبطاقات التسليم اليدوي (Manual Handoff Cards)
 │   ├── 07-field-tested-production-lessons.md                # خلاصة التجارب الميدانية (حظر الشفاه الثابتة، Whisper ASR، معايرة 3D Bloom، Pure-NumPy DSP)
-│   ├── 08-model-registry-and-benchmarks.md                  # سجل النماذج المؤرخ، القيم التجريبية القابلة للتخصيص، حماية النص القرآني، والامتثال التسويقي
+│   ├── 08-model-registry-and-benchmarks.md                  # القيم التجريبية القابلة للتخصيص، معجم النطق الإذاعي، والامتثال التسويقي
 │   ├── multi-agent-orchestrator.md                          # معمارية الوكلاء السبعة + بروتوكولات المتصفح الحي + قانون التشكيل الإذاعي
 │   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 190+ (/macros) + CHAI 5-Aspect Language + Veo/Seedance + 3D Worlds
 │   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة السكربت + قفل اللهجات الـ 9 + Lip-Sync + البحث الخماسي + تحليل الفيديو المرجعي
 │   ├── programmatic_editing_and_motion_guide.md             # الـ 12 مساراً + التخطيط الرباعي + Remotion/HyperFrames Atelier + Ink Theater + الصوت
 │   └── creative_strategy_and_marketing.md                   # الانحراف الإبداعي + Taste Profile + Slideshow Risk Scorer + الغلاف وحقيبة النشر
 ├── resources/
-│   ├── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والحوكمة الإنتاجية
+│   ├── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والمونتاج الإيقاعي والحوكمة
 │   └── evals.json                                           # حزمة تقييم المهارة (22 حالة اختبار إيجابية وسلبية وحالات حافة)
+├── evals/
+│   └── evals.json                                           # ملف تقييم التفعيل والنفي والمخرجات المتوقعة (Trigger & Acceptance Evals)
 ├── scripts/
 │   ├── studio_config.py                                     # المصدر الوحيد للحقيقة (Single Source of Truth) للثوابت واللهجات والـ 190+ ماكرو
+│   ├── beat_grid.py                                         # حاسبة شبكة النبض الموسيقي وخريطة القطع والـ Speed Ramps (MQ1..MQ7 & CR2)
 │   ├── multi_agent_orchestrator.py                          # المايسترو المنسق للوكلاء السبعة والـ 13 دوراً + بوابة الفحص الصوتي الإذاعي
-│   ├── validate_package.py                                  # مدقق حزمة الإنتاج القياسية (06_package.json) والتشكيل الصوتي
+│   ├── validate_package.py                                  # مدقق حزمة الإنتاج القياسية (06_package.json) والمونتاج الإيقاعي والتشكيل الصوتي
 │   ├── estimate_cost.py                                     # حاسبة الأرصدة ثلاثية المراحل قبل بوابة الاعتماد الثانية (GATE 2)
 │   ├── make_srt.py                                          # مولد ملفات الترجمة العربية (.srt) من الحوار المنطوق في الحزمة
 │   ├── cineflow_compiler.py                                 # المترجم الآلي الموحد ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة Python
 │   └── Compile-CineFlowBlueprint.ps1                        # غلاف PowerShell رقيق يستدعي cineflow_compiler.py مباشرة لمنع ازدواجية الكود
 ├── tests/
-│   └── test_cineflow_compiler.py                            # اختبارات الوحدات والحالات السلبية والتوافقية (13 Test Suites)
+│   ├── test_cineflow_compiler.py                            # اختبارات الوحدات والحالات السلبية والتوافقية (13 Test Suites)
+│   └── test_montage.py                                      # اختبارات المونتاج الإيقاعي الإيجابية والسلبية وحسابات النبض (8 Test Suites)
 ├── examples/
 │   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي موحد (Showrunner + Governance)
 │   ├── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي (HyperFrames Atelier)
