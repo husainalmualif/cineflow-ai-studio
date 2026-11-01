@@ -1,0 +1,237 @@
+{
+  "suite": "CineFlow AI Studio Skill Evaluation Suite",
+  "version": "2.0.0",
+  "last_updated": "2026-11-01",
+  "cases": [
+    {
+      "id": "EVAL_POS_01",
+      "category": "positive_trigger",
+      "route": "route_1_generative_cinema",
+      "prompt": "اصنع لي إعلان فيديو سينمائي ٢٠ ثانية لقهوة مختصة سعودية بصوت خليجي وموسيقى عود إلكترونية لمقاس ريلز 9:16",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Commercials & TVCs",
+        "format": "Live-Action",
+        "style_variant": "Commercial Promo",
+        "primary_provider": "google_flow_veo_3_1",
+        "runtime_s": 20,
+        "allowed_block_durations": [10, 10]
+      }
+    },
+    {
+      "id": "EVAL_POS_02",
+      "category": "positive_trigger",
+      "route": "route_2_talking_head_reel",
+      "prompt": "عندي فيديو لشخص يتكلم أمام الكاميرا، قص السكتات وضف كابشن عربي متزامن ومؤثرات صوتية خفيفة",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Educational & Training",
+        "format": "Live-Action",
+        "style_variant": "Short-Form Edits / AMV",
+        "silence_threshold_db": -32
+      }
+    },
+    {
+      "id": "EVAL_POS_03",
+      "category": "positive_trigger",
+      "route": "route_3_motion_stage_60fps",
+      "prompt": "Create a 60fps 3D WebGL & HTML5 motion graphics explainer video showing how our AI platform works",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Explainer Videos",
+        "format": "Motion Graphics",
+        "primary_provider": "hyperframes_remotion_60fps",
+        "render_runtime": "hyperframes"
+      }
+    },
+    {
+      "id": "EVAL_POS_04",
+      "category": "positive_trigger",
+      "route": "route_4_silent_broll_montage",
+      "prompt": "صمم مونتاج لقطات B-Roll صامتة مع تايبوغرافي عربي وكشيدة خلف الرأس بدون تعليق صوتي",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Commercials & TVCs",
+        "style_variant": "Montage Sequence",
+        "has_kashida": true
+      }
+    },
+    {
+      "id": "EVAL_POS_05",
+      "category": "positive_trigger",
+      "route": "route_5_multicam_podcast",
+      "prompt": "منتج حلقة بودكاست من زاويتين كاميرا مع تبديل تلقائي للكاميرا حسب المتحدث",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Entertainment Videos",
+        "format": "Live-Action",
+        "pipeline_type": "route_5_multicam_podcast"
+      }
+    },
+    {
+      "id": "EVAL_POS_06",
+      "category": "positive_trigger",
+      "route": "route_6_3d_device_explainer",
+      "prompt": "اعمل فيديو استعراض تطبيق جوال ثلاثي الأبعاد iPhone 3D Device Showcase",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Explainer Videos",
+        "format": "Motion Graphics",
+        "primary_provider": "hyperframes_remotion_60fps"
+      }
+    },
+    {
+      "id": "EVAL_POS_07",
+      "category": "positive_trigger",
+      "route": "route_7_documentary_montage",
+      "prompt": "اصنع فيديو وثائقي تاريخي يربط اللقطات الأرشيفية بالمشاهد المولدة عبر CLIP",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Documentaries",
+        "primary_provider": "clip_archival_remotion_hybrid"
+      }
+    },
+    {
+      "id": "EVAL_POS_08",
+      "category": "positive_trigger",
+      "route": "route_8_character_animation_ink_theater",
+      "prompt": "صمم فيديو رسوم متحركة لشخصيات مرسومة بالحبر تتحرك ببيانات CMU Mocap",
+      "should_trigger": true,
+      "expected": {
+        "format": "Animation (2D / 3D)",
+        "primary_provider": "ink_theater_cmu_mocap"
+      }
+    },
+    {
+      "id": "EVAL_POS_09",
+      "category": "positive_trigger",
+      "route": "route_9_3d_world_generation",
+      "prompt": "نبغى جولة كاميرا مستمرة داخل عالم ثلاثي الأبعاد عبر Gaussian Splatting",
+      "should_trigger": true,
+      "expected": {
+        "format": "360 & Interactive",
+        "pipeline_type": "route_9_3d_world_generation"
+      }
+    },
+    {
+      "id": "EVAL_POS_10",
+      "category": "positive_trigger",
+      "route": "route_10_reference_video_cloner",
+      "prompt": "حلل هذا الفيديو المرجعي واستنسخ إيقاعه وزوايا الكاميرا لإعلان منتجنا الجديد",
+      "should_trigger": true,
+      "expected": {
+        "pipeline_type": "route_10_reference_video_cloner"
+      }
+    },
+    {
+      "id": "EVAL_POS_11",
+      "category": "positive_trigger",
+      "route": "route_11_avatar_spokesperson",
+      "prompt": "اصنع فيديو متحدث رسمي للشركة يشرح التقرير السنوي باللهجة السعودية البيضاء",
+      "should_trigger": true,
+      "expected": {
+        "purpose": "Corporate Videos",
+        "pipeline_type": "route_11_avatar_spokesperson"
+      }
+    },
+    {
+      "id": "EVAL_POS_12",
+      "category": "positive_trigger",
+      "route": "route_12_localization_dub",
+      "prompt": "دبلج هذا الإعلان من الإنجليزية إلى اللهجة العراقية مع ضبط حركة الشفاه والترجمة",
+      "should_trigger": true,
+      "expected": {
+        "pipeline_type": "route_12_localization_dub",
+        "dialect_code": "IRAQI"
+      }
+    },
+    {
+      "id": "EVAL_NEG_01",
+      "category": "negative_non_trigger",
+      "prompt": "اكتب لي قصيدة لطمية حسينية بطور شور كربلائي مع هندسة صوتية للدمام والزنجيل",
+      "should_trigger": false,
+      "reason": "Belongs exclusively to hussaini-production-studio, not cineflow-ai-studio"
+    },
+    {
+      "id": "EVAL_NEG_02",
+      "category": "negative_non_trigger",
+      "prompt": "Debug the memory leak in my Node.js Express server using heap snapshots",
+      "should_trigger": false,
+      "reason": "Software debugging task belongs to memory-leak-debugging skill"
+    },
+    {
+      "id": "EVAL_NEG_03",
+      "category": "negative_non_trigger",
+      "prompt": "ابحث في ملفات Google Drive عن جدول الميزانية وحوله إلى PDF",
+      "should_trigger": false,
+      "reason": "File management task belongs to gdrive skill"
+    },
+    {
+      "id": "EVAL_NEG_04",
+      "category": "negative_non_trigger",
+      "prompt": "Check whether our Canva presentation follows our brand kit colors and fonts",
+      "should_trigger": false,
+      "reason": "Static slide brand audit belongs to canva-brand-check skill"
+    },
+    {
+      "id": "EVAL_EDGE_01",
+      "category": "edge_case",
+      "prompt": "Odd runtime request: 15-second commercial on Google Flow",
+      "should_trigger": true,
+      "expected": {
+        "runtime_s": 15,
+        "partitioned_blocks": [8, 6],
+        "hard_allowed_durations_only": true
+      }
+    },
+    {
+      "id": "EVAL_EDGE_02",
+      "category": "edge_case",
+      "prompt": "Long 90-second documentary narrative exceeding 40s single Extend chain cap",
+      "should_trigger": true,
+      "expected": {
+        "runtime_s": 90,
+        "max_extend_chain_s": 40,
+        "requires_chain_reset_to_ingredients": true
+      }
+    },
+    {
+      "id": "EVAL_EDGE_03",
+      "category": "edge_case",
+      "prompt": "English spoken script passed to dialect detector: 'Build the future today with AI.'",
+      "should_trigger": true,
+      "expected": {
+        "detected_dialect": "UNKNOWN (غير معروف)"
+      }
+    },
+    {
+      "id": "EVAL_EDGE_04",
+      "category": "edge_case",
+      "prompt": "Zero-credit / fast draft budget constraint for a live-action promo",
+      "should_trigger": true,
+      "expected": {
+        "credit_governance_mode": "draft_fast_low_cost",
+        "primary_provider": "gemini_omni_flash_1_1"
+      }
+    },
+    {
+      "id": "EVAL_EDGE_05",
+      "category": "edge_case",
+      "prompt": "Sacred name Kashida protection: 'بسم الله الرحمن الرحيم لا إله إلا الله'",
+      "should_trigger": true,
+      "expected": {
+        "protected_words_unmodified": ["بسم", "الله", "الرحمن", "الرحيم", "لا"]
+      }
+    },
+    {
+      "id": "EVAL_EDGE_06",
+      "category": "edge_case",
+      "prompt": "Slideshow anti-pattern: 6 identical scenes with static image zoom",
+      "should_trigger": true,
+      "expected": {
+        "slideshow_risk_verdict": "fail",
+        "scene_variation_verdict": "fail"
+      }
+    }
+  ]
+}

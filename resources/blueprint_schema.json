@@ -1,8 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CineFlow AI Studio Production, Programmatic Editing & OpenMontage Governance Blueprint Schema",
+  "title": "CineFlow AI Studio Unified Production, Showrunner Package & OpenMontage Governance Schema",
   "type": "object",
   "required": [
+    "project",
+    "identity_bible",
+    "blocks",
+    "overlays",
+    "outro",
     "production_profile",
     "script_and_content",
     "global_parameters",
@@ -14,6 +19,147 @@
     "qa_audit"
   ],
   "properties": {
+    "project": {
+      "type": "object",
+      "required": ["title", "purpose", "format", "style", "aspect_ratio", "total_runtime_s", "verified_capabilities"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "Commercials & TVCs",
+            "Corporate Videos",
+            "Educational & Training",
+            "Explainer Videos",
+            "Testimonial Videos",
+            "Documentaries",
+            "Event Videos",
+            "Entertainment Videos"
+          ]
+        },
+        "format": { "type": "string" },
+        "style": { "type": "string" },
+        "platform": { "type": "string" },
+        "aspect_ratio": {
+          "type": "string",
+          "enum": ["9:16", "16:9", "1:1", "4:5", "21:9"]
+        },
+        "total_runtime_s": { "type": "integer", "minimum": 4, "maximum": 600 },
+        "language_dialect": { "type": "string" },
+        "verified_capabilities": {
+          "type": "object",
+          "required": ["per_clip_s_options", "extend_cap_s"],
+          "properties": {
+            "per_clip_s_options": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "integer", "enum": [4, 6, 8, 10] }
+            },
+            "extend_cap_s": { "type": "integer", "minimum": 4, "maximum": 40 },
+            "audio": { "type": "string" },
+            "status": { "type": "string" }
+          }
+        },
+        "motion_engine_60fps": { "type": "object" }
+      }
+    },
+    "identity_bible": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "descriptor"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^(CHAR|ENV|PROD|PROP)_[0-9]{2}$" },
+          "descriptor": { "type": "string", "minLength": 5 },
+          "reference_prompt": { "type": "string" },
+          "reference_images": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "style_bible": { "type": "object" },
+    "audio_map": { "type": "object" },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["block_id", "mode", "duration_s", "ids_used", "shots"],
+        "properties": {
+          "block_id": { "type": "integer", "minimum": 1 },
+          "mode": {
+            "type": "string",
+            "enum": ["Ingredients", "Frames", "Extend", "Text-to-Video"]
+          },
+          "duration_s": {
+            "type": "integer",
+            "enum": [4, 6, 8, 10]
+          },
+          "extend_from_block": {
+            "type": ["integer", "null"]
+          },
+          "ids_used": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "shots": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "required": ["shot_id", "t_range", "visual_prompt_en", "camera", "lighting_grade", "emotion_body_language", "negatives"],
+              "properties": {
+                "shot_id": { "type": "string", "minLength": 1 },
+                "t_range": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?-[0-9]+(\\.[0-9]+)?$" },
+                "visual_prompt_en": { "type": "string", "minLength": 10 },
+                "camera": { "type": "string" },
+                "lighting_grade": { "type": "string" },
+                "emotion_body_language": { "type": "string" },
+                "dialogue_ar": { "type": "string" },
+                "dialogue_tts_ar": { "type": "string" },
+                "dialogue_gloss_en": { "type": "string" },
+                "audio_sync": { "type": "string" },
+                "negatives": { "type": "string" }
+              }
+            }
+          },
+          "continuity_note": { "type": "string" }
+        }
+      }
+    },
+    "overlays": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["start_s", "end_s", "text_ar"],
+        "properties": {
+          "start_s": { "type": "number", "minimum": 0 },
+          "end_s": { "type": "number", "minimum": 0 },
+          "text_ar": { "type": "string", "minLength": 1 },
+          "position": { "type": "string" },
+          "style": { "type": "string" }
+        }
+      }
+    },
+    "outro": {
+      "type": "object",
+      "required": ["safe_zone", "cta_ar"],
+      "properties": {
+        "safe_zone": { "type": "string", "minLength": 1 },
+        "cta_ar": { "type": "string", "minLength": 1 },
+        "handles": { "type": "string" }
+      }
+    },
+    "audit_report": { "type": "object" },
+    "generation_order": {
+      "type": "array",
+      "items": { "type": "integer" }
+    },
+    "credit_estimate": { "type": "object" },
     "production_profile": {
       "type": "object",
       "required": ["purpose", "format", "style_variant", "pipeline_type", "target_platform", "aspect_ratio"],
@@ -69,20 +215,13 @@
             "route_12_localization_dub"
           ]
         },
-        "execution_route": {
-          "type": "string"
-        },
-        "target_platform": {
-          "type": "string",
-          "default": "Google Flow (Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro / Seedance 2.0) + Remotion/HyperFrames/FFmpeg Studio"
-        },
+        "execution_route": { "type": "string" },
+        "target_platform": { "type": "string" },
         "aspect_ratio": {
           "type": "string",
           "enum": ["9:16", "16:9", "1:1", "4:5", "21:9"]
         },
-        "runtime_category": {
-          "type": "string"
-        }
+        "runtime_category": { "type": "string" }
       }
     },
     "script_and_content": {
@@ -95,15 +234,7 @@
         "expected_cliche_rejected": { "type": "string" },
         "chosen_divergence_angle": { "type": "string" },
         "research_brief_summary": { "type": "object" },
-        "hook_variants_scene_1": {
-          "type": "object",
-          "properties": {
-            "contrarian": { "type": "string" },
-            "visual_payoff": { "type": "string" },
-            "pain_point": { "type": "string" },
-            "authority": { "type": "string" }
-          }
-        },
+        "hook_variants_scene_1": { "type": "object" },
         "full_spoken_script": { "type": "string" },
         "facts_ledger": {
           "type": "array",
@@ -130,7 +261,7 @@
         "camera_gear_emulation": { "type": "string" },
         "identity_lock_target": { "type": "string" },
         "credit_governance_mode": { "type": "string" },
-        "total_runtime_seconds": { "type": "integer", "minimum": 3 }
+        "total_runtime_seconds": { "type": "integer", "minimum": 4, "maximum": 600 }
       }
     },
     "scene_breakdown": {
@@ -150,7 +281,7 @@
         "properties": {
           "scene_id": { "type": "integer" },
           "scene_role": { "type": "string" },
-          "duration_seconds": { "type": "integer", "minimum": 2, "maximum": 10 },
+          "duration_seconds": { "type": "integer", "enum": [4, 6, 8, 10] },
           "layout_mode": {
             "type": "string",
             "enum": ["R_FULL", "R_DOWN", "R_LOWER", "R_OFF"]
@@ -160,16 +291,7 @@
           "information_role": { "type": "string" },
           "narrative_role": { "type": "string" },
           "hero_moment": { "type": "boolean" },
-          "shot_language": {
-            "type": "object",
-            "properties": {
-              "shot_size": { "type": "string" },
-              "camera_movement": { "type": "string" },
-              "camera_angle": { "type": "string" },
-              "focus_dof": { "type": "string" },
-              "lighting_key": { "type": "string" }
-            }
-          },
+          "shot_language": { "type": "object" },
           "chai_5_aspect_breakdown": {
             "type": "object",
             "required": ["subject", "subject_motion", "scene", "spatial_framing", "camera"]
@@ -199,30 +321,7 @@
         "depth_moments_planned",
         "rtl_caption_config",
         "audio_mastering_spec"
-      ],
-      "properties": {
-        "render_runtime": {
-          "type": "string",
-          "enum": ["remotion", "hyperframes", "ffmpeg"]
-        },
-        "composition_mode": {
-          "type": "string",
-          "enum": ["atelier", "templated"]
-        },
-        "visual_design_style": { "type": "string" },
-        "color_palette": { "type": "string" },
-        "silence_cut_config": { "type": "object" },
-        "depth_moments_planned": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "rtl_caption_config": { "type": "object" },
-        "audio_mastering_spec": { "type": "object" },
-        "export_targets": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
+      ]
     },
     "production_governance": {
       "type": "object",
@@ -235,59 +334,13 @@
         "decision_log",
         "budget_governance",
         "chai_final_review_checklist"
-      ],
-      "properties": {
-        "taste_profile": { "type": "object" },
-        "delivery_promise": { "type": "object" },
-        "slideshow_risk_report": { "type": "object" },
-        "scene_variation_report": { "type": "object" },
-        "scored_provider_selection": { "type": "object" },
-        "decision_log": { "type": "array" },
-        "budget_governance": { "type": "object" },
-        "chai_final_review_checklist": { "type": "object" }
-      }
+      ]
     },
     "outro_standardization": {
       "type": "object",
-      "required": ["aspect_ratio", "brand_logo_safe_zone", "cta_and_handles_safe_zone"],
-      "properties": {
-        "aspect_ratio": { "type": "string" },
-        "brand_logo_safe_zone": { "type": "string" },
-        "cta_and_handles_safe_zone": { "type": "string" },
-        "loop_back_visual_cue": { "type": "string" }
-      }
+      "required": ["aspect_ratio", "brand_logo_safe_zone", "cta_and_handles_safe_zone"]
     },
-    "marketing_expansion": {
-      "type": "object",
-      "required": ["first_frame_cover", "poster_layout_prompt", "carousel_arabic_copy", "social_publish_pack"],
-      "properties": {
-        "first_frame_cover": { "type": "object" },
-        "poster_layout_prompt": { "type": "string" },
-        "social_design_brief": { "type": "string" },
-        "carousel_arabic_copy": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "social_publish_pack": { "type": "object" }
-      }
-    },
-    "qa_audit": {
-      "type": "object",
-      "properties": {
-        "audio_math_passed": { "type": "boolean" },
-        "micro_scene_limit_passed": { "type": "boolean" },
-        "physicality_firewall_passed": { "type": "boolean" },
-        "anti_cgi_guardrails_injected": { "type": "boolean" },
-        "dialect_lock_verified": { "type": "boolean" },
-        "outro_safe_zone_verified": { "type": "boolean" },
-        "kashida_and_rtl_caption_verified": { "type": "boolean" },
-        "calmness_and_hold_laws_verified": { "type": "boolean" },
-        "audio_lufs_and_sfx_cap_verified": { "type": "boolean" },
-        "slideshow_risk_passed": { "type": "boolean" },
-        "scene_variation_passed": { "type": "boolean" },
-        "delivery_promise_verified": { "type": "boolean" },
-        "chai_critique_and_decision_log_verified": { "type": "boolean" }
-      }
-    }
+    "marketing_expansion": { "type": "object" },
+    "qa_audit": { "type": "object" }
   }
 }

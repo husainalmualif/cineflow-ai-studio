@@ -39,12 +39,15 @@ jobs:
           test -f references/05-postproduction-marketing.md
           test -f references/06-browser-ops.md
           test -f references/07-field-tested-production-lessons.md
+          test -f references/08-model-registry-and-benchmarks.md
           test -f references/multi-agent-orchestrator.md
           test -f references/cinematic_macros_and_continuity.md
           test -f references/creative_strategy_and_marketing.md
           test -f references/scriptwriting_and_lip_sync_guide.md
           test -f references/programmatic_editing_and_motion_guide.md
           test -f resources/blueprint_schema.json
+          test -f resources/evals.json
+          test -f scripts/studio_config.py
           test -f scripts/cineflow_compiler.py
           test -f scripts/multi_agent_orchestrator.py
           test -f scripts/validate_package.py
@@ -56,18 +59,24 @@ jobs:
           test -f examples/example_03_showrunner_package.json
           grep -q "^name: cineflow-ai-studio" SKILL.md
 
-      - name: Lint Compiler & Unit Tests with Pylint
+      - name: Lint All Scripts & Unit Tests with Pylint
         run: |
-          pylint --disable=C0301,C0413,C0415,R0913,R0914,R0917 scripts/cineflow_compiler.py tests/test_cineflow_compiler.py
+          pylint --disable=C0301,C0413,C0415,R0801,R0911,R0912,R0913,R0914,R0915,R0917 scripts/studio_config.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py tests/test_cineflow_compiler.py
 
       - name: Run Automated Unit Tests with Pytest
         run: |
           pytest -v tests/test_cineflow_compiler.py
 
-      - name: Test CLI Blueprint & Showrunner Package Validation
+      - name: Test End-to-End Compiler -> Validator -> Cost -> SRT Interoperability
         run: |
           python scripts/cineflow_compiler.py --output /tmp/test_blueprint.json
           test -s /tmp/test_blueprint.json
+          python scripts/validate_package.py /tmp/test_blueprint.json
+          python scripts/estimate_cost.py /tmp/test_blueprint.json 10 1
+          python scripts/make_srt.py /tmp/test_blueprint.json /tmp/test_blueprint.srt
+          test -s /tmp/test_blueprint.srt
+          python scripts/validate_package.py examples/example_01_commercial_promo.json
+          python scripts/validate_package.py examples/example_02_explainer_and_story_script.json
           python scripts/validate_package.py examples/example_03_showrunner_package.json
           python scripts/estimate_cost.py examples/example_03_showrunner_package.json 10 1
           python scripts/make_srt.py examples/example_03_showrunner_package.json /tmp/out.srt

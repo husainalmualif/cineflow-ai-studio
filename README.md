@@ -187,19 +187,19 @@ python scripts/cineflow_compiler.py \
 pytest -v tests/test_cineflow_compiler.py
 ```
 
-#### ب) توليد مخطط الإنتاج باستخدام PowerShell (على نظام Windows مباشرة):
+#### ب) توليد مخطط الإنتاج باستخدام PowerShell (غلاف رقيق يستدعي محرك Python الموحد):
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\Compile-CineFlowBlueprint.ps1 `
-  -Idea "إعلان قهوة مختصة فاخرة /dollyin /macro /goldenhour /4k /ar 9:16" `
+  -Title "إعلان قهوة مختصة فاخرة" `
   -Purpose "Commercials & TVCs" `
   -Format "Live-Action" `
   -StyleVariant "Commercial Promo" `
-  -DialogueText "ويش سر القهوة اللي تعدل المزاج من أول رشفة؟ جربها الحين وعيش الفخامة" `
-  -TotalRuntimeSeconds 15 `
-  -ColorPalette "gold" `
-  -CommentKeyword "إبداع" `
+  -AspectRatio "9:16" `
+  -RuntimeSeconds 20 `
+  -Macro "/anamorphic" `
   -RenderRuntime "remotion" `
-  -CompositionMode "atelier" `
+  -DesignStyle "kinetic_typography" `
+  -SpokenScript "ويش سر القهوة اللي تعدل المزاج من أول رشفة؟ جربها الحين وعيش الفخامة" `
   -OutputPath ".\examples\example_01_commercial_promo.json"
 ```
 
@@ -249,37 +249,41 @@ node render.js
 cineflow-ai-studio/
 ├── SKILL.md                                                 # الدستور الرئيسي للمهارة والـ System Prompt الشامل (12 مساراً + 7 وكلاء + Showrunner)
 ├── README.md                                                # دليل التثبيت والاستخدام التفصيلي (هذا الملف)
-├── requirements.txt                                         # متطلبات الفحص والاختبار الآلي (pytest, pylint)
+├── requirements.txt                                         # متطلبات الفحص والاختبار الآلي (pytest, pylint, jsonschema)
 ├── templates/
 │   └── package.template.json                                # قالب حزمة الإنتاج القياسي للـ Showrunner (06_package.json)
 ├── references/
-│   ├── 01-team-and-roles.md                                 # مصفوفة الـ 13 وكيلاً متخصصاً (A1..A12 + Alt) وبروتوكول التسليم
-│   ├── 02-flow-rules.md                                     # قواعد Google Flow، المدة، وبنية البرومبت (<= 120 كلمة)
+│   ├── 01-team-and-roles.md                                 # مصفوفة الـ 13 وكيلاً متخصصاً (A0..A12) وبروتوكول التسليم
+│   ├── 02-flow-rules.md                                     # قواعد Google Flow، المدة ({4, 6, 8, 10}s)، وبنية البرومبت (<= 120 كلمة)
 │   ├── 03-direction-and-audio.md                            # معايير الإخراج الـ 8، التصنيف، الصوت (-14 LUFS)، والموشن 60fps
 │   ├── 04-qa-and-errors.md                                  # جدول التدقيق من 26 نقطة (13 معياراً) وبروتوكول إصلاح الأخطاء
 │   ├── 05-postproduction-marketing.md                       # المونتاج، الترجمة (.srt)، التصدير، والتوسع التسويقي
 │   ├── 06-browser-ops.md                                    # تشغيل المنصات عبر المتصفح وبطاقات التسليم اليدوي (Manual Handoff Cards)
 │   ├── 07-field-tested-production-lessons.md                # خلاصة التجارب الميدانية (حظر الشفاه الثابتة، Whisper ASR، معايرة 3D Bloom، Pure-NumPy DSP)
+│   ├── 08-model-registry-and-benchmarks.md                  # سجل النماذج المؤرخ، القيم التجريبية القابلة للتخصيص، حماية النص القرآني، والامتثال التسويقي
 │   ├── multi-agent-orchestrator.md                          # معمارية الوكلاء السبعة + بروتوكولات المتصفح الحي + قانون التشكيل الإذاعي
-│   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 180+ (/macros) + CHAI 5-Aspect Language + Veo/Seedance + 3D Worlds
-│   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة السكربت + قفل اللهجات + Lip-Sync + البحث الخماسي + تحليل الفيديو المرجعي
+│   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 190+ (/macros) + CHAI 5-Aspect Language + Veo/Seedance + 3D Worlds
+│   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة السكربت + قفل اللهجات الـ 9 + Lip-Sync + البحث الخماسي + تحليل الفيديو المرجعي
 │   ├── programmatic_editing_and_motion_guide.md             # الـ 12 مساراً + التخطيط الرباعي + Remotion/HyperFrames Atelier + Ink Theater + الصوت
 │   └── creative_strategy_and_marketing.md                   # الانحراف الإبداعي + Taste Profile + Slideshow Risk Scorer + الغلاف وحقيبة النشر
 ├── resources/
-│   └── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والحوكمة الإنتاجية
+│   ├── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والحوكمة الإنتاجية
+│   └── evals.json                                           # حزمة تقييم المهارة (22 حالة اختبار إيجابية وسلبية وحالات حافة)
 ├── scripts/
-│   ├── multi_agent_orchestrator.py                          # المايسترو المنسق للوكلاء السبعة + بوابة الفحص الصوتي الإذاعي (Tashkeel Gate)
+│   ├── studio_config.py                                     # المصدر الوحيد للحقيقة (Single Source of Truth) للثوابت واللهجات والـ 190+ ماكرو
+│   ├── multi_agent_orchestrator.py                          # المايسترو المنسق للوكلاء السبعة والـ 13 دوراً + بوابة الفحص الصوتي الإذاعي
 │   ├── validate_package.py                                  # مدقق حزمة الإنتاج القياسية (06_package.json) والتشكيل الصوتي
-│   ├── estimate_cost.py                                     # حاسبة الأرصدة المتوقعة والقصوى قبل بوابة الاعتماد الثانية (GATE 2)
-│   ├── make_srt.py                                          # مولد ملفات الترجمة العربية (.srt) من الحزمة
-│   ├── cineflow_compiler.py                                 # المترجم الآلي ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة Python
-│   └── Compile-CineFlowBlueprint.ps1                        # المترجم الآلي ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة PowerShell
+│   ├── estimate_cost.py                                     # حاسبة الأرصدة ثلاثية المراحل قبل بوابة الاعتماد الثانية (GATE 2)
+│   ├── make_srt.py                                          # مولد ملفات الترجمة العربية (.srt) من الحوار المنطوق في الحزمة
+│   ├── cineflow_compiler.py                                 # المترجم الآلي الموحد ومحرك الكشيدة وفاحص خطر الشرائح والحوكمة بلغة Python
+│   └── Compile-CineFlowBlueprint.ps1                        # غلاف PowerShell رقيق يستدعي cineflow_compiler.py مباشرة لمنع ازدواجية الكود
 ├── tests/
-│   └── test_cineflow_compiler.py                            # اختبارات الوحدات الآلية (9 Unit Test Suites)
+│   └── test_cineflow_compiler.py                            # اختبارات الوحدات والحالات السلبية والتوافقية (13 Test Suites)
 ├── examples/
-│   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي + تخطيط وموشن وحوكمة + غلاف وبوستر وحقيبة نشر
+│   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي موحد (Showrunner + Governance)
 │   ├── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي (HyperFrames Atelier)
-│   └── example_03_showrunner_package.json                   # نموذج تطبيقي 3: حزمة إنتاج Showrunner متكاملة (20 ثانية)
+│   ├── example_03_how_to_use_cineflow.json                  # نموذج تطبيقي 3: فيديو تعليمي لاستخدام استوديو سينما فلو الذكي
+│   └── example_03_showrunner_package.json                   # نموذج تطبيقي 4: حزمة إنتاج Showrunner متكاملة (20 ثانية)
 └── .github/
     └── workflows/
         └── ci.yml                                           # الفحص الآلي المستمر (GitHub Actions CI)

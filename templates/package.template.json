@@ -1,12 +1,12 @@
 {
   "project": {
     "title": "",
-    "purpose": "",
-    "format": "",
-    "style": "",
+    "purpose": "Commercials & TVCs",
+    "format": "Live-Action",
+    "style": "Commercial Promo",
     "platform": "Google Flow",
     "aspect_ratio": "9:16",
-    "total_runtime_s": 0,
+    "total_runtime_s": 10,
     "language_dialect": "",
     "verified_capabilities": {
       "per_clip_s_options": [4, 6, 8, 10],
@@ -46,7 +46,7 @@
   "blocks": [
     {
       "block_id": 1,
-      "mode": "Text",
+      "mode": "Ingredients",
       "duration_s": 10,
       "extend_from_block": null,
       "ids_used": ["CHAR_01"],
