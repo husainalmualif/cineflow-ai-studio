@@ -480,4 +480,3 @@ def split_caption_cards_balanced(
             }
         )
     return cards
-

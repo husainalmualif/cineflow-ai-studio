@@ -605,7 +605,7 @@ def audit_sfx_governor(
         measured_onset_s = float(ev.get("measured_onset_s", t_s - lead_s))
 
         if word_timestamps:
-            nearest_w = min(word_timestamps, key=lambda w_t: abs(float(w_t) - t_s))
+            nearest_w = min(word_timestamps, key=lambda w_t, cur_t=t_s: abs(float(w_t) - cur_t))
             drift_ms = abs(t_s - float(nearest_w)) * 1000.0
             if drift_ms > 120.0:
                 violations.append(
@@ -728,4 +728,3 @@ def validate_window_schedule_and_face_guard(
         "none_count_after_hook": none_count_after_hook,
         "violations": violations,
     }
-
