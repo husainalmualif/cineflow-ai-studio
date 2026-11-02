@@ -37,7 +37,7 @@ class _GenAIErrorFallback(Exception):
 
 
 try:
-    from google.genai.errors import APIError as _GenAIAPIError  # pylint: disable=no-name-in-module
+    from google.genai.errors import APIError as _GenAIAPIError  # pylint: disable=no-name-in-module,ungrouped-imports
 except ImportError:
     _GenAIAPIError = _GenAIErrorFallback  # type: ignore[misc,assignment]
 

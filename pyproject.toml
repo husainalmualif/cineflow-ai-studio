@@ -22,6 +22,7 @@ ignore-paths = ["^references/remotion_skills_official/.*$"]
 [tool.pylint."messages control"]
 disable = [
     "C0301",  # line-too-long
+    "C0412",  # ungrouped-imports (guarded optional imports)
     "C0413",  # wrong-import-position (sys.path adjustments in CLI scripts/tests)
     "C0415",  # import-outside-toplevel (optional lazy imports)
     "E0401",  # import-error (optional third-party packages in bare CI)
