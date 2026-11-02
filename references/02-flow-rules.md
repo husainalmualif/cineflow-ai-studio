@@ -17,14 +17,27 @@ Verify every number below in **Phase 1 (`01_research.md`)** because platform lim
 ## 3. Prompt Anatomy (Fixed Order, `<= 120 words` per block)
 `[Format & style] + [Subject + ID] + [Action beat-by-beat with timestamps] + [Environment/time] + [Camera: lens, framing, movement] + [Lighting & grade] + [Audio: ambience, SFX, music, dialogue in quotes] + [Negatives]`
 
-## 4. Dialogue, Lip-Sync & Anti-Uncanny-Valley Law
-- **Generative Lip-Sync**: Short phrases (`<= 8 words` and `<= 2.5 words/s`), natural pauses (`.. [0.3s pause]`), one speaker at a time, face to camera, mouth unobstructed. Provide an English gloss (`dialogue_gloss_en`) for QC. Keep dialect consistent (`Gulf / Bahraini / Saudi / Kuwaiti / Emirati / Iraqi / Egyptian / Levantine` vs. `MSA` as requested).
+## 4. Dialogue, Lip-Sync, Dialect Phonetics & Anti-Uncanny-Valley Law
+- **Generative Lip-Sync**: Short phrases (`<= 8 words` and `<= 2.5 words/s`), natural pauses (`..`), one speaker at a time, face to camera, mouth unobstructed. Provide an English gloss (`dialogue_gloss_en`) for QC. Keep dialect consistent (`Gulf / Bahraini / Saudi / Kuwaiti / Emirati / Iraqi / Egyptian / Levantine` vs. `MSA` as requested).
+- **Explicit Voice & Native Accent Lock (Anti-Foreign/Indian Accent Rule)**:
+  - Always include an explicit vocal timbre and native accent lock before the quoted Arabic line: `speaking in a warm, authentic native Bahraini Khaleeji male voice with natural Gulf Arab cadence (zero South-Asian/Indian or foreign accent): "..."`.
+  - **Visual-Audio Conditioning Guardrail**: In joint audio-visual models (`Omni 1.1 Flash` / `Veo 3.1`), character wardrobe directly biases voice accent! Never omit the character's exact wardrobe descriptor in any block (e.g., omitting a suit or Gulf thobe can cause the model to generate a South-Asian tunic/kurta, which immediately shifts the voice to an Indian accent). Repeat the **full verbatim character + wardrobe + headwear/bareheaded descriptor** in every single block.
+- **Dialect Sukun Law vs. MSA Case-Ending Trap (`قانون التسكين اللهجي ومنع التنوين الفصيح`)**:
+  - **NEVER put MSA grammatical case endings (`ضمة ـُ / كسرة ـِ`) or Tanween (`ـٌ / ـٍ / ـً`) on colloquial/Gulf/Bahraini words** (e.g., never write `مَشْغُوْلٌ وَاجِدْ`, `لَيْلَةِ مَطَرٍ`, `أَقُوْلُ`, `كَانَ`). Seeing Tanween or word-final damma causes `Veo 3.1 / Omni 1.1 Flash` to switch mid-sentence into formal textbook Fusha!
+  - **Rule for Colloquial/Gulf Dialects**: Place **`سُكُون (ْ)` on the final letter of every word** (`أَگُولْ، يِگُولْ، مَشْغُولْ وَاجِدْ، لَيْلَةْ مَطَرْ، چَانْ، مَضْمُونْ`), convert pause-final `تاء مربوطة` (`ة`) to `هْ` (`مُكَالَمَهْ، هَالْحَزَّهْ، الطَّاوْلَهْ`), and write dialectal phonemes explicitly so the TTS never guesses:
+    - Hard `G` (`الجيم القاهرية / القاف الخليجية` as in *Good*): write with **`گ` (`U+06AF`)** + inline phonetic hint when needed (e.g., `بَاگِرْ [pronounced Baa-gir with hard G as in Good]`, `تِگُولْ`, `دَگَايِگْ`, `عُگُبْ`, `گَبِلْ`, `اِگْعِدْ`, `يْوَفِّگَكْ`).
+    - Gulf `Ch` (`الكشكشة / الچيم` as in *Chair*): write with **`چ` (`U+0686`)** (e.g., `الچَايْ`, `چَانْ`, or `بَاچِرْ` when `Ch` variant is desired).
+- **Narrator vs. Character Direct-Speech Separation**:
+  - Never put 3rd-person narrator reporting verbs (`"كان يبتسم ويقول لي..."`, `"يقول لي يا ولدي..."`) inside a secondary character's on-screen lip-sync dialogue! If the father is on screen moving his lips, his quoted dialogue must contain **only his 1st-person direct words** (`"مَعْذُوْرْ يَا وَلْدِيْ .. اللَّهْ يْوَفِّگَكْ يَا نَظَرْ عَيْنِيْ"`).
 - **Hard Ban on Static JPEG Mouth-Flapping**: Never crop rectangular mouth patches (`open/mid/closed`) onto a static image. If not using generative lip-sync or real presenter footage, use the **60fps 3D WebGL (`Three.js`) + 2D Canvas Motion Stage**.
-- **Broadcast TTS (`tts_text` vs. `display_text`)**: When synthesizing voiceover (`edge-tts`), feed 100% vocalized `tts_text` (`diacritic_ratio >= 0.75`, pause-final `تاء مربوطة` written as `هْ`, zero `\u0670` dagger alifs) and verify with `whisper.cpp` (`ggml-medium.bin`).
+- **Broadcast TTS (`tts_text` vs. `display_text`)**: When synthesizing voiceover (`edge-tts`), feed vocalized `tts_text` (`diacritic_ratio >= 0.75`, pause-final `تاء مربوطة` written as `هْ`, zero `\u0670` dagger alifs) and verify with `whisper.cpp` (`ggml-medium.bin`).
 
-## 5. Text in Frame
-- AI-rendered in-frame Arabic is unreliable. **Default**: generate clean plates with empty text areas, and render Arabic text as crisp post-production overlays (`Cairo`, `Tajawal`, `IBM Plex Sans Arabic`, `Amiri`) with pixel-accurate `drawKashida`.
-- In-frame text is permitted only if `<= 3 words`, locked via a reference image (`@PROD_01`), and verified letter by letter.
+## 5. Text in Frame & Anti-Hallucination Rules
+- **Hard Ban on Handwritten Paper Notes / Letters in Video Prompts**: Never prompt for a `"handwritten note"`, `"folded letter with writing"`, or `"paper note"` (`ورقة صغيرة مكتوب فيها`) in `Veo 3.1 / Omni 1.1 Flash`. Video diffusion models cannot render legible Arabic handwriting and will hallucinate creepy, garbled pseudo-Arabic squiggles on the paper. Replace written notes with **non-text physical heirlooms** (`silver reading glasses, amber prayer beads, vintage wristwatch`) or a **spoken voice message on a phone**.
+- **Positive-Token Trap (`NEVER write "no text" or "no subtitles" in Flow Prompts`)**:
+  - Diffusion video models (`Omni 1.1 Flash` / `Veo 3.1`) treat words like `"text"`, `"subtitles"`, `"captions"`, `"letters"`, and `"watermark"` at the end of a prompt—even when preceded by `"No"`—as positive attention tokens, causing the model to pull characters from the Arabic dialogue and hallucinate floating gibberish Arabic text at the top of the frame!
+  - **Rule**: Never include the words `text`, `subtitles`, `captions`, `lettering`, or `watermark` anywhere in the Flow prompt string. Instead, describe a clean visual frame positively: `Clean unblemished cinema frame, pure optical lens capture, clear ceiling and background.`
+- Render all Arabic titles and subtitles as crisp post-production overlays (`Cairo`, `Tajawal`, `IBM Plex Sans Arabic`, `Amiri`).
 
 ## 6. Safe Zones (`9:16` Vertical `1080×1920`)
 - Keep key action in the central `80%`; reserve bottom `20%` (`Y: 1500..1920`) and top `8%` (`Y: 0..160`) for platform UI, subtitles, and CTA/outro.

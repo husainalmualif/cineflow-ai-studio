@@ -480,3 +480,44 @@ def split_caption_cards_balanced(
             }
         )
     return cards
+
+
+def format_omni_flash_dialect_dialogue(
+    dialogue_ar: str,
+    dialect: str = "Bahraini Gulf Arabic",
+    voice_gender: str = "male",
+) -> Dict[str, Any]:
+    """
+    Implements the Google Flow `Omni 1.1 Flash` Native Dialect Law (`09-google-flow-agent-scenes-and-tools-mastery.md`):
+    - Strips textbook MSA tanween (`\\u064b`, `\\u064c`, `\\u064d`) and excessive schoolbook harakat so
+      `Omni 1.1 Flash` (a native multimodal LLM) uses authentic regional prosody and connected speech.
+    - Generates the English phonetic bracket prefix locking native Gulf/Bahraini pronunciation
+      (e.g., hard `G` as in Good for `باجر / تقول / دقايق / عقب / قبل`, zero South-Asian/foreign accent).
+    """
+    raw = str(dialogue_ar or "").strip()
+    has_tanween = bool(re.search(r"[\u064B-\u064D]", raw))
+    # Strip MSA tanween and heavy harakat for Omni 1.1 Flash native dialect orthography
+    clean_dialect_ar = re.sub(r"[\u064B-\u0652\u0670]", "", raw)
+    clean_dialect_ar = re.sub(r"\s+", " ", clean_dialect_ar).strip()
+
+    phonetic_notes: List[str] = [
+        "zero South-Asian or foreign accent",
+        "zero Fusha tanween",
+    ]
+    if "باجر" in clean_dialect_ar or "باگر" in clean_dialect_ar:
+        phonetic_notes.append('pronouncing "باجر" as "Baa-gir" with a hard G as in Good and soft r at the end')
+    g_words = [w for w in ("تقول", "أقول", "يقول", "دقايق", "عقب", "قبل", "اقعد") if w in clean_dialect_ar]
+    if g_words:
+        phonetic_notes.append(f'pronouncing "{" / ".join(g_words)}" with hard Gulf G')
+
+    bracket_str = ", ".join(phonetic_notes)
+    prompt_segment = (
+        f"speaking in a warm, deep, natural conversational {dialect} {voice_gender} voice "
+        f'({bracket_str}): "{clean_dialect_ar}"'
+    )
+    return {
+        "clean_dialect_ar": clean_dialect_ar,
+        "had_msa_tanween_stripped": has_tanween,
+        "phonetic_notes": phonetic_notes,
+        "omni_flash_prompt_segment": prompt_segment,
+    }

@@ -2,6 +2,15 @@
 
 All notable changes to `cineflow-ai-studio` are documented in this file.
 
+## [6.4.0] — 2026-11-02
+### Added (Google Flow Complete Ecosystem Mastery, Native Dialect Law & Anti-Hallucination Prompt Sanitizer)
+- **Google Flow Agent, Voices/Characters/Avatars, Scene Builder & `Mondo Sónico` (`references/09-google-flow-agent-scenes-and-tools-mastery.md` & `templates/flow_agent_project_init.template.json`)**:
+  - Added the structured **JSON Project Initialization Brief** (`flow_agent_init` v2.0) for `Flow Agent` (`Agent instructions` + `Agent settings`), locking `@Character` tags, `@Voice` profiles, dialect phonetic lexicons (`باجر -> Baa-gir` with hard `G`, `تقول / دقايق / عقب / قبل` with hard Gulf `G`), and `Scenes` (`Add to scene`, `+ New scene`, `Add clip`, `Extend Veo 3.1 - Lite`) + `Mondo Sónico` multi-track sound design.
+  - Updated `references/02-flow-rules.md` and `references/07-field-tested-production-lessons.md` with the **Omni 1.1 Flash Native Dialect Law** (natural dialect orthography + English phonetic brackets without textbook MSA tanween), **Visual-Audio Conditioning Wardrobe Lock** (preventing South-Asian/foreign accent drift), and **Anti-Lens-HUD / Anti-Text-Hallucination Laws**.
+- **Programmable Helpers & Sanitizer (`scripts/arabic_helpers.py` & `scripts/governance_and_omni.py`)**:
+  - Added `format_omni_flash_dialect_dialogue` to strip textbook MSA tanween/harakat for `Omni 1.1 Flash` native multimodal speech and generate English phonetic brackets.
+  - Added `sanitize_flow_video_prompt` to strip numeric lens specs (`85mm f/1.8 Anamorphic`), replace negative text phrases (`no text`, `no subtitles`) with positive optical framing, replace handwritten paper note props, and flatten multi-line prompts into single-line strings for Google Flow's Slate.js editor.
+
 ## [6.3.0] — 2026-11-02
 ### Added (B Studio `v1.0.10` & Video-Edit `v1.1` Mastery Integration)
 - **Reference Constitution (`references/b-studio-and-video-edit-mastery.md`)**:

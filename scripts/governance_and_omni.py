@@ -728,3 +728,68 @@ def validate_window_schedule_and_face_guard(
         "none_count_after_hook": none_count_after_hook,
         "violations": violations,
     }
+
+
+def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
+    """
+    Enforces the 4 field-tested Google Flow / `Omni 1.1 Flash` Anti-Hallucination & Slate.js Laws
+    (`09-google-flow-agent-scenes-and-tools-mastery.md` & `07-field-tested-production-lessons.md`):
+    1. Strips numeric camera lens/aperture specs (`85mm`, `50mm`, `35mm`, `f/1.4`, `f/1.8`, `Anamorphic`)
+       that cause `Omni 1.1 Flash` to burn camera-HUD text overlays onto still-life frames.
+    2. Strips negative text phrases (`no text`, `no subtitles`, `no watermark`, `no captions`) that trigger
+       positive-token Arabic gibberish hallucinations on ceilings/backgrounds, replacing them with
+       positive optical framing (`Clean unblemished cinema frame, pure optical capture`).
+    3. Replaces handwritten paper note prompts (`handwritten note`, `folded paper note`) with non-text
+       physical heirlooms (`silver-rimmed reading glasses, amber prayer beads`).
+    4. Flattens multi-line prompts into a single line (replacing `\\n` with spaces) so Google Flow's
+       Slate.js editor never rejects the paste (`typeText: editor rejected text`).
+    """
+    text = str(prompt or "")
+    applied_fixes: List[str] = []
+
+    if re.search(r"\b\d{2,3}\s*mm\b|\bf/\d+(?:\.\d+)?\b|\banamorphic\b", text, flags=re.I):
+        text = re.sub(
+            r"\b\d{2,3}\s*mm(?:\s+f/\d+(?:\.\d+)?)?(?:\s+anamorphic)?\b",
+            "intimate medium close-up with creamy shallow depth of field and soft bokeh",
+            text,
+            flags=re.I,
+        )
+        text = re.sub(r"\bf/\d+(?:\.\d+)?\b", "shallow depth of field", text, flags=re.I)
+        text = re.sub(
+            r"\banamorphic\b",
+            "widescreen cinematic optics with subtle horizontal warm light bloom",
+            text,
+            flags=re.I,
+        )
+        applied_fixes.append("replaced_numeric_lens_hud_tokens")
+
+    if re.search(r"\bno\s+(?:text|subtitles|watermark|captions|letters)\b", text, flags=re.I):
+        text = re.sub(
+            r"(?:,?\s*\bno\s+(?:text|subtitles|watermark|captions|letters|burned-in subtitles)\b)+",
+            "",
+            text,
+            flags=re.I,
+        )
+        text = text.rstrip(" .,;") + ". Clean unblemished cinema frame, pure optical capture, clear ceiling and background."
+        applied_fixes.append("replaced_negative_text_tokens_with_positive_optical_lock")
+
+    if re.search(r"\b(?:handwritten|folded)\s+(?:paper\s+)?(?:note|letter)\b", text, flags=re.I):
+        text = re.sub(
+            r"\b(?:handwritten|folded)\s+(?:paper\s+)?(?:note|letter)\b",
+            "silver-rimmed reading glasses and amber prayer beads",
+            text,
+            flags=re.I,
+        )
+        applied_fixes.append("replaced_handwritten_note_prop")
+
+    had_newlines = "\n" in text or "\r" in text
+    single_line = re.sub(r"[\r\n]+", " ", text)
+    single_line = re.sub(r"\s{2,}", " ", single_line).strip()
+    if had_newlines:
+        applied_fixes.append("flattened_newlines_for_flow_slate_editor")
+
+    return {
+        "sanitized_prompt": single_line,
+        "is_single_line": "\n" not in single_line and "\r" not in single_line,
+        "applied_fixes": applied_fixes,
+    }

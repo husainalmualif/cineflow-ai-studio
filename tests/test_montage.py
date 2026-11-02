@@ -28,9 +28,11 @@ from cineflow_compiler import (  # noqa: E402
     audit_sfx_governor,
     build_omni_interaction_payload,
     compile_blueprint,
+    format_omni_flash_dialect_dialogue,
     is_rtl_text,
     optimize_arabic_lip_sync,
     partition_runtime_into_allowed_blocks,
+    sanitize_flow_video_prompt,
     split_arabic_letters_zwj,
     split_caption_cards_balanced,
     validate_video_first_layout,
@@ -342,6 +344,30 @@ def test_b_studio_window_schedule_and_face_guard() -> None:
     bad = validate_window_schedule_and_face_guard(bad_stage, duration_s=30.0, face_top_y=578, graphics_boxes=bad_boxes)
     assert bad["valid"] is False
     assert len(bad["violations"]) == 4
+
+
+
+def test_google_flow_omni_dialect_and_prompt_sanitizer() -> None:
+    """Verify Omni 1.1 Flash Native Dialect Law formatter and Google Flow prompt sanitizer."""
+    dialect_res = format_omni_flash_dialect_dialogue(
+        "يَا خُوْيِي لَا تِقُوْلُ بَاجِرٌ.. بُوْسْ رَاسْ أُمِّكْ وَأَبُوْكْ الْيَوْمْ وَاِقْعِدْ وِيَّاهُمْ لَوْ خَمْسْ دَقَايِقٍ"
+    )
+    assert dialect_res["had_msa_tanween_stripped"] is True
+    assert "ٌ" not in dialect_res["clean_dialect_ar"]
+    assert "Baa-gir" in dialect_res["omni_flash_prompt_segment"]
+    assert "hard Gulf G" in dialect_res["omni_flash_prompt_segment"]
+
+    raw_prompt = (
+        "ARRI Alexa 85mm f/1.8 Anamorphic hero table shot with a handwritten paper note.\n"
+        "Warm lighting, no text, no watermark, no subtitles"
+    )
+    sanitized = sanitize_flow_video_prompt(raw_prompt)
+    assert sanitized["is_single_line"] is True
+    assert "85mm" not in sanitized["sanitized_prompt"]
+    assert "no text" not in sanitized["sanitized_prompt"].lower()
+    assert "handwritten paper note" not in sanitized["sanitized_prompt"].lower()
+    assert "Clean unblemished cinema frame" in sanitized["sanitized_prompt"]
+    assert len(sanitized["applied_fixes"]) == 4
 
 
 if __name__ == "__main__":

@@ -1,0 +1,57 @@
+{
+  "flow_agent_init": {
+    "version": "2.0",
+    "project_meta": {
+      "title": "{{PROJECT_TITLE}}",
+      "slug": "{{PROJECT_SLUG}}",
+      "aspect_ratio": "9:16",
+      "image_engine": "nano-banana-2.1",
+      "video_engine": "omni-flash",
+      "extension_engine": "veo-3.1-lite",
+      "confirm_before_generating": true
+    },
+    "dialect_and_voice_engine": {
+      "primary_dialect": "{{DIALECT_NAME}} (e.g., Natural conversational Bahraini Gulf Arabic - لهجة بحرينية محرقية عفوية)",
+      "omni_flash_dialect_law": "Write Arabic dialogue in natural conversational dialect spelling WITHOUT heavy MSA harakat/tanween so Omni 1.1 Flash uses its native LLM dialect prosody and natural word elision instead of stiff textbook Fusha recitation.",
+      "phonetic_lexicon": {
+        "باجر": "Baa-gir (الباء والألف با + الجيم بصوت G مثل Good + الراء مخففة في النهاية)",
+        "تقول / أقول / عقب / قبل / دقايق": "Pronounced with hard Gulf G (گ as in Good)",
+        "كان / الجاي": "Pronounced with Gulf Ch (چ as in Chair: چان / الچاي)"
+      },
+      "forbidden_vocal_traits": [
+        "No Modern Standard Arabic (Fusha) case endings or tanween (-un, -in, -an)",
+        "No South-Asian, Indian, or non-native foreign accent",
+        "No robotic syllable-by-syllable textbook recitation"
+      ]
+    },
+    "visual_guardrails": {
+      "forbidden_prompt_tokens": [
+        "Never include numeric focal lengths or f-stops (85mm, 50mm, 35mm, f/1.4, f/1.8, Anamorphic) in video prompts to prevent lens-HUD captions on screen",
+        "Never include negative text tokens ('no text', 'no subtitles', 'no watermark') to prevent positive-token text hallucinations",
+        "Never include handwritten paper notes with unreadable squiggles"
+      ],
+      "positive_frame_lock": "Clean unblemished cinema frame, pure optical capture, creamy shallow depth of field"
+    },
+    "cast_registry": [
+      {
+        "tag": "@LeadCharacter",
+        "mode": "flow-create-character",
+        "visual_lock": "Full verbatim physical and wardrobe description locked across all shots",
+        "voice_tag": "@Voice_LeadCharacter",
+        "voice_mode": "flow-set-voice",
+        "voice_profile": "Warm native regional speaker matching character age and dialect"
+      }
+    ],
+    "scene_builder_workflow": {
+      "enabled": true,
+      "steps": [
+        "1. Create Characters (@tags) via Characters tab / flow-create-character and Voices via Voices tab / flow-set-voice",
+        "2. Generate opening clip and select Add to scene -> + New scene",
+        "3. Append subsequent clips via Add clip / Add to scene",
+        "4. Use Extend (Veo 3.1 - Lite) / flow-extend-video for continuous unbroken shots up to 40s",
+        "5. Layer Ambiance, Foley, and SFX using Mondo Sonico in Explore tools",
+        "6. Export unified multi-scene master directly from Google Flow Scenes"
+      ]
+    }
+  }
+}

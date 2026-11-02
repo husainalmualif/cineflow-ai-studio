@@ -1,6 +1,6 @@
 # Field-Tested Production Lessons & Engineering Guardrails (`خلاصة الخبرات العملية والتجارب الميدانية`)
 
-This reference codifies the battle-tested engineering, linguistic, visual, and audio lessons discovered during real-world multi-agent production and 60fps rendering experiments. Every subagent (`A1..A12` & the 7-Agent Crew) and the Showrunner MUST enforce these rules.
+This reference codifies the battle-tested engineering, linguistic, visual, and audio lessons discovered during real-world multi-agent production and 60fps rendering experiments. Every subagent (`A1..A12`) and the Showrunner MUST enforce these rules.
 
 ---
 
@@ -65,3 +65,37 @@ This reference codifies the battle-tested engineering, linguistic, visual, and a
 - **Locked Solution**:
   - Use **100% pure `numpy.fft`** (`rfft` / `irfft`) for Butterworth-style frequency-domain highpass/lowpass/bandpass filtering (`fft_filter`) and stereo room-impulse convolution (`fft_convolve`).
   - Use vectorized 180ms speech-envelope sidechain ducking (`-9.5 dB` music reduction during voiceover with `40ms` lookahead) and block-max lookahead true-peak limiting (`<= -1.0 dBTP`, `-14.0 LUFS` integrated via `ffmpeg loudnorm`).
+
+---
+
+## 5. Google Flow (`Veo 3.1 / Omni 1.1 Flash`) Dialect Phonetics, Voice Lock & Anti-Text-Hallucination Guardrails (`قواعد إتقان اللهجة البحرينية/الخليجية ومنع اللكنة الأجنبية والنصوص العشوائية`)
+
+### What Failed in Field Experiments (`Bahraini Father Story Case Study`)
+1. **The "South-Asian / Indian Accent" Bug (`Visual-Audio Conditioning Drift`)**:
+   - *Symptom*: In Block 7, omitting the character's exact outfit (`dark charcoal tailored suit jacket over a white collared shirt`) caused `Omni 1.1 Flash` to dress the actor in a beige South-Asian Mandarin-collar tunic (Kurta). Because `Omni 1.1 Flash` generates video and audio jointly, the South-Asian wardrobe immediately biased the synthesized voice toward an Indian/South-Asian accent (`Retroflex R/D` and foreign intonation)!
+   - *Symptom*: Writing `"بَاجِرْ"` with standard Arabic `ج` and `"تِقُوْلْ / دَقَايِقْ"` with `ق` caused the model to pronounce `ج` as a foreign/retroflex `j` instead of the authentic Bahraini hard `G` (`گ` as in *Good*: `بَاگِرْ / Baagir`) or Gulf `Ch` (`چ`: `بَاچِرْ / Baachir`).
+2. **The "Mixed Dialect + Fusha Tanween" Bug (`MSA Case-Ending Trap`)**:
+   - *Symptom*: Applying 100% MSA grammatical diacritics (`تنوين ضم/كسر` and word-final `ضمة/فتحة`) to colloquial Bahraini words—such as `"مَشْغُوْلٌ وَاجِدْ"`, `"لَيْلَةِ مَطَرٍ"`, `"أَقُوْلُ"`, `"كَانَ"`, `"وَالْبِيْزَاتُ"`—forced the TTS engine to switch mid-sentence into formal textbook Fusha (`mashghūlun wājid`)!
+3. **The "Floating Random Arabic Text & Garbled Paper Note" Bug**:
+   - *Symptom 1*: Ending the prompt with `"No text, no watermark"` caused `Omni 1.1 Flash` to treat `"text"` as a positive attention token, pulling Arabic letters from the spoken dialogue (`"سامحني هالحزة..."`) and rendering floating white gibberish (`"س شحني الر القني ال خريه اقارم .."`) across the ceiling in Block 3!
+   - *Symptom 2*: Prompting for a `"folded handwritten paper note"` (`ورقة صغيرة`) on the table produced creepy, deformed pseudo-Arabic squiggles in Blocks 4, 5, and 8.
+4. **Narrator vs. Character Direct-Speech Confusion**:
+   - *Symptom*: In Block 3B, the prompt showed the 68-year-old father moving his lips while the dialogue string included the narrator's reporting clause `"كَانَ يِبْتِسِمْ وَيِقُوْلُ لِيْ مَعْذُوْرْ..."`, making the father narrate about himself in the 3rd person!
+
+### Mandatory Production Rules (`LOCKED`)
+1. **Dialect Sukun Law (`قانون التسكين اللهجي المطلق ومنع التنوين`)**:
+   - **ZERO Tanween (`ـٌ / ـٍ / ـً`) and ZERO word-final `ضمة / كسرة / فتحة إعرابية` in any Gulf/Bahraini/colloquial script.**
+   - **Lock every word-final letter with `سُكُون (ْ)`** (`مَشْغُولْ وَاجِدْ، لَيْلَةْ مَطَرْ، أَگُولْ، يِگُولْ، چَانْ، مَضْمُونْ، البِيْزَاتْ`).
+   - **Explicit Phonetic Letters for Bahraini/Gulf**:
+     - Use **`گ` (`U+06AF`)** + inline pronunciation tag for hard `G` (as in *Good* / Egyptian Geem): `بَاگِرْ [pronounced Baa-gir with hard G as in Good]`, `تِگُولْ`, `يِگُولْ`, `دَگَايِگْ`, `عُگُبْ`, `گَبِلْ`, `اِگْعِدْ`, `يْوَفِّگَكْ`.
+     - Use **`چ` (`U+0686`)** for Gulf `Ch` (as in *Chair*): `الچَايْ`, `چَانْ` (and `بَاچِرْ` when the `Ch` variant is desired).
+2. **Verbatim Wardrobe Lock + Explicit Native Voice Declaration**:
+   - Repeat the character's **complete verbatim wardrobe and headwear/bareheaded descriptor** in every single block (`wearing a dark charcoal tailored suit jacket over a white collared shirt without tie, bareheaded with short dark hair`) so the model never generates a South-Asian tunic or random ghutra.
+   - Precede every spoken line with: `speaking in a warm, deep, 100% native Gulf Bahraini Arab male voice with authentic Khaleeji prosody (zero South-Asian, Indian, or foreign accent): "..."`.
+3. **Anti-Hallucination Text, Still-Life Lens-HUD & Prop Guardrail**:
+   - **NEVER include the words `text`, `subtitles`, `captions`, `letters`, or `watermark` (even with `no`) inside a Flow video prompt.** Use positive optical phrasing instead: `Clean unblemished cinema frame, pure optical lens capture, clear background.`
+   - **NEVER include numeric camera lens specs (e.g., `85mm f/1.8 Anamorphic`) inside still-life / object-only shots (where no human subject appears)** — `Omni 1.1 Flash` can burn `"85mm f/1.8 Anamorphic"` as a lens-test HUD caption at the bottom of the frame (discovered and resolved in Block 8 V2). Use natural descriptive framing (`close-up hero table composition, shallow depth of field`) instead.
+   - **NEVER prompt for handwritten notes, letters, or readable Arabic signs inside generative video** — and ensure reference ingredient images (`PROD_01`) have zero paper notes in the frame. Replace written notes with non-text physical heirlooms (`silver reading glasses, amber prayer beads, vintage wristwatch`) or a phone voice note.
+   - **Single-Line Prompt Law for `flow_generate`**: Flatten multi-line prompts by replacing newline characters (`\n`) with spaces before calling `flow_generate` so the Google Flow Slate.js editor never rejects the paste (`typeText: editor rejected text via all safe strategies`).
+4. **Mandatory Post-Generation 10-Frame Contact Sheet + Audio Dialect Audit**:
+   - After generating any video clip in Google Flow, extract a **10-frame contact sheet (`0.5s .. 9.5s`)** AND inspect the **audio track** directly (`read_file` on `.mp4` + `whisper.cpp`) before merging. Any clip with floating text, wardrobe drift, foreign/Indian accent, or Fusha Tanween MUST be re-rolled with corrected phonetic spelling immediately.
