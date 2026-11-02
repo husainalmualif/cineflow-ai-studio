@@ -25,9 +25,13 @@ from beat_grid import (  # noqa: E402
     validate_montage_section,
 )
 from cineflow_compiler import (  # noqa: E402
+    build_omni_interaction_payload,
     compile_blueprint,
+    is_rtl_text,
     optimize_arabic_lip_sync,
     partition_runtime_into_allowed_blocks,
+    split_arabic_letters_zwj,
+    validate_video_first_layout,
 )
 from validate_package import validate_package_dict  # noqa: E402
 
@@ -203,6 +207,62 @@ def test_negative_runtime_45s_not_truncated_and_long_dialogue_split() -> None:
     for w in long_ar.split():
         assert w in synced
     assert "[SHOT_SPLIT]" in synced
+
+
+def test_remotion_v4_arabic_zwj_splitter_and_video_first_layout() -> None:
+    """Verify Remotion v4.0.539 split_arabic_letters_zwj (ZWJ + harakat + لا ligature + LTR runs) and video-layout.md rules."""
+    # 1. RTL word-majority detection
+    assert is_rtl_text("مَرْحَباً بِكُمْ في Remotion") is True
+    assert is_rtl_text("Welcome to Remotion Studio 2026") is False
+
+    # 2. ZWJ letter splitting preserves harakat, لا ligature, and LTR runs
+    units = split_arabic_letters_zwj("سَلَامٌ2026")
+    # 'سَ' joins left -> ends with ZWJ
+    assert units[0] == "سَ\u200D"
+    # 'لَا' ligature kept together, joins right (with س) -> starts with ZWJ, ends without ZWJ because ا is right-join-only
+    assert units[1] == "\u200Dلَا"
+    # 'مٌ' after ا does not join right, and is followed by non-Arabic '2026' so no ZWJ
+    assert units[2] == "مٌ"
+    # '2026' kept intact as single LTR run
+    assert units[3] == "2026"
+
+    # 3. Video-First Layout validation (Headline >= 84px, Supporting >= 44px, Margins >= 80/100, 1 focal point)
+    ok_layout = validate_video_first_layout(headline_px=92, supporting_px=48, margin_x_px=80, margin_y_px=120, focal_points_per_scene=1)
+    assert ok_layout["valid"] is True
+    assert ok_layout["errors"] == []
+
+    bad_webpage_layout = validate_video_first_layout(headline_px=32, supporting_px=18, margin_x_px=24, margin_y_px=40, focal_points_per_scene=4)
+    assert bad_webpage_layout["valid"] is False
+    assert len(bad_webpage_layout["errors"]) == 5
+
+
+def test_omni_flash_stateful_interactions_payload_builder() -> None:
+    """Verify stateful Gemini Interactions API payload builder (store=True, aspect_ratio inheritance, 4MB URI upgrade)."""
+    # 1. Initial generation sets aspect_ratio and store=True
+    gen = build_omni_interaction_payload(
+        task="generate_video",
+        prompt="A tracking shot of a red fox running through fresh snow at golden hour",
+        aspect_ratio="9:16",
+        estimated_size_mb=2.5,
+    )
+    assert gen["store"] is True
+    assert gen["response_format"] == {"type": "video", "aspect_ratio": "9:16"}
+
+    # 2. Stateful edit chains previous_interaction_id, omits aspect_ratio, and upgrades >=4MB to delivery='uri'
+    edit = build_omni_interaction_payload(
+        task="edit_video",
+        prompt="make it nighttime with heavy snowfall",
+        previous_interaction_id="v1_Chdja1JpYXFyVkVkcWVq",
+        aspect_ratio="9:16",
+        estimated_size_mb=5.2,
+    )
+    assert edit["previous_interaction_id"] == "v1_Chdja1JpYXFyVkVkcWVq"
+    assert "aspect_ratio" not in edit["response_format"]
+    assert edit["response_format"]["delivery"] == "uri"
+
+    # 3. Missing previous_interaction_id on edit_video is rejected
+    with assert_raises(ValueError, match="previous_interaction_id"):
+        build_omni_interaction_payload(task="edit_video", prompt="make it rain")
 
 
 if __name__ == "__main__":

@@ -52,7 +52,9 @@ Before execution, check:
    - In non-montage modes: up to `15` SFX events/minute.
 4. **Arabic Vocalization Threshold (`CR3`):**
    - Centralized in `scripts/studio_config.py` by counting **vocalized Arabic base letters** (`compute_vocalized_letter_ratio`): `0.75` floor (`MIN_DIACRITIC_RATIO`) and `1.0` target (`MIN_DIACRITIC_RATIO_AI_TTS`) for AI-spoken text, with pause-final `ة` rewritten as `هْ`.
-5. **Outro Safe Zones (`9:16`):** `logo_zone: Y 420..820`, `cta_zone: Y 950..1280, X 120..900`, avoiding `top < 220`, `bottom > 1500`, `right > 920`.
+5. **Outro Safe Zones (`9:16`) & Video-First Layout (`video-layout.md`):**
+   - `logo_zone: Y 420..820`, `cta_zone: Y 950..1280, X 120..900`, avoiding `top < 220`, `bottom > 1500`, `right > 920` (with `>= 80px` horizontal and `>= 100px` vertical safe margins).
+   - **Design a Video, Not a Webpage:** One primary visual focal point per scene; on `1080px`-wide compositions, **Main Headline `>= 84px`** and **Supporting Text `>= 44px`**.
 
 ### Tier 3 — Stylistic Preferences (`stylistic`)
 - Color palette, lens family (`Anamorphic`, `85mm Macro`, `Phone Style`), color grading (`سينمائي`, `دافئ`, `واقعي`, `ألوان طبيعية`, `درامي مظلم`), and montage cadence pattern (`steady`, `build_up`, `call_response`, `breathe`).
@@ -103,4 +105,6 @@ Open only the reference file required for the active task:
 | **13 Specialist Roles (`A0–A12`) & 7-Agent Orchestrator DAG** | [`references/01-team-and-roles.md`](references/01-team-and-roles.md) & [`references/multi-agent-orchestrator.md`](references/multi-agent-orchestrator.md) |
 | **Google Flow Modes (`Ingredients`, `Frames`, `Extend`), Direction, Audio & 26-Point QA** | [`references/02-flow-rules.md`](references/02-flow-rules.md), [`references/03-direction-and-audio.md`](references/03-direction-and-audio.md), [`references/04-qa-and-errors.md`](references/04-qa-and-errors.md) |
 | **Post-Production, Browser Ops, 60fps WebGL/Remotion & Marketing Expansion (`5` Assets)** | [`references/05-postproduction-marketing.md`](references/05-postproduction-marketing.md), [`references/06-browser-ops.md`](references/06-browser-ops.md), [`references/07-field-tested-production-lessons.md`](references/07-field-tested-production-lessons.md), [`references/creative_strategy_and_marketing.md`](references/creative_strategy_and_marketing.md) |
+| **Remotion v4.0.539 Mastery (`video-layout.md`, `splitArabicLetters` ZWJ, `@remotion/effects`, `<HtmlInCanvasMotionBlur>`, Adaptive Silence Cut)** | [`references/remotion-v4-mastery.md`](references/remotion-v4-mastery.md) |
+| **Gemini Omni Flash Stateful Interactions API (`client.interactions.create`, `previous_interaction_id`, `inline`/`uri` Delivery) & FastMCP 8-Tool Agent (`mcp/server.py`)** | [`references/gemini-interactions-api.md`](references/gemini-interactions-api.md) & [`mcp/server.py`](mcp/server.py) |
 | **190+ Slash Macros, 9 Arabic Dialects & Programmatic Editing Guides** | [`references/cinematic_macros_and_continuity.md`](references/cinematic_macros_and_continuity.md), [`references/scriptwriting_and_lip_sync_guide.md`](references/scriptwriting_and_lip_sync_guide.md), [`references/programmatic_editing_and_motion_guide.md`](references/programmatic_editing_and_motion_guide.md) |

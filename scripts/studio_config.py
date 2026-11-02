@@ -45,7 +45,7 @@ MAX_RAMPS_PER_CLIP: int = 1
 MAX_SFX_PER_TWO_BEATS: int = 1
 MAX_SFX_EVENTS_PER_MIN_STANDARD: int = 15
 
-# Outro Safe-Zone tuned defaults (9:16)
+# Outro Safe-Zone tuned defaults (9:16) & Remotion v4.0.539 Video-First Layout Law (video-layout.md)
 OUTRO_SAFE_ZONES: Dict[str, Any] = {
     "aspect_ratio": "9:16",
     "logo_zone": "Y 420..820",
@@ -53,6 +53,26 @@ OUTRO_SAFE_ZONES: Dict[str, Any] = {
     "avoid": ["أعلى 220", "أسفل من 1500", "يمين من 920"],
     "status": "tuned_default",
 }
+VIDEO_LAYOUT_MIN_HEADLINE_PX: int = 84
+VIDEO_LAYOUT_MIN_SUPPORTING_PX: int = 44
+VIDEO_LAYOUT_SAFE_MARGIN_X_PX: int = 80
+VIDEO_LAYOUT_SAFE_MARGIN_Y_PX: int = 100
+VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
+
+# Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
+OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-flash-preview"
+OMNI_INLINE_MAX_MB: float = 4.0
+OMNI_FILE_API_TIMEOUT_SECONDS: int = 300
+OMNI_MCP_TOOLS: Tuple[str, ...] = (
+    "generate_video",
+    "edit_video",
+    "animate_image",
+    "interpolate_images",
+    "generate_with_subjects",
+    "edit_user_video",
+    "upload_to_youtube",
+    "get_help",
+)
 
 # Runtime bounds (seconds)
 MIN_TOTAL_RUNTIME_SECONDS: int = 4

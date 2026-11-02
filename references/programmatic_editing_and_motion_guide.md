@@ -38,12 +38,17 @@ Automatically route the user's input to the matching production pipeline without
 3. **Zero Unwanted Color Grading on Presenter Skin (`grade: false` Default)**:
    - Never apply heavy LUTs, tints, or blurs over a real presenter's face unless explicitly requested. Theme colors apply strictly to motion cards, backgrounds, and typography. Only offer `"grade": "auto"` if scopes detect severe underexposure or yellow color cast, and show a 1-frame Before/After first.
 
-### 2.2 Dual-Threshold Silence Cutting with Breath Padding (`قص الوقفات مع حماية التنفس`)
-1. **Silence Detection**:
-   ```bash
-   ffmpeg -i raw_aroll.mp4 -af "silencedetect=noise=-32dB:d=0.35" -f null -
-   ```
-   - Deliberate/calm speakers (e.g., Qur'an recitation, contemplative storytelling): ask before cutting silence (`--keep-silence`).
+### 2.2 Adaptive Two-Pass Silence Cutting with Breath Padding (`قص الوقفات التكيّفي مع حماية التنفس`)
+1. **Two-Pass Adaptive Silence Detection (`remotion-markup/silence-detection.md`)**:
+   - **Pass 1 (Measure Audio Floor):** Extract `input_thresh` dynamically via `loudnorm`:
+     ```bash
+     ffmpeg -hide_banner -vn -i raw_aroll.mp4 -af "loudnorm=print_format=json" -f null -
+     ```
+   - **Pass 2 (Detect Silence Using Measured Floor):** Feed `input_thresh` (or fallback `-32dB`) into `silencedetect`:
+     ```bash
+     ffmpeg -hide_banner -vn -i raw_aroll.mp4 -af "silencedetect=noise=${INPUT_THRESH}dB:d=0.35" -f null -
+     ```
+   - Deliberate/calm speakers (contemplative storytelling): ask before cutting silence (`--keep-silence`).
 2. **Natural Breath Padding Window**:
    - Expand every kept speech segment `[word_start, word_end]` by **Pre-Roll = `120ms`** (preserves natural breath intake) and **Post-Roll = `150ms`** (protects Arabic final consonants `ق، ط، ك، ت، ب، د`).
    - Merge consecutive speech segments separated by `< 180ms`, and apply a `20ms` triangular audio crossfade (`acrossfade=d=0.02:c1=tri:c2=tri`) at every splice to eliminate clicks.
@@ -162,10 +167,14 @@ Before rendering, design **2 to 3 signature depth moments** so the video feels c
 - **Luxury Still Mode (`capStill: true`)**: For high-ticket luxury commercials, disable bounce/scale pops and transition captions purely via smooth opacity + color highlight.
 - **Forbidden by Default**: Never animate Arabic text letter-by-letter (which breaks cursive contextual shaping); always animate whole words or connected glyph segments. Never place captions over the speaker's face, and automatically hide captions (`nocap: true`) during any window where motion graphics already write the spoken words on screen.
 
-### 6.2 Platform Safe-Zone Enforcement (`1080x1920` Vertical 9:16)
-- **Top Dead Zone**: `Y: 0 – 220` (Instagram/TikTok header & status bar).
-- **Bottom Dead Zone**: `Y: 1500 – 1920` (Account handle, caption drawer, audio marquee, Shop CTA).
-- **Right Action Column**: `X: 920 – 1080` between `Y: 1050 – 1750` (Like, Comment, Share, Save icons).
+### 6.2 Platform Safe-Zone & Video-First Layout Enforcement (`1080x1920` Vertical 9:16 & `video-layout.md`)
+- **Design a Video, Not a Webpage (`remotion-create/video-layout.md`)**:
+  - Build each scene around **one primary visual focal point** rather than stacking 3–4 small dashboard panels.
+  - **Minimum Typography Scale (`1080px`-wide compositions)**: Main headline **`>= 84px`**, Important supporting text **`>= 44px`** (use `@remotion/layout-utils` `fitText()` / `measureText()` to prevent overflow).
+  - **Generous Safe Margins**: Keep all important text at least **`80px`** from left/right edges and **`100px`** from top/bottom edges.
+- **Top Dead Zone (`9:16`)**: `Y: 0 – 220` (Instagram/TikTok header & status bar).
+- **Bottom Dead Zone (`9:16`)**: `Y: 1500 – 1920` (Account handle, caption drawer, audio marquee, Shop CTA).
+- **Right Action Column (`9:16`)**: `X: 920 – 1080` between `Y: 1050 – 1750` (Like, Comment, Share, Save icons).
 
 ---
 

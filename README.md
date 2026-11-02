@@ -46,7 +46,10 @@
    - **`R_DOWN` (رسم علوي + متحدث سفلي بعرض الشاشة):** قص ثابت من فوق أعلى نقطة للرأس بـ `1.5%` (`cardTop`) — بلا قطع للجبهة وبلا سقف فارغ، والكابشن يوضع دائماً **فوق** حافة الكرت ولا يغطي الوجه أبداً.
    - **`R_LOWER` + `Headout` (لوحة شرح ثلثي الشاشة + متحدث صغير برأس بارز خارج الإطار):** للإنفوجرافيك والمشاهد الغنية، مع إخفاء الكابشن (`nocap: true`) لمنع التشتيت البصري، والعودة لملء الشاشة عبر تكبير عنصر التغطية (`>= 1080x1920`).
    - **`R_OFF` (المشهد البصري يملأ الشاشة بالكامل `Takeover`):** للأرقام والقوائم ومشاهد `Veo 3.1` السينمائية بينما يستمر الصوت (`J-Cut / L-Cut`).
-2. **محركا التركيب البرمجي (`Remotion` vs. `HyperFrames` HTML/CSS/GSAP) وعقيدة الـ `Atelier`:**
+2. **محركا التركيب البرمجي (`Remotion v4.0.539` vs. `HyperFrames` HTML/CSS/GSAP) وعقيدة الـ `Atelier`:**
+   - **قانون تصميم الفيديو أولاً (`video-layout.md` — Video-First Layout Law):** تصميم المشهد حول **نقطة ارتكاز بصرية واحدة (`1 Primary Focal Point`)** بدلاً من تكديس بطاقات صفحات الويب، مع فرض الحد الأدنى لأحجام الخطوط في عرض `1080px` (**العنوان الرئيسي `>= 84px`**، **النص الداعم `>= 44px`**) وهوامش أمان سخية (`>= 80px` أفقياً و`>= 100px` رأسياً) عبر `validate_video_first_layout()`.
+   - **خوارزمية تقسيم الحروف العربية بالرابط الصفري (`split_arabic_letters_zwj` / `splitArabicLetters`):** عند الحاجة لتحريك الحروف العربية منفردة، تحقن الخوارزمية الرابط الصفري (`\u200D` ZWJ) قبل وبعد كل حرف متصل، وتُبقي التشكيل ملتصقاً بالحرف، وتحفظ رباط `لا / لأ / لإ / لآ` والأرقام اللاتينية كوحدة واحدة، مع كشف الاتجاه التلقائي بأغلبية الكلمات (`is_rtl_text()`).
+   - **الكشف التكيّفي عن الصمت على مرحلتين (`Two-Pass Adaptive Silence Detection`):** قياس أرضية الصوت الفعلية (`input_thresh`) عبر `loudnorm=print_format=json` أولاً ثم تمريرها إلى `silencedetect` مع هامش التنفس الطبيعي (`120ms / 150ms`).
    - **`Atelier Mode` (الافتراضي للأعمال الاحترافية):** كتابة تكوين بصري مخصص لكل عمل (`Reuse engine knowledge, never creative components`) مع منع تكرار نفس العنصر البصري في كل مشهد (`No-Hero-Component-Spine Law`) ومنع ازدواجية الكابشن مع النص المرسوم (`Caption vs. SerifLine Dedup`).
    - **معالجة لقطات الأرشيف في `HyperFrames`:** تحويل أبعاد الفيديو بقاعدة `Scale-to-COVER + Unsharp + Dense Keyframes (-g 30)` لمنع ظهور الفيديو المصغر داخل إطار أسود (`640x360 Letterbox Trap`).
 3. **بنك الـ 17 ستايل والـ 8 باقات لونية ولحظات العمق (`Depth Moments`):**
@@ -273,7 +276,13 @@ cineflow-ai-studio/
 │   ├── cinematic_macros_and_continuity.md                   # قاموس الـ 190+ (/macros) + CHAI 5-Aspect Language + Veo/Seedance + 3D Worlds
 │   ├── scriptwriting_and_lip_sync_guide.md                  # هندسة السكربت + قفل اللهجات الـ 9 + Lip-Sync + البحث الخماسي + تحليل الفيديو المرجعي
 │   ├── programmatic_editing_and_motion_guide.md             # الـ 12 مساراً + التخطيط الرباعي + Remotion/HyperFrames Atelier + Ink Theater + الصوت
+│   ├── remotion-v4-mastery.md                               # دليل إتقان Remotion v4.0.539 الرسمي (video-layout.md, splitArabicLetters ZWJ, @remotion/effects, Adaptive Silence)
+│   ├── gemini-interactions-api.md                           # واجهة التفاعلات الحفظية لـ Gemini Omni Flash (previous_interaction_id, uri/inline) وخادم FastMCP ذي الـ 8 أدوات
 │   └── creative_strategy_and_marketing.md                   # الانحراف الإبداعي + Taste Profile + Slideshow Risk Scorer + الغلاف وحقيبة النشر
+├── mcp/
+│   ├── server.py                                            # خادم FastMCP المدمج (omni-video-agent) بـ 8 أدوات لتوليد وتعديل الفيديو والرفع على يوتيوب
+│   ├── requirements.txt                                     # متطلبات خادم MCP (google-genai, mcp)
+│   └── project-setup.sh                                     # سكربت تسجيل خادم omni-video-agent تلقائياً في .mcp.json
 ├── resources/
 │   ├── blueprint_schema.json                                # عقد الـ JSON Schema القياسي الموحد للمخرجات والمونتاج الإيقاعي والحوكمة
 │   └── evals.json                                           # حزمة تقييم المهارة (22 حالة اختبار إيجابية وسلبية وحالات حافة)
@@ -290,7 +299,8 @@ cineflow-ai-studio/
 │   └── Compile-CineFlowBlueprint.ps1                        # غلاف PowerShell رقيق يستدعي cineflow_compiler.py مباشرة لمنع ازدواجية الكود
 ├── tests/
 │   ├── test_cineflow_compiler.py                            # اختبارات الوحدات والحالات السلبية والتوافقية (13 Test Suites)
-│   └── test_montage.py                                      # اختبارات المونتاج الإيقاعي الإيجابية والسلبية وحسابات النبض (8 Test Suites)
+│   ├── test_montage.py                                      # اختبارات المونتاج الإيقاعي وقواعد Remotion v4.0.539 و Omni Interactions API (11 Test Suites)
+│   └── test_omni_agent.py                                   # اختبارات خادم FastMCP المدمج وأدواته الثماني (11 Unit Tests)
 ├── examples/
 │   ├── example_01_commercial_promo.json                     # نموذج تطبيقي 1: إعلان تجاري خليجي موحد (Showrunner + Governance)
 │   ├── example_02_explainer_and_story_script.json           # نموذج تطبيقي 2: فيديو شرح تطبيق وموشن جرافيك تفاعلي (HyperFrames Atelier)

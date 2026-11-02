@@ -205,6 +205,219 @@ def apply_safe_arabic_kashida(word: str, count: int = 3) -> str:
     return "".join(clusters)
 
 
+_RTL_WORD_RE = re.compile(r"[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]")
+_HARAKAT_EXT_RE = re.compile(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]")
+_ARABIC_BASE_RE = re.compile(r"[\u0621-\u064A\u066E-\u066F\u0671-\u06D3\u06F0-\u06FC]")
+_RIGHT_JOIN_ONLY_SET: Set[str] = set("اأإآدذرزوؤةءٱ")
+_ALEF_WITH_LAM_SET: Set[str] = set("اأإآٱ")
+_ZWJ: str = "\u200D"
+
+
+def is_rtl_text(text: str) -> bool:
+    """
+    Detect whether a string should use dir='rtl' by checking whether the majority
+    of whitespace-delimited words contain RTL characters (remotion-markup/arabic-text.md).
+    """
+    words = [w for w in str(text or "").strip().split() if w]
+    if not words:
+        return True
+    rtl_count = sum(1 for w in words if _RTL_WORD_RE.search(w))
+    return rtl_count > (len(words) / 2.0)
+
+
+def split_arabic_letters_zwj(word: str) -> List[str]:
+    """
+    Official Remotion v4.0.539 per-letter Arabic splitter (`remotion-markup/arabic-text.md`):
+    - Attaches Harakat/Tashkeel marks to their base letter
+    - Keeps Lam-Alef ligatures (لا، لأ، لإ، لآ، لٱ) as a single indivisible unit
+    - Keeps consecutive non-Arabic characters (digits/Latin runs like '2026', 'iOS') together
+    - Injects U+200D Zero-Width Joiners (ZWJ) before/after connected Arabic letters so
+      isolated <span> elements preserve initial/medial/final contextual shaping.
+    """
+    clusters: List[Dict[str, str]] = []
+    for ch in str(word or ""):
+        if _HARAKAT_EXT_RE.match(ch) and clusters:
+            clusters[-1]["marks"] += ch
+        else:
+            clusters.append({"base": ch, "marks": ""})
+
+    units: List[Dict[str, Any]] = []
+    i = 0
+    while i < len(clusters):
+        c = clusters[i]
+        nxt = clusters[i + 1] if (i + 1) < len(clusters) else None
+        if c["base"] == "ل" and nxt and nxt["base"] in _ALEF_WITH_LAM_SET:
+            units.append({
+                "text": c["base"] + c["marks"] + nxt["base"] + nxt["marks"],
+                "first_base": c["base"],
+                "last_base": nxt["base"],
+                "is_arabic": True,
+            })
+            i += 2
+            continue
+        elif _ARABIC_BASE_RE.match(c["base"]):
+            units.append({
+                "text": c["base"] + c["marks"],
+                "first_base": c["base"],
+                "last_base": c["base"],
+                "is_arabic": True,
+            })
+        elif units and not units[-1]["is_arabic"]:
+            units[-1]["text"] += c["base"] + c["marks"]
+        else:
+            units.append({
+                "text": c["base"] + c["marks"],
+                "first_base": c["base"],
+                "last_base": c["base"],
+                "is_arabic": False,
+            })
+        i += 1
+
+    def _joins_right(u: Dict[str, Any]) -> bool:
+        return bool(u["is_arabic"] and u["first_base"] != "ء")
+
+    def _joins_left(u: Dict[str, Any]) -> bool:
+        return bool(u["is_arabic"] and u["last_base"] not in _RIGHT_JOIN_ONLY_SET)
+
+    result: List[str] = []
+    for idx, u in enumerate(units):
+        prev_u = units[idx - 1] if idx > 0 else None
+        next_u = units[idx + 1] if (idx + 1) < len(units) else None
+        prefix = _ZWJ if (prev_u and _joins_left(prev_u) and _joins_right(u)) else ""
+        suffix = _ZWJ if (next_u and _joins_left(u) and _joins_right(next_u)) else ""
+        result.append(f"{prefix}{u['text']}{suffix}")
+    return result
+
+
+def validate_video_first_layout(
+    headline_px: int,
+    supporting_px: int,
+    margin_x_px: int = 80,
+    margin_y_px: int = 100,
+    focal_points_per_scene: int = 1,
+    width: int = 1080,
+) -> Dict[str, Any]:
+    """
+    Validate scene typography & layout against Remotion v4.0.539 `remotion-create/video-layout.md`:
+    - 'You are designing a video, not a webpage.'
+    - One primary focal point per scene (`focal_points_per_scene <= 1`).
+    - Minimum font sizes scaled to composition width (for 1080px: Headline >= 84px, Supporting >= 44px).
+    - Safe area margins >= 80px horizontal and >= 100px vertical (scaled to width).
+    """
+    scale = max(0.5, float(width) / 1080.0)
+    min_headline = round(84 * scale)
+    min_support = round(44 * scale)
+    min_margin_x = round(80 * scale)
+    min_margin_y = round(100 * scale)
+
+    errors: List[str] = []
+    if headline_px < min_headline:
+        errors.append(
+            f"Video-First Layout violation: Main headline ({headline_px}px) is below minimum {min_headline}px for {width}px-wide video."
+        )
+    if supporting_px < min_support:
+        errors.append(
+            f"Video-First Layout violation: Supporting text ({supporting_px}px) is below minimum {min_support}px for {width}px-wide video."
+        )
+    if margin_x_px < min_margin_x:
+        errors.append(
+            f"Video-First Layout violation: Horizontal safe margin ({margin_x_px}px) is below minimum {min_margin_x}px."
+        )
+    if margin_y_px < min_margin_y:
+        errors.append(
+            f"Video-First Layout violation: Vertical safe margin ({margin_y_px}px) is below minimum {min_margin_y}px."
+        )
+    if focal_points_per_scene > 1:
+        errors.append(
+            f"Video-First Layout violation: Scene has {focal_points_per_scene} competing focal points (must be 1 primary focal point, not a webpage dashboard)."
+        )
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "thresholds": {
+            "min_headline_px": min_headline,
+            "min_supporting_px": min_support,
+            "min_margin_x_px": min_margin_x,
+            "min_margin_y_px": min_margin_y,
+            "max_focal_points_per_scene": 1,
+        },
+    }
+
+
+def build_omni_interaction_payload(
+    task: str,
+    prompt: str,
+    aspect_ratio: Optional[str] = "16:9",
+    delivery: str = "inline",
+    previous_interaction_id: Optional[str] = None,
+    images_b64: Optional[List[Dict[str, str]]] = None,
+    video_file_uri: Optional[str] = None,
+    estimated_size_mb: float = 2.0,
+    model: str = "gemini-omni-flash-preview",
+) -> Dict[str, Any]:
+    """
+    Build a validated stateful Gemini Interactions API payload (`client.interactions.create(...)`)
+    following the `omni-skill-agy` FastMCP Video Agent rules (`references/gemini-interactions-api.md`):
+    - Sets `store=True`, `background=False`, `stream=False` so every turn returns a chainable `interaction.id`.
+    - Enforces Aspect Ratio Inheritance Law: `aspect_ratio` ('16:9' or '9:16') is allowed ONLY on initial
+      `generate_video`; stateful `edit_video` calls inherit aspect ratio and must NOT re-send `aspect_ratio`.
+    - Enforces Delivery Mode Ceiling: upgrades `delivery` to `'uri'` automatically if `estimated_size_mb >= 4.0`.
+    """
+    valid_tasks = {
+        "generate_video",
+        "edit_video",
+        "animate_image",
+        "interpolate_images",
+        "generate_with_subjects",
+        "edit_user_video",
+    }
+    if task not in valid_tasks:
+        raise ValueError(f"Unsupported Omni task '{task}'. Must be one of {sorted(valid_tasks)}.")
+    if not prompt or not str(prompt).strip():
+        raise ValueError("Omni interaction prompt must be a non-empty string.")
+
+    effective_delivery = "uri" if (delivery == "uri" or estimated_size_mb >= 4.0) else "inline"
+    response_format: Dict[str, Any] = {"type": "video"}
+    if effective_delivery == "uri":
+        response_format["delivery"] = "uri"
+
+    payload: Dict[str, Any] = {
+        "model": model,
+        "response_format": response_format,
+        "background": False,
+        "store": True,
+        "stream": False,
+    }
+
+    if task == "generate_video":
+        if aspect_ratio in ("16:9", "9:16"):
+            response_format["aspect_ratio"] = aspect_ratio
+        payload["input"] = str(prompt).strip()
+    elif task == "edit_video":
+        if not previous_interaction_id or not str(previous_interaction_id).strip():
+            raise ValueError("edit_video requires a non-empty latest previous_interaction_id.")
+        if aspect_ratio is not None and aspect_ratio not in ("", "inherit"):
+            # Stateful edits inherit aspect ratio from previous_interaction_id; never include aspect_ratio in response_format
+            pass
+        payload["previous_interaction_id"] = str(previous_interaction_id).strip()
+        payload["input"] = str(prompt).strip()
+    elif task in ("animate_image", "interpolate_images", "generate_with_subjects"):
+        if not images_b64:
+            raise ValueError(f"{task} requires at least one image dict in images_b64.")
+        if task == "interpolate_images" and len(images_b64) != 2:
+            raise ValueError("interpolate_images requires exactly 2 keyframe images (start and end).")
+        payload["input"] = [*images_b64, {"type": "text", "text": str(prompt).strip()}]
+    elif task == "edit_user_video":
+        if not video_file_uri or not str(video_file_uri).strip():
+            raise ValueError("edit_user_video requires a File API video_file_uri.")
+        payload["input"] = [
+            {"type": "document", "uri": str(video_file_uri).strip()},
+            {"type": "text", "text": str(prompt).strip()},
+        ]
+
+    return payload
+
+
 def generate_keyword_variants(keyword: str) -> List[str]:
     """
     Generate comprehensive Arabic orthographic variants for comment-keyword DM matching:
