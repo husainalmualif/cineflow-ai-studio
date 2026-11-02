@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, cast
 
-from google import genai
+from google import genai  # pylint: disable=no-name-in-module
 from mcp.server.fastmcp import FastMCP  # pylint: disable=no-name-in-module
 
 # Ensure scripts/ is importable so studio_config is the single source of truth for model names
@@ -31,7 +31,16 @@ mcp = FastMCP("CineFlow Gemini Omni Flash Video Agent")
 client: Any = None  # pylint: disable=invalid-name
 MODEL_NAME = os.environ.get("GEMINI_OMNI_MODEL", OMNI_FLASH_MODEL_DEFAULT)
 
-ApiErrorType = getattr(getattr(genai, "errors", None), "APIError", RuntimeError)  # pylint: disable=invalid-name
+
+class _GenAIErrorFallback(Exception):
+    """Fallback exception class when google-genai is not installed in the linting environment."""
+
+
+try:
+    from google.genai.errors import APIError as _GenAIAPIError  # pylint: disable=no-name-in-module
+except ImportError:
+    _GenAIAPIError = _GenAIErrorFallback  # type: ignore[misc,assignment]
+
 TOOL_EXCEPTIONS = (
     OSError,
     ValueError,
@@ -40,7 +49,7 @@ TOOL_EXCEPTIONS = (
     TypeError,
     AttributeError,
     KeyError,
-    ApiErrorType if isinstance(ApiErrorType, type) and issubclass(ApiErrorType, Exception) else RuntimeError,
+    _GenAIAPIError,
 )
 
 
@@ -155,7 +164,7 @@ def generate_video(
         )
 
         return _handle_response(interaction, delivery, "gen")
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"🔴 Generation failed: {str(e)}"
 
 
@@ -187,7 +196,7 @@ def edit_video(
         )
 
         return _handle_response(interaction, delivery, "edit")
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"🔴 Editing failed: {str(e)}"
 
 
@@ -217,7 +226,7 @@ def animate_image(image_path: str, motion_prompt: str, delivery: str = "inline")
         )
 
         return _handle_response(interaction, delivery, "animated")
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"🔴 Animation failed: {str(e)}"
 
 
@@ -251,7 +260,7 @@ def interpolate_images(
         )
 
         return _handle_response(interaction, delivery, "interpolation")
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"🔴 Interpolation failed: {str(e)}"
 
 
@@ -286,7 +295,7 @@ def generate_with_subjects(
         )
 
         return _handle_response(interaction, delivery, "subject")
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"🔴 Subject reference generation failed: {str(e)}"
 
 
@@ -345,7 +354,7 @@ def edit_user_video(video_path: str, edit_prompt: str, delivery: str = "inline")
         )
 
         return _handle_response(interaction, delivery, "user_edit")
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"🔴 Editing user video failed: {str(e)}"
 
 
@@ -453,7 +462,7 @@ def upload_to_youtube(
             f"• Status: {privacy_status}"
         )
 
-    except TOOL_EXCEPTIONS as e:
+    except TOOL_EXCEPTIONS as e:  # pylint: disable=catching-non-exception
         return f"❌ Upload failed with error: {str(e)}"
 
 

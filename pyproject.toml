@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cineflow-ai-studio"
-version = "6.2.0"
+version = "6.3.0"
 description = "End-to-end AI Video Production, Arabic Broadcast Scriptwriting, Rhythmic Beat-Locked Montage, Remotion v4.0.539 60fps Engine, and Gemini Omni Flash Stateful Interactions MCP Studio."
 readme = "README.md"
 license = { text = "Apache-2.0" }

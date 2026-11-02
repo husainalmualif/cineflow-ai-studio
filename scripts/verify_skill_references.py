@@ -89,6 +89,35 @@ def verify_repository_references(root: Path = ROOT_DIR) -> List[str]:
                     f"{doc_path.name} references non-existent path: '{rel_path}'"
                 )
 
+    # Verify every top-level markdown file in references/*.md is referenced in SKILL.md (no orphan references)
+    skill_refs = extract_referenced_paths(skill_text)
+    refs_dir = root / "references"
+    if refs_dir.is_dir():
+        for ref_file in sorted(refs_dir.glob("*.md")):
+            rel_ref = f"references/{ref_file.name}"
+            if rel_ref not in skill_refs:
+                errors.append(
+                    f"Orphan reference file not listed in SKILL.md routing table: '{rel_ref}'"
+                )
+
+    # Verify version consistency across pyproject.toml, README.md, and CHANGELOG.md
+    pyproject_toml = root / "pyproject.toml"
+    changelog_md = root / "CHANGELOG.md"
+    if pyproject_toml.is_file() and changelog_md.is_file():
+        py_text = pyproject_toml.read_text(encoding="utf-8")
+        rm_text = readme_md.read_text(encoding="utf-8")
+        ch_text = changelog_md.read_text(encoding="utf-8")
+        m_py = re.search(r'^version\s*=\s*"([^"]+)"', py_text, re.M)
+        m_rm = re.search(r"الإصدار\s*`([^`]+)`", rm_text)
+        m_ch = re.search(r"^##\s*\[([^\]]+)\]", ch_text, re.M)
+        v_py = m_py.group(1) if m_py else None
+        v_rm = m_rm.group(1) if m_rm else None
+        v_ch = m_ch.group(1) if m_ch else None
+        if not (v_py and v_rm and v_ch) or len({v_py, v_rm, v_ch}) != 1:
+            errors.append(
+                f"Version mismatch across files: pyproject.toml={v_py}, README.md={v_rm}, CHANGELOG.md={v_ch}"
+            )
+
     # Verify evals/evals.json and resources/evals.json are synchronized
     evals_a = root / "evals" / "evals.json"
     evals_b = root / "resources" / "evals.json"

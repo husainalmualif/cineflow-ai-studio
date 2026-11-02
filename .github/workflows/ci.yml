@@ -50,6 +50,8 @@ jobs:
           test -s /tmp/test_blueprint.srt
           python scripts/multi_agent_orchestrator.py --validate-script examples/script_source.json --output-plan /tmp/test_plan.json
           test -s /tmp/test_plan.json
+          python scripts/multi_agent_orchestrator.py --verify-plan /tmp/test_plan.json
+          python scripts/multi_agent_orchestrator.py --verify-plan examples/multi_agent_plan.json
           python scripts/validate_package.py examples/example_01_commercial_promo.json
           python scripts/validate_package.py examples/example_02_explainer_and_story_script.json
           python scripts/validate_package.py examples/example_03_how_to_use_cineflow.json

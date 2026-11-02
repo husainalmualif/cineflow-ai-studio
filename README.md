@@ -60,13 +60,15 @@ python scripts/cineflow_compiler.py \
   --runtime 16 \
   --output examples/generated_perfume_ad.json
 
-# 3. توليد خطة عمل الوكلاء السبعة وفحص التشكيل الإذاعي (يُولَّد في examples/multi_agent_plan.json)
+# 3. توليد وفحص خطة عمل الوكلاء السبعة وفحص التشكيل الإذاعي
+#    (ملاحظة: examples/multi_agent_plan.json هو خطة تنسيق وكلاء يُفحص بـ --verify-plan وليس حزمة blueprint)
 python scripts/multi_agent_orchestrator.py \
   --topic "إعلان تقني ثلاثي الأبعاد لتطبيق ذكي" \
   --pipeline route_3_motion_stage_60fps \
   --duration 30 \
   --validate-script examples/script_source.json \
   --output-plan examples/multi_agent_plan.json
+python scripts/multi_agent_orchestrator.py --verify-plan examples/multi_agent_plan.json
 
 # 4. التحقق من الحزمة، حساب التكلفة، وتوليد ملف الترجمة (.srt)
 python scripts/validate_package.py examples/example_03_showrunner_package.json
@@ -130,13 +132,13 @@ cineflow-ai-studio/
 ├── evals/
 │   └── evals.json                               # حالات تقييم التفعيل والقبول
 ├── examples/
-│   ├── example_01_commercial_promo.json         # مثال 1: إعلان تجاري خليجي موحد
-│   ├── example_02_explainer_and_story_script.json # مثال 2: فيديو شرح وموشن جرافيك
-│   ├── example_03_how_to_use_cineflow.json      # مثال 3: ريل تعليمي لاستخدام المهارة
-│   ├── example_03_showrunner_package.json       # مثال 4: حزمة إنتاج Showrunner متكاملة
-│   ├── generated_perfume_ad.json                # مثال ناتج عن cineflow_compiler.py
-│   ├── multi_agent_plan.json                    # مثال ناتج عن multi_agent_orchestrator.py
-│   └── script_source.json                       # مثال سكربت مشكول لفحص النطق الإذاعي
+│   ├── example_01_commercial_promo.json         # مثال 1 (Blueprint): إعلان تجاري خليجي موحد
+│   ├── example_02_explainer_and_story_script.json # مثال 2 (Blueprint): فيديو شرح وموشن جرافيك
+│   ├── example_03_how_to_use_cineflow.json      # مثال 3 (Blueprint): ريل تعليمي لاستخدام المهارة
+│   ├── example_03_showrunner_package.json       # مثال 4 (Blueprint): حزمة إنتاج Showrunner متكاملة
+│   ├── generated_perfume_ad.json                # مثال 5 (Blueprint): حزمة ناتجة عن cineflow_compiler.py
+│   ├── multi_agent_plan.json                    # خطة تنسيق الوكلاء السبعة (تُفحص بـ multi_agent_orchestrator.py --verify-plan)
+│   └── script_source.json                       # مدخل سكربت إذاعي مشكول (يُفحص بـ multi_agent_orchestrator.py --validate-script)
 └── tests/
     ├── test_cineflow_compiler.py                # اختبارات المترجم واللغة العربية والحوكمة
     ├── test_montage.py                          # اختبارات المونتاج الإيقاعي وRemotion v4 وOmni API

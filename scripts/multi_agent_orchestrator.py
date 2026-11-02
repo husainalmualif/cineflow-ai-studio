@@ -240,6 +240,36 @@ def build_execution_plan(
     }
 
 
+def validate_execution_plan(plan: Dict[str, Any]) -> List[str]:
+    """Validates a 7-Agent Orchestrator execution plan JSON (`multi_agent_plan.json`)."""
+    errors: List[str] = []
+    if not isinstance(plan, dict):
+        return ["Execution plan must be a JSON object."]
+    if plan.get("agent_count") != 7:
+        errors.append(f"Expected agent_count=7, got {plan.get('agent_count')!r}.")
+    if plan.get("showrunner_role_count") != 13:
+        errors.append(
+            f"Expected showrunner_role_count=13, got {plan.get('showrunner_role_count')!r}."
+        )
+    agents = plan.get("agents")
+    if not isinstance(agents, list) or len(agents) != 7:
+        errors.append("Execution plan must contain exactly 7 agent definitions in 'agents'.")
+    roles = plan.get("showrunner_roles")
+    if not isinstance(roles, list) or len(roles) != 13:
+        errors.append(
+            "Execution plan must contain all 13 specialist roles in 'showrunner_roles'."
+        )
+    if not str(plan.get("topic", "")).strip():
+        errors.append("Execution plan is missing a non-empty 'topic'.")
+    if not str(plan.get("pipeline_type", "")).strip():
+        errors.append("Execution plan is missing a non-empty 'pipeline_type'.")
+    if float(plan.get("duration_seconds", 0.0)) <= 0.0:
+        errors.append("Execution plan 'duration_seconds' must be > 0.")
+    if not isinstance(plan.get("quality_gates"), dict) or not plan.get("quality_gates"):
+        errors.append("Execution plan is missing 'quality_gates'.")
+    return errors
+
+
 def main() -> int:
     """CLI entry point for the 7-Agent Orchestrator & Broadcast Phonetic Validator."""
     parser = argparse.ArgumentParser(
@@ -250,9 +280,25 @@ def main() -> int:
     parser.add_argument("--duration", type=float, default=30.0, help="Target duration in seconds")
     parser.add_argument("--validate-script", type=Path, help="Path to script.json to validate phonetically")
     parser.add_argument(
+        "--verify-plan",
+        type=Path,
+        help="Path to an existing multi-agent execution plan JSON (e.g., examples/multi_agent_plan.json) to validate",
+    )
+    parser.add_argument(
         "--output-plan", "--output", dest="output_plan", type=Path, help="Path to write execution plan JSON"
     )
     args = parser.parse_args()
+
+    if args.verify_plan:
+        plan_data = json.loads(args.verify_plan.read_text(encoding="utf-8"))
+        plan_errors = validate_execution_plan(plan_data)
+        if plan_errors:
+            for err in plan_errors:
+                print(f"FAIL [{args.verify_plan}]: {err}", file=sys.stderr)
+            return 1
+        print(f"OK: Execution plan '{args.verify_plan}' is valid (7 agents, 13 roles & quality gates).")
+        if not args.validate_script and not args.output_plan:
+            return 0
 
     if args.validate_script:
         data = json.loads(args.validate_script.read_text(encoding="utf-8"))

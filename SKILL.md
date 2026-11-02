@@ -97,6 +97,7 @@ Open only the reference file required for the active task:
 
 | Task / Stage | Reference File to Open |
 |---|---|
+| **Full Studio Architecture, 12 Production Pipelines & 4-Axes Layout** | [`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) |
 | **5-Axis Classification (8 Purposes, 5 Formats, 5 Montage Styles, Platforms, Promises)** | [`references/taxonomy.md`](references/taxonomy.md) |
 | **Rhythmic Montage Engine, Beat Math, `beat_map`, Cadence Patterns, Speed Ramps & `MQ1–MQ7`** | [`references/rhythmic-montage.md`](references/rhythmic-montage.md) |
 | **Scene Direction (Tone, Physical Body Language, Camera Gear/Moves, Identity Lock, Outro Safe Zones)** | [`references/scene-direction.md`](references/scene-direction.md) |
