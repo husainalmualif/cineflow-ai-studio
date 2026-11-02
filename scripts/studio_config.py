@@ -60,7 +60,48 @@ VIDEO_LAYOUT_SAFE_MARGIN_Y_PX: int = 100
 VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
 
 # Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
+# Single Source of Truth for Model IDs and Verification Metadata
+MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-02"
 OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-flash-preview"
+OMNI_FLASH_STABLE_MODEL: str = "gemini-omni-1.1-flash"
+VEO_PRIMARY_MODEL: str = "veo-3.1-quality"
+SEEDANCE_PRIMARY_MODEL: str = "seedance-2.0"
+KEYFRAME_REFERENCE_MODEL: str = "nano-banana-pro"
+TEXT_REASONING_MODEL: str = "gemini-2.5-pro"
+
+MODEL_REGISTRY: Dict[str, Any] = {
+    "last_verified_date": MODEL_REGISTRY_LAST_VERIFIED,
+    "verification_policy": CAPABILITY_VERIFICATION_STATUS,
+    "models": {
+        "omni_flash_stateful": {
+            "id": OMNI_FLASH_MODEL_DEFAULT,
+            "stable_alias": OMNI_FLASH_STABLE_MODEL,
+            "api": "interactions",
+            "allowed_clip_seconds": ALLOWED_CLIP_SECONDS,
+            "max_extend_chain_seconds": MAX_EXTEND_CHAIN_SECONDS,
+        },
+        "veo_quality": {
+            "id": VEO_PRIMARY_MODEL,
+            "platform": "google_flow",
+            "allowed_clip_seconds": ALLOWED_CLIP_SECONDS,
+        },
+        "seedance": {
+            "id": SEEDANCE_PRIMARY_MODEL,
+            "platform": "dreamina_capcut",
+            "allowed_clip_seconds": ALLOWED_CLIP_SECONDS,
+        },
+        "keyframe_reference": {
+            "id": KEYFRAME_REFERENCE_MODEL,
+            "platform": "google_labs",
+            "cost_credits": 0,
+        },
+        "text_reasoning": {
+            "id": TEXT_REASONING_MODEL,
+            "platform": "gemini_api",
+        },
+    },
+}
+
 OMNI_INLINE_MAX_MB: float = 4.0
 OMNI_FILE_API_TIMEOUT_SECONDS: int = 300
 OMNI_MCP_TOOLS: Tuple[str, ...] = (

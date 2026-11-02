@@ -76,7 +76,7 @@ def main() -> None:
         cost = float(sys.argv[2])
         rr = float(sys.argv[3]) if len(sys.argv) > 3 else 1.0
         est = estimate_package_cost(raw_data, cost, rr)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"ERROR: {exc}")
         sys.exit(1)
 

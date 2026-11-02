@@ -1,26 +1,31 @@
 #!/usr/bin/env bash
-# project-setup.sh — install the omni-video skill into a target project and
-# register the Omni Flash video MCP server in its .mcp.json. Idempotent; safe
-# to re-run.
+# project-setup.sh — install the cineflow-ai-studio skill into a target project
+# and register the CineFlow Omni Flash video MCP server in its .mcp.json.
+# Idempotent; safe to re-run.
 #
 # Usage:
 #   mcp/project-setup.sh /path/to/project [options]   # one project
 #   mcp/project-setup.sh --global [options]           # all projects (user scope)
 #
 # Options:
-#   --model <name>        GEMINI_OMNI_MODEL for the server (default: gemini-omni-flash-preview)
-#   --server-name <name>  MCP server key in .mcp.json (default: omni-video-agent)
+#   --model <name>        GEMINI_OMNI_MODEL for the server (default: read from scripts/studio_config.py)
+#   --server-name <name>  MCP server key in .mcp.json (default: cineflow-omni-agent)
 #   --skip-deps           Skip the pip dependency check
 #   -h | --help           Show this help
 #
 # The Gemini API key is read from ~/gemini.key when present and injected into the
 # server's env block. Otherwise the entry is written without a key and you must
-# run set_env.sh (or export GEMINI_API_KEY) — the server fails to start without one.
+# export GEMINI_API_KEY (or GOOGLE_API_KEY) before invoking Omni Flash tools.
 set -uo pipefail
 
-SKILL_NAME="omni-video"
-SERVER_NAME="omni-video-agent"
-MODEL_NAME="gemini-omni-flash-preview"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SKILL_SRC="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+DEFAULT_MODEL="$(PYTHONPATH="$SKILL_SRC/scripts" python3 -c "from studio_config import OMNI_FLASH_MODEL_DEFAULT; print(OMNI_FLASH_MODEL_DEFAULT)" 2>/dev/null || echo "gemini-omni-flash-preview")"
+
+SKILL_NAME="cineflow-ai-studio"
+SERVER_NAME="cineflow-omni-agent"
+MODEL_NAME="$DEFAULT_MODEL"
 SKIP_DEPS=0
 GLOBAL=0
 TARGET=""
@@ -56,9 +61,6 @@ if [ "$GLOBAL" -eq 1 ] && [ -n "$TARGET" ]; then
     echo "--global and a target directory are mutually exclusive." >&2; _exit 1
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILL_SRC="$(cd "$SCRIPT_DIR/.." && pwd)"
-
 # --- Copy the skill into place ------------------------------------------------
 if [ "$GLOBAL" -eq 1 ]; then
     DEST="$HOME/.gemini/skills/$SKILL_NAME"
@@ -67,14 +69,17 @@ else
     DEST="$TARGET/.gemini/skills/$SKILL_NAME"
 fi
 
-mkdir -p "$DEST/mcp" "$DEST/references"
+mkdir -p "$DEST/mcp" "$DEST/references" "$DEST/scripts" "$DEST/templates" "$DEST/resources"
 cp "$SKILL_SRC/SKILL.md" "$DEST/SKILL.md"
 cp "$SKILL_SRC/mcp/server.py" "$DEST/mcp/server.py"
 cp "$SKILL_SRC/mcp/requirements.txt" "$DEST/mcp/requirements.txt"
 cp "$SKILL_SRC/mcp/project-setup.sh" "$DEST/mcp/project-setup.sh"
 chmod +x "$DEST/mcp/project-setup.sh" 2>/dev/null || true
+cp "$SKILL_SRC"/scripts/*.py "$DEST/scripts/"
+cp "$SKILL_SRC"/templates/*.json "$DEST/templates/"
+cp "$SKILL_SRC"/resources/*.json "$DEST/resources/"
 cp "$SKILL_SRC"/references/*.md "$DEST/references/"
-echo "✅ Installed skill to $DEST"
+echo "✅ Installed skill '$SKILL_NAME' to $DEST"
 
 # --- Dependency check (warn only; never creates a venv) -----------------------
 if [ "$SKIP_DEPS" -eq 0 ]; then
@@ -90,8 +95,8 @@ if [ -f "$HOME/gemini.key" ]; then
     API_KEY="$(cat "$HOME/gemini.key")"
     echo "✅ Using Gemini API key from ~/gemini.key"
 else
-    echo "⚠️  No ~/gemini.key found. Run set_env.sh (or export GEMINI_API_KEY)"
-    echo "    before starting the server — it fails to start without a key."
+    echo "⚠️  No ~/gemini.key found. Export GEMINI_API_KEY (or GOOGLE_API_KEY)"
+    echo "    before invoking Omni Flash tools."
 fi
 
 # --- Register the MCP server --------------------------------------------------
@@ -116,7 +121,7 @@ import json, os
 config_file = os.environ["CONFIG_FILE"]
 data = {}
 if os.path.exists(config_file):
-    with open(config_file) as f:
+    with open(config_file, encoding="utf-8") as f:
         data = json.load(f)
 servers = data.setdefault("mcpServers", {})
 
@@ -130,7 +135,7 @@ servers[os.environ["SERVER_NAME"]] = {
     "args": [os.environ["DEST"] + "/mcp/server.py"],
     "env": env,
 }
-with open(config_file, "w") as f:
+with open(config_file, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2)
     f.write("\n")
 print(f"✅ Registered '{os.environ['SERVER_NAME']}' in {config_file}")
@@ -142,6 +147,6 @@ fi
 
 echo ""
 echo "Done. Restart Antigravity CLI in the target project and approve the server;"
-echo "/mcp should list '$SERVER_NAME'."
+echo "/mcp should list '$SERVER_NAME' (model: $MODEL_NAME)."
 echo "Note: generated videos are saved to the directory the server runs from"
 echo "(the project directory)."

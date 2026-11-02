@@ -1,4 +1,4 @@
-name: CineFlow AI Studio CI (Skill, Rhythmic Montage, 7-Agent Orchestrator & Showrunner Validation)
+name: CineFlow AI Studio CI (Skill, Rhythmic Montage, 7-Agent Orchestrator, MCP & Showrunner Validation)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-skill-and-compiler:
-    name: Validate Skill Structure, Pylint, Unit Tests, Beat Grid & Showrunner Package Tools
+    name: Validate Skill References, Pylint, Pytest (3 Suites), Beat Grid & Showrunner Tools
     runs-on: ubuntu-latest
 
     steps:
@@ -21,62 +21,24 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Lint & Test dependencies
+      - name: Install Runtime, Lint & Test dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
-      - name: Validate Skill Structure & Reference Files
+      - name: Verify Skill References & Evals Synchronization Dynamically
         run: |
-          test -f SKILL.md
-          test -f README.md
-          test -f requirements.txt
-          test -f templates/package.template.json
-          test -f references/taxonomy.md
-          test -f references/rhythmic-montage.md
-          test -f references/scene-direction.md
-          test -f references/arabic-text-and-lipsync.md
-          test -f references/model-registry.md
-          test -f references/01-team-and-roles.md
-          test -f references/02-flow-rules.md
-          test -f references/03-direction-and-audio.md
-          test -f references/04-qa-and-errors.md
-          test -f references/05-postproduction-marketing.md
-          test -f references/06-browser-ops.md
-          test -f references/07-field-tested-production-lessons.md
-          test -f references/08-model-registry-and-benchmarks.md
-          test -f references/multi-agent-orchestrator.md
-          test -f references/cinematic_macros_and_continuity.md
-          test -f references/creative_strategy_and_marketing.md
-          test -f references/scriptwriting_and_lip_sync_guide.md
-          test -f references/programmatic_editing_and_motion_guide.md
-          test -f resources/blueprint_schema.json
-          test -f resources/evals.json
-          test -f evals/evals.json
-          test -f scripts/studio_config.py
-          test -f scripts/beat_grid.py
-          test -f scripts/cineflow_compiler.py
-          test -f scripts/multi_agent_orchestrator.py
-          test -f scripts/validate_package.py
-          test -f scripts/estimate_cost.py
-          test -f scripts/make_srt.py
-          test -f scripts/Compile-CineFlowBlueprint.ps1
-          test -f tests/test_cineflow_compiler.py
-          test -f tests/test_montage.py
-          test -f examples/example_01_commercial_promo.json
-          test -f examples/example_02_explainer_and_story_script.json
-          test -f examples/example_03_showrunner_package.json
-          grep -q "^name: cineflow-ai-studio" SKILL.md
+          python scripts/verify_skill_references.py
 
-      - name: Lint All Scripts & Unit Tests with Pylint
+      - name: Lint All Scripts, MCP Server & Unit Tests with Pylint (via pyproject.toml)
         run: |
-          pylint --disable=C0301,C0413,C0415,R0801,R0911,R0912,R0913,R0914,R0915,R0917 scripts/studio_config.py scripts/beat_grid.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py tests/test_cineflow_compiler.py tests/test_montage.py
+          pylint scripts/studio_config.py scripts/arabic_helpers.py scripts/governance_and_omni.py scripts/beat_grid.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py scripts/verify_skill_references.py scripts/sync_remotion_skills.py mcp/server.py tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py
 
-      - name: Run Automated Unit & Montage Tests with Pytest
+      - name: Run Automated Unit, Montage & MCP Agent Tests with Pytest
         run: |
-          pytest -v tests/test_cineflow_compiler.py tests/test_montage.py
+          pytest -v tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py
 
-      - name: Test End-to-End Beat Grid -> Compiler -> Validator -> Cost -> SRT Interoperability
+      - name: Test End-to-End Beat Grid -> Compiler -> Orchestrator -> Validator -> Cost -> SRT Interoperability
         run: |
           python scripts/beat_grid.py --bpm 120 --time-signature 4/4 --fps 30 --duration 15 --pattern build_up --output /tmp/test_beat_grid.json
           test -s /tmp/test_beat_grid.json
@@ -86,9 +48,13 @@ jobs:
           python scripts/estimate_cost.py /tmp/test_blueprint.json 10 1
           python scripts/make_srt.py /tmp/test_blueprint.json /tmp/test_blueprint.srt
           test -s /tmp/test_blueprint.srt
+          python scripts/multi_agent_orchestrator.py --validate-script examples/script_source.json --output-plan /tmp/test_plan.json
+          test -s /tmp/test_plan.json
           python scripts/validate_package.py examples/example_01_commercial_promo.json
           python scripts/validate_package.py examples/example_02_explainer_and_story_script.json
+          python scripts/validate_package.py examples/example_03_how_to_use_cineflow.json
           python scripts/validate_package.py examples/example_03_showrunner_package.json
+          python scripts/validate_package.py examples/generated_perfume_ad.json
           python scripts/estimate_cost.py examples/example_03_showrunner_package.json 10 1
           python scripts/make_srt.py examples/example_03_showrunner_package.json /tmp/out.srt
           test -s /tmp/out.srt

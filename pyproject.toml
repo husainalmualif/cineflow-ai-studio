@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cineflow-ai-studio"
+version = "6.2.0"
+description = "End-to-end AI Video Production, Arabic Broadcast Scriptwriting, Rhythmic Beat-Locked Montage, Remotion v4.0.539 60fps Engine, and Gemini Omni Flash Stateful Interactions MCP Studio."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
+
+[tool.pylint.main]
+py-version = "3.9"
+ignore-Paths = ["^references/remotion_skills_official/.*$"]
+
+[tool.pylint."messages control"]
+disable = [
+    "C0301",  # line-too-long
+    "C0413",  # wrong-import-position (sys.path adjustments in CLI scripts/tests)
+    "C0415",  # import-outside-toplevel (optional lazy imports)
+    "E0401",  # import-error (optional third-party packages in bare CI)
+    "R0801",  # duplicate-code
+    "R0911",  # too-many-return-statements
+    "R0912",  # too-many-branches
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "R0917",  # too-many-positional-arguments
+]
+
+[tool.pylint.format]
+max-module-lines = 1000

@@ -16,11 +16,6 @@ import sys
 from pathlib import Path
 from typing import Any, Iterator, Optional, Type
 
-try:
-    import pytest  # type: ignore
-except ImportError:  # pragma: no cover
-    pytest = None  # type: ignore
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
@@ -83,7 +78,7 @@ def test_c1_compiler_to_validator_cost_srt_interoperability() -> None:
         total_runtime_seconds=20,
     )
     errs, _ = validate_package_dict(bp)
-    assert errs == [], f"Compiler output failed validate_package_dict: {errs}"
+    assert not errs, f"Compiler output failed validate_package_dict: {errs}"
 
     cost = estimate_package_cost(bp, credits_per_generation=10.0, expected_rerolls_per_block=1.0)
     assert cost["blocks"] == 3
@@ -119,7 +114,7 @@ def test_c1_legacy_scene_breakdown_auto_conversion() -> None:
     assert "blocks" in converted
     assert "project" in converted
     errs, _ = validate_package_dict(legacy_only)
-    assert errs == []
+    assert not errs
 
 
 def test_c2_slideshow_risk_and_scene_variation_reject_bad_inputs() -> None:
@@ -189,7 +184,7 @@ def test_h1_h3_runtime_partitioning_and_extend_chain_cap() -> None:
         total_runtime_seconds=90,
     )
     errs, _ = validate_package_dict(bp_90)
-    assert errs == [], f"90s blueprint failed Extend chain cap validation: {errs}"
+    assert not errs, f"90s blueprint failed Extend chain cap validation: {errs}"
     ingredients_blocks = [b for b in bp_90["blocks"] if b["mode"] == "Ingredients"]
     assert len(ingredients_blocks) >= 3  # 90s requires at least 3 chains of <= 40s
 
@@ -242,7 +237,7 @@ def test_medium_validator_gaps_all_10_negative_cases() -> None:
         (ROOT_DIR / "examples" / "example_03_showrunner_package.json").read_text(encoding="utf-8")
     )
     errs_clean, _ = validate_package_dict(base)
-    assert errs_clean == []
+    assert not errs_clean
 
     bad_caps = copy.deepcopy(base)
     bad_caps["project"]["verified_capabilities"]["per_clip_s_options"] = [60]

@@ -13,35 +13,79 @@ import math
 import os
 import re
 import sys
-from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from arabic_helpers import (  # noqa: E402
+    ARABIC_BASE_RE,
+    HARAKAT_CHARS,
+    apply_safe_arabic_kashida,
+    auto_vocalize_arabic_for_tts,
+    detect_arabic_dialect,
+    detect_arabic_dialect_with_confidence,
+    generate_keyword_variants,
+    is_rtl_text,
+    optimize_arabic_lip_sync,
+    resolve_slash_macros,
+    split_arabic_letters_zwj,
+    validate_video_first_layout,
+)
 from beat_grid import build_project_montage  # noqa: E402
+from governance_and_omni import (  # noqa: E402
+    GENERIC_SLOP_PHRASES,
+    build_omni_interaction_payload,
+    build_taste_profile,
+    check_scene_variation,
+    partition_runtime_into_allowed_blocks,
+    score_providers,
+    score_slideshow_risk,
+    select_pipeline_route,
+    validate_delivery_promise,
+    validate_taxonomy_inputs,
+)
 from studio_config import (  # noqa: E402
     ALLOWED_CLIP_DURATIONS,
     CAPABILITY_VERIFICATION_STATUS,
     DEFAULT_UNREAL_BLOOM,
-    DIALECT_LEXICON,
     HARD_ALLOWED_CLIP_DURATIONS,
-    KASHIDA_PROTECTED_WORDS,
-    MACRO_DICTIONARY,
     MAX_EXTEND_CHAIN_SECONDS,
-    MAX_LIPSYNC_WORDS_PER_PHRASE,
     MAX_OVERLAY_WORDS,
-    MAX_TOTAL_RUNTIME_SECONDS,
-    MAX_WORDS_PER_SECOND_AR,
-    MIN_TOTAL_RUNTIME_SECONDS,
+    MODEL_REGISTRY_LAST_VERIFIED,
     MONTAGE_STYLE_ALIAS_MAP,
-    NON_CONNECTING_ARABIC_LETTERS,
     OUTRO_SAFE_ZONES,
     SILENCE_THRESHOLD_DB,
     TARGET_INTEGRATED_LUFS,
-    VALID_FORMATS,
-    VALID_PURPOSES,
-    VALID_STYLE_VARIANTS,
 )
+
+__all__ = [
+    "ARABIC_BASE_RE",
+    "GENERIC_SLOP_PHRASES",
+    "HARAKAT_CHARS",
+    "Optional",
+    "Set",
+    "apply_safe_arabic_kashida",
+    "auto_vocalize_arabic_for_tts",
+    "build_omni_interaction_payload",
+    "build_taste_profile",
+    "check_scene_variation",
+    "compile_blueprint",
+    "compile_cineflow_blueprint",
+    "detect_arabic_dialect",
+    "detect_arabic_dialect_with_confidence",
+    "generate_keyword_variants",
+    "is_rtl_text",
+    "optimize_arabic_lip_sync",
+    "partition_runtime_into_allowed_blocks",
+    "resolve_slash_macros",
+    "score_providers",
+    "score_slideshow_risk",
+    "select_pipeline_route",
+    "split_arabic_letters_zwj",
+    "validate_delivery_promise",
+    "validate_taxonomy_inputs",
+    "validate_video_first_layout",
+]
 
 PURPOSE_FRAMEWORKS: Dict[str, str] = {
     "Commercials & TVCs": (
@@ -72,973 +116,6 @@ PURPOSE_STYLE_MAP: Dict[str, str] = {
     "Event Videos": "brutal+keynote",
     "Entertainment Videos": "paperCut+keynote",
 }
-
-GENERIC_SLOP_PHRASES = frozenset({
-    "a person",
-    "a beautiful",
-    "in today's world",
-    "cutting-edge",
-    "state-of-the-art",
-    "next-generation",
-    "revolutionary",
-    "amazing",
-    "incredible",
-    "seamless",
-    "elegant solution",
-})
-
-HARAKAT_CHARS = set("\u064b\u064c\u064d\u064e\u064f\u0650\u0651\u0652\u0670")
-ARABIC_BASE_RE = re.compile(r"[\u0621-\u063A\u0641-\u064A]")
-
-
-def detect_arabic_dialect_with_confidence(text: str) -> Dict[str, Any]:
-    """
-    Detects the Arabic or regional dialect with confidence score and matched markers.
-    Returns dialect='UNKNOWN (غير معروف)' and confidence=0.0 when text is empty, non-Arabic, or unmatched.
-    """
-    raw = str(text or "").strip()
-    if not raw or not ARABIC_BASE_RE.search(raw):
-        return {"dialect": "UNKNOWN (غير معروف)", "confidence": 0.0, "matched_markers": []}
-
-    label_map = {
-        "BAHRAIN_URBAN": "BAHRAINI_KHALEEJI (اللهجة البحرينية الأصيلة)",
-        "SAUDI_HIJAZI": "SAUDI_HIJAZI (اللهجة الحجازية السعودية)",
-        "SAUDI_NAJDI": "SAUDI_KHALEEJI (اللهجة السعودية الخليجية)",
-        "IRAQI": "IRAQI (اللهجة العراقية)",
-        "KUWAITI": "KUWAITI_GULF (اللهجة الكويتية / الخليجية)",
-        "EMIRATI": "EMIRATI_GULF (اللهجة الإماراتية)",
-        "LEVANTINE": "LEVANTINE (اللهجة الشامية)",
-        "EGYPTIAN": "EGYPTIAN (اللهجة المصرية)",
-        "MSA": "MSA (العربية الفصحى العصرية)",
-    }
-
-    # Check regional dialects first in priority order
-    best_code = ""
-    best_matches: List[str] = []
-    for code in (
-        "BAHRAIN_URBAN",
-        "SAUDI_HIJAZI",
-        "SAUDI_NAJDI",
-        "IRAQI",
-        "KUWAITI",
-        "EMIRATI",
-        "LEVANTINE",
-        "EGYPTIAN",
-    ):
-        matches = [m for m in DIALECT_LEXICON[code] if re.search(rf"(?<!\w){re.escape(m)}(?!\w)", raw)]
-        if len(matches) > len(best_matches):
-            best_code = code
-            best_matches = matches
-
-    if best_code:
-        conf = min(0.98, round(0.65 + 0.12 * len(best_matches), 2))
-        return {
-            "dialect": label_map[best_code],
-            "confidence": conf,
-            "matched_markers": best_matches,
-        }
-
-    if re.search(r"(?<!\w)(الحين|تبي|عشان|اللي)(?!\w)", raw):
-        return {
-            "dialect": "KHALEEJI_GENERAL (اللهجة الخليجية البيضاء)",
-            "confidence": 0.72,
-            "matched_markers": ["خليجي عام"],
-        }
-
-    msa_matches = [m for m in DIALECT_LEXICON["MSA"] if re.search(rf"(?<!\w){re.escape(m)}(?!\w)", raw)]
-    if msa_matches or re.search(r"[\u064B-\u0650]", raw):
-        conf = min(0.95, round(0.60 + 0.10 * max(1, len(msa_matches)), 2))
-        return {
-            "dialect": label_map["MSA"],
-            "confidence": conf,
-            "matched_markers": msa_matches or ["تشكيل فصيح"],
-        }
-
-    return {"dialect": "UNKNOWN (غير معروف)", "confidence": 0.0, "matched_markers": []}
-
-
-def detect_arabic_dialect(text: str) -> str:
-    """Detect the specific Arabic or regional dialect from natural text or dialogue."""
-    return str(detect_arabic_dialect_with_confidence(text)["dialect"])
-
-
-def apply_safe_arabic_kashida(word: str, count: int = 3) -> str:
-    """
-    Insert Kashida (ـ) safely after the last valid connecting Arabic base letter,
-    respecting Harakat/Tashkeel, protecting sacred/frozen words ('الله', 'لا', etc.),
-    and never breaking non-connecting letters.
-    """
-    clean = str(word or "").strip()
-    if len(clean) < 2:
-        return clean
-
-    stripped_unvocalized = re.sub(r"[\u064B-\u0652\u0670ـ]", "", clean)
-    if stripped_unvocalized in KASHIDA_PROTECTED_WORDS:
-        return clean
-
-    clusters: List[str] = []
-    for ch in clean:
-        if ch in HARAKAT_CHARS and clusters:
-            clusters[-1] += ch
-        else:
-            clusters.append(ch)
-
-    if len(clusters) < 2:
-        return clean
-
-    valid_idx = -1
-    for i in range(len(clusters) - 1):
-        base_char = clusters[i][0]
-        next_base = clusters[i + 1][0]
-        if base_char == "ل" and next_base in {"ا", "أ", "إ", "آ"}:
-            continue
-        if base_char == "ل" and next_base == "ل" and i + 2 < len(clusters) and clusters[i + 2][0] == "ه":
-            continue
-        if base_char not in NON_CONNECTING_ARABIC_LETTERS and "\u0621" <= base_char <= "\u064a":
-            valid_idx = i
-
-    if valid_idx == -1:
-        return clean
-
-    kashida_bar = "ـ" * max(1, count)
-    clusters[valid_idx] = clusters[valid_idx] + kashida_bar
-    return "".join(clusters)
-
-
-_RTL_WORD_RE = re.compile(r"[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]")
-_HARAKAT_EXT_RE = re.compile(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]")
-_ARABIC_BASE_RE = re.compile(r"[\u0621-\u064A\u066E-\u066F\u0671-\u06D3\u06F0-\u06FC]")
-_RIGHT_JOIN_ONLY_SET: Set[str] = set("اأإآدذرزوؤةءٱ")
-_ALEF_WITH_LAM_SET: Set[str] = set("اأإآٱ")
-_ZWJ: str = "\u200D"
-
-
-def is_rtl_text(text: str) -> bool:
-    """
-    Detect whether a string should use dir='rtl' by checking whether the majority
-    of whitespace-delimited words contain RTL characters (remotion-markup/arabic-text.md).
-    """
-    words = [w for w in str(text or "").strip().split() if w]
-    if not words:
-        return True
-    rtl_count = sum(1 for w in words if _RTL_WORD_RE.search(w))
-    return rtl_count > (len(words) / 2.0)
-
-
-def split_arabic_letters_zwj(word: str) -> List[str]:
-    """
-    Official Remotion v4.0.539 per-letter Arabic splitter (`remotion-markup/arabic-text.md`):
-    - Attaches Harakat/Tashkeel marks to their base letter
-    - Keeps Lam-Alef ligatures (لا، لأ، لإ، لآ، لٱ) as a single indivisible unit
-    - Keeps consecutive non-Arabic characters (digits/Latin runs like '2026', 'iOS') together
-    - Injects U+200D Zero-Width Joiners (ZWJ) before/after connected Arabic letters so
-      isolated <span> elements preserve initial/medial/final contextual shaping.
-    """
-    clusters: List[Dict[str, str]] = []
-    for ch in str(word or ""):
-        if _HARAKAT_EXT_RE.match(ch) and clusters:
-            clusters[-1]["marks"] += ch
-        else:
-            clusters.append({"base": ch, "marks": ""})
-
-    units: List[Dict[str, Any]] = []
-    i = 0
-    while i < len(clusters):
-        c = clusters[i]
-        nxt = clusters[i + 1] if (i + 1) < len(clusters) else None
-        if c["base"] == "ل" and nxt and nxt["base"] in _ALEF_WITH_LAM_SET:
-            units.append({
-                "text": c["base"] + c["marks"] + nxt["base"] + nxt["marks"],
-                "first_base": c["base"],
-                "last_base": nxt["base"],
-                "is_arabic": True,
-            })
-            i += 2
-            continue
-        elif _ARABIC_BASE_RE.match(c["base"]):
-            units.append({
-                "text": c["base"] + c["marks"],
-                "first_base": c["base"],
-                "last_base": c["base"],
-                "is_arabic": True,
-            })
-        elif units and not units[-1]["is_arabic"]:
-            units[-1]["text"] += c["base"] + c["marks"]
-        else:
-            units.append({
-                "text": c["base"] + c["marks"],
-                "first_base": c["base"],
-                "last_base": c["base"],
-                "is_arabic": False,
-            })
-        i += 1
-
-    def _joins_right(u: Dict[str, Any]) -> bool:
-        return bool(u["is_arabic"] and u["first_base"] != "ء")
-
-    def _joins_left(u: Dict[str, Any]) -> bool:
-        return bool(u["is_arabic"] and u["last_base"] not in _RIGHT_JOIN_ONLY_SET)
-
-    result: List[str] = []
-    for idx, u in enumerate(units):
-        prev_u = units[idx - 1] if idx > 0 else None
-        next_u = units[idx + 1] if (idx + 1) < len(units) else None
-        prefix = _ZWJ if (prev_u and _joins_left(prev_u) and _joins_right(u)) else ""
-        suffix = _ZWJ if (next_u and _joins_left(u) and _joins_right(next_u)) else ""
-        result.append(f"{prefix}{u['text']}{suffix}")
-    return result
-
-
-def validate_video_first_layout(
-    headline_px: int,
-    supporting_px: int,
-    margin_x_px: int = 80,
-    margin_y_px: int = 100,
-    focal_points_per_scene: int = 1,
-    width: int = 1080,
-) -> Dict[str, Any]:
-    """
-    Validate scene typography & layout against Remotion v4.0.539 `remotion-create/video-layout.md`:
-    - 'You are designing a video, not a webpage.'
-    - One primary focal point per scene (`focal_points_per_scene <= 1`).
-    - Minimum font sizes scaled to composition width (for 1080px: Headline >= 84px, Supporting >= 44px).
-    - Safe area margins >= 80px horizontal and >= 100px vertical (scaled to width).
-    """
-    scale = max(0.5, float(width) / 1080.0)
-    min_headline = round(84 * scale)
-    min_support = round(44 * scale)
-    min_margin_x = round(80 * scale)
-    min_margin_y = round(100 * scale)
-
-    errors: List[str] = []
-    if headline_px < min_headline:
-        errors.append(
-            f"Video-First Layout violation: Main headline ({headline_px}px) is below minimum {min_headline}px for {width}px-wide video."
-        )
-    if supporting_px < min_support:
-        errors.append(
-            f"Video-First Layout violation: Supporting text ({supporting_px}px) is below minimum {min_support}px for {width}px-wide video."
-        )
-    if margin_x_px < min_margin_x:
-        errors.append(
-            f"Video-First Layout violation: Horizontal safe margin ({margin_x_px}px) is below minimum {min_margin_x}px."
-        )
-    if margin_y_px < min_margin_y:
-        errors.append(
-            f"Video-First Layout violation: Vertical safe margin ({margin_y_px}px) is below minimum {min_margin_y}px."
-        )
-    if focal_points_per_scene > 1:
-        errors.append(
-            f"Video-First Layout violation: Scene has {focal_points_per_scene} competing focal points (must be 1 primary focal point, not a webpage dashboard)."
-        )
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors,
-        "thresholds": {
-            "min_headline_px": min_headline,
-            "min_supporting_px": min_support,
-            "min_margin_x_px": min_margin_x,
-            "min_margin_y_px": min_margin_y,
-            "max_focal_points_per_scene": 1,
-        },
-    }
-
-
-def build_omni_interaction_payload(
-    task: str,
-    prompt: str,
-    aspect_ratio: Optional[str] = "16:9",
-    delivery: str = "inline",
-    previous_interaction_id: Optional[str] = None,
-    images_b64: Optional[List[Dict[str, str]]] = None,
-    video_file_uri: Optional[str] = None,
-    estimated_size_mb: float = 2.0,
-    model: str = "gemini-omni-flash-preview",
-) -> Dict[str, Any]:
-    """
-    Build a validated stateful Gemini Interactions API payload (`client.interactions.create(...)`)
-    following the `omni-skill-agy` FastMCP Video Agent rules (`references/gemini-interactions-api.md`):
-    - Sets `store=True`, `background=False`, `stream=False` so every turn returns a chainable `interaction.id`.
-    - Enforces Aspect Ratio Inheritance Law: `aspect_ratio` ('16:9' or '9:16') is allowed ONLY on initial
-      `generate_video`; stateful `edit_video` calls inherit aspect ratio and must NOT re-send `aspect_ratio`.
-    - Enforces Delivery Mode Ceiling: upgrades `delivery` to `'uri'` automatically if `estimated_size_mb >= 4.0`.
-    """
-    valid_tasks = {
-        "generate_video",
-        "edit_video",
-        "animate_image",
-        "interpolate_images",
-        "generate_with_subjects",
-        "edit_user_video",
-    }
-    if task not in valid_tasks:
-        raise ValueError(f"Unsupported Omni task '{task}'. Must be one of {sorted(valid_tasks)}.")
-    if not prompt or not str(prompt).strip():
-        raise ValueError("Omni interaction prompt must be a non-empty string.")
-
-    effective_delivery = "uri" if (delivery == "uri" or estimated_size_mb >= 4.0) else "inline"
-    response_format: Dict[str, Any] = {"type": "video"}
-    if effective_delivery == "uri":
-        response_format["delivery"] = "uri"
-
-    payload: Dict[str, Any] = {
-        "model": model,
-        "response_format": response_format,
-        "background": False,
-        "store": True,
-        "stream": False,
-    }
-
-    if task == "generate_video":
-        if aspect_ratio in ("16:9", "9:16"):
-            response_format["aspect_ratio"] = aspect_ratio
-        payload["input"] = str(prompt).strip()
-    elif task == "edit_video":
-        if not previous_interaction_id or not str(previous_interaction_id).strip():
-            raise ValueError("edit_video requires a non-empty latest previous_interaction_id.")
-        if aspect_ratio is not None and aspect_ratio not in ("", "inherit"):
-            # Stateful edits inherit aspect ratio from previous_interaction_id; never include aspect_ratio in response_format
-            pass
-        payload["previous_interaction_id"] = str(previous_interaction_id).strip()
-        payload["input"] = str(prompt).strip()
-    elif task in ("animate_image", "interpolate_images", "generate_with_subjects"):
-        if not images_b64:
-            raise ValueError(f"{task} requires at least one image dict in images_b64.")
-        if task == "interpolate_images" and len(images_b64) != 2:
-            raise ValueError("interpolate_images requires exactly 2 keyframe images (start and end).")
-        payload["input"] = [*images_b64, {"type": "text", "text": str(prompt).strip()}]
-    elif task == "edit_user_video":
-        if not video_file_uri or not str(video_file_uri).strip():
-            raise ValueError("edit_user_video requires a File API video_file_uri.")
-        payload["input"] = [
-            {"type": "document", "uri": str(video_file_uri).strip()},
-            {"type": "text", "text": str(prompt).strip()},
-        ]
-
-    return payload
-
-
-def generate_keyword_variants(keyword: str) -> List[str]:
-    """
-    Generate comprehensive Arabic orthographic variants for comment-keyword DM matching:
-    - Initial/medial hamza (أ/إ/آ <-> ا)
-    - Carrier hamza (ؤ -> و, ئ -> ي; e.g., مؤسسة -> موسسة / مؤسسه / موسسه)
-    - Final taa marbuta (ة <-> ه)
-    - Final alef maqsura / yaa (ى <-> ي)
-    """
-    base = str(keyword or "").strip()
-    if not base:
-        return ["تفاصيل"]
-
-    seeds = {base}
-    # Carrier hamza expansions
-    for item in list(seeds):
-        seeds.add(item.replace("ؤ", "و"))
-        seeds.add(item.replace("ئ", "ي"))
-        seeds.add(item.replace("ؤ", "و").replace("ئ", "ي"))
-
-    # Alef hamza expansions
-    for item in list(seeds):
-        seeds.add(re.sub(r"[أإآ]", "ا", item))
-
-    # Final ة <-> ه expansions
-    for item in list(seeds):
-        if item.endswith("ة"):
-            seeds.add(item[:-1] + "ه")
-        elif item.endswith("ه"):
-            seeds.add(item[:-1] + "ة")
-
-    # Final ى <-> ي expansions
-    for item in list(seeds):
-        if item.endswith("ى"):
-            seeds.add(item[:-1] + "ي")
-        elif item.endswith("ي"):
-            seeds.add(item[:-1] + "ى")
-
-    return sorted(seeds)
-
-
-def optimize_arabic_lip_sync(raw_dialogue: str, duration_seconds: int) -> str:
-    """
-    Enforce the Audio-Math Law (Words <= Duration * 2.5 per shot) and split Arabic dialogue
-    into crisp 4-word breath clauses separated by `.. [0.3s breath pause]`.
-    Fixes H4:
-    - Raises ValueError if duration_seconds <= 0.
-    - Never silently truncates words; if word count exceeds single-shot capacity, inserts
-      `|| [SHOT_SPLIT] ||` markers so all user words are preserved verbatim across shots.
-    """
-    if not isinstance(duration_seconds, (int, float)) or isinstance(duration_seconds, bool) or duration_seconds <= 0:
-        raise ValueError(f"duration_seconds must be > 0, got {duration_seconds!r}")
-
-    if not raw_dialogue or not raw_dialogue.strip():
-        return "[No Spoken Dialogue - Visual & SFX Driven]"
-
-    all_words = [w for w in raw_dialogue.strip().split() if w]
-    max_words_per_shot = max(1, math.floor(duration_seconds * MAX_WORDS_PER_SECOND_AR))
-
-    shot_strings: List[str] = []
-    for shot_start in range(0, len(all_words), max_words_per_shot):
-        shot_slice = all_words[shot_start : shot_start + max_words_per_shot]
-        clauses: List[str] = []
-        for idx in range(0, len(shot_slice), 4):
-            clauses.append(" ".join(shot_slice[idx : idx + 4]))
-        shot_strings.append(" .. [0.3s breath pause] ".join(clauses))
-
-    return " || [SHOT_SPLIT] || ".join(shot_strings)
-
-
-def auto_vocalize_arabic_for_tts(text: str) -> str:
-    """
-    Deterministically vocalizes an Arabic dialogue string for broadcast TTS (`dialogue_tts_ar`)
-    so that >= 80% of Arabic base letters carry explicit harakat, pause-final `ة` becomes `هْ`,
-    and superscript dagger alif (`\u0670`) is replaced with standard fatha.
-    """
-    clean = str(text or "").replace("\u0670", "\u064e").strip()
-    if not clean or clean.startswith("["):
-        return ""
-
-    # Strip technical markers
-    clean = clean.replace("|| [SHOT_SPLIT] ||", " ، ").replace("[0.3s breath pause]", "").replace("..", "،")
-    tokens = [t for t in clean.split() if t]
-    vocalized_tokens: List[str] = []
-
-    for tok in tokens:
-        if re.fullmatch(r"[،.؛!؟…\"'()\[\]:-]+", tok):
-            vocalized_tokens.append(tok)
-            continue
-
-        # Extract trailing punctuation
-        m_punc = re.match(r"^(.*?)([،.؛!؟…\"')\]»]*)$", tok)
-        core = m_punc.group(1) if m_punc else tok
-        trail = m_punc.group(2) if m_punc else ""
-
-        # Convert word-final تاء مربوطة to هْ for natural broadcast pause
-        core = re.sub(r"ة[\u064B-\u0652\u0651]*$", "هْ", core)
-
-        # Ensure every unvocalized Arabic base letter receives a natural haraka
-        out_chars: List[str] = []
-        chars = list(core)
-        for i, ch in enumerate(chars):
-            out_chars.append(ch)
-            if not ARABIC_BASE_RE.match(ch):
-                continue
-            next_ch = chars[i + 1] if i + 1 < len(chars) else ""
-            if next_ch in HARAKAT_CHARS:
-                continue
-            # Skip silent alef of definite article 'ال' at index 0
-            if i == 0 and ch == "ا" and len(chars) >= 2 and chars[1] == "ل":
-                continue
-            if i == len(chars) - 1:
-                out_chars.append("\u0652")  # sukun on final letter for clean pause
-            elif ch in ("و", "ي", "ا", "ى") and i > 0:
-                out_chars.append("\u064e")
-            else:
-                out_chars.append("\u064e")
-        vocalized_tokens.append("".join(out_chars) + trail)
-
-    return " ".join(vocalized_tokens)
-
-
-def resolve_slash_macros(idea: str) -> List[str]:
-    """Extract and expand all slash macros found in the user's idea string."""
-    lowered = str(idea or "").lower()
-    expanded: List[str] = []
-    for macro, description in MACRO_DICTIONARY.items():
-        if macro in lowered:
-            expanded.append(description)
-    if not expanded:
-        expanded.append(
-            "smooth physical camera dolly push-in, 35mm anamorphic prime lens, volumetric cinematic lighting"
-        )
-    return expanded
-
-
-def validate_taxonomy_inputs(purpose: str, video_format: str, style_variant: str) -> None:
-    """Validates purpose, video_format, and style_variant against canonical sets (fixes H3)."""
-    if purpose not in VALID_PURPOSES:
-        raise ValueError(f"Unsupported purpose {purpose!r}. Must be one of {sorted(VALID_PURPOSES)}")
-    if video_format not in VALID_FORMATS:
-        raise ValueError(f"Unsupported video_format {video_format!r}. Must be one of {sorted(VALID_FORMATS)}")
-    if style_variant not in VALID_STYLE_VARIANTS:
-        raise ValueError(
-            f"Unsupported style_variant {style_variant!r}. Must be one of {sorted(VALID_STYLE_VARIANTS)}"
-        )
-
-
-def select_pipeline_route(purpose: str, video_format: str, style_variant: str) -> str:
-    """Map validated production parameters to one of the 12 autonomous CineFlow execution pipelines."""
-    validate_taxonomy_inputs(purpose, video_format, style_variant)
-    if purpose == "Documentaries":
-        return "route_7_documentary_montage"
-    if video_format in ("Animation", "Animation (2D / 3D)"):
-        return "route_8_character_animation_ink_theater"
-    if video_format == "360 & Interactive":
-        return "route_9_3d_world_generation"
-    if video_format == "Motion Graphics":
-        return "route_3_motion_stage_60fps"
-    if purpose == "Explainer Videos":
-        return "route_6_3d_device_explainer"
-    if purpose == "Testimonial Videos":
-        return "route_2_talking_head_reel"
-    if style_variant in ("Sizzle Reel", "Sizzle Reel / Recap", "Montage Sequence"):
-        return "route_4_silent_broll_montage"
-    return "route_1_generative_cinema"
-
-
-def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[int]:
-    """
-    Partitions `total_runtime_seconds` into a list of block durations strictly from `{4, 6, 8, 10}`.
-    Fixes H1 & H2:
-    - Raises ValueError if total_runtime_seconds < 4 or > 600.
-    - Guarantees every block duration is in `{4, 6, 8, 10}` and sum(blocks) matches total_runtime_seconds
-      within <= 1s (exact for all even numbers >= 4).
-    """
-    if (
-        not isinstance(total_runtime_seconds, (int, float))
-        or isinstance(total_runtime_seconds, bool)
-        or total_runtime_seconds < MIN_TOTAL_RUNTIME_SECONDS
-        or total_runtime_seconds > MAX_TOTAL_RUNTIME_SECONDS
-    ):
-        raise ValueError(
-            f"total_runtime_seconds must be between {MIN_TOTAL_RUNTIME_SECONDS} and "
-            f"{MAX_TOTAL_RUNTIME_SECONDS}, got {total_runtime_seconds!r}"
-        )
-
-    target = int(round(total_runtime_seconds))
-    if target % 2 == 1:
-        target += 1  # snap odd runtime (e.g. 15 -> 16, 45 -> 46) to nearest even sum of {4,6,8,10}
-
-    if target == 4:
-        return [4]
-    if target == 6:
-        return [6]
-    if target == 8:
-        return [4, 4]
-    if target == 10:
-        return [6, 4]
-
-    # For target >= 12, start with at least 3 blocks [4, 4, ..., 4]
-    min_blocks = max(3, math.ceil(target / 10))
-    max_blocks = target // 4
-    n_blocks = max(min_blocks, min(max_blocks, max(3, round(target / 8))))
-    blocks = [4] * n_blocks
-    rem = target - sum(blocks)
-
-    idx = 1 if n_blocks >= 3 else 0
-    while rem >= 2:
-        if blocks[idx] < 10:
-            blocks[idx] += 2
-            rem -= 2
-        idx = (idx + 1) % n_blocks
-        if all(b == 10 for b in blocks) and rem >= 4:
-            blocks.append(4)
-            n_blocks += 1
-            rem -= 4
-
-    return blocks
-
-
-def build_taste_profile(purpose: str, style_variant: str, color_palette: str) -> Dict[str, Any]:
-    """Construct the Taste Direction Profile with 3 integer dials (1-10)."""
-    validate_taxonomy_inputs(purpose, "Live-Action", style_variant)
-    motion_intensity = (
-        8 if style_variant in ("Commercial Promo", "Short-Form Edits / AMV", "Edits / AMV", "Sizzle Reel", "Sizzle Reel / Recap") else 6
-    )
-    info_density = 7 if purpose in ("Educational & Training", "Explainer Videos") else 4
-    visual_variance = 6
-    return {
-        "design_read": (
-            f"High-craft {purpose} ({style_variant}): tactile physical realism paired with disciplined "
-            f"'{color_palette}' palette typography and purposeful camera momentum; zero generic AI templates."
-        ),
-        "visual_variance": visual_variance,
-        "motion_intensity": motion_intensity,
-        "information_density": info_density,
-        "palette_discipline": f"Curated '{color_palette}' palette with strict presenter skin-tone protection (grade: false on faces).",
-        "layout_variation": "Alternating R_FULL hero framing with R_LOWER + Headout Action-Verb Stage and clean safe-zone outro.",
-        "reference_strategy": "Zero-credit Nano Banana 2 Lite reference keyframes per scene family before Veo 3.1 / Seedance 2.0 motion generation.",
-        "anti_patterns": [
-            "generic AI-purple gradient backgrounds",
-            "same camera shot size across 3 consecutive scenes",
-            "caption duplicating on-screen SerifLine headline verbatim",
-            "reusing the same hero-component spine across every beat",
-        ],
-        "quality_gates": [
-            "Every scene carries an explicit shot_intent and CHAI 5-aspect breakdown.",
-            "Signature depth device appears in at most 1-2 climactic beats.",
-        ],
-    }
-
-
-def score_slideshow_risk(
-    scenes: List[Dict[str, Any]],
-    renderer_family: str = "cinematic-commercial",
-    render_runtime: str = "remotion",
-) -> Dict[str, Any]:
-    """
-    Score slideshow risk across 6 dimensions (0.0-5.0, lower is better).
-    Fixes C2:
-    - Detects duplicate/identical scenes (`unique_prompts < len(scenes)`) and assigns high risk (>= 4.2, 'fail').
-    - Detects static/still image scenes (`type in ('image', 'still', 'static_image', 'slide')` or static camera)
-      and assigns high risk (>= 4.0, 'fail').
-    """
-    if not scenes or not isinstance(scenes, list):
-        return {"average": 5.0, "verdict": "fail", "dimensions": {}, "render_runtime": render_runtime}
-
-    n = len(scenes)
-    static_types = {"image", "still", "static_image", "slide", "text_card", "stat_card", "kpi_grid"}
-    static_type_count = sum(
-        1 for s in scenes
-        if str(s.get("type", "video")).lower() in static_types
-        or str(s.get("motion_type", "")).lower() in ("static_image", "still", "none")
-    )
-
-    prompts = [
-        str(s.get("visual_prompt") or s.get("visual_prompt_en") or json.dumps(s, sort_keys=True)).strip()
-        for s in scenes
-    ]
-    unique_prompts = len(set(prompts))
-    duplicate_ratio = (n - unique_prompts) / n if n > 1 else 0.0
-
-    sizes = [str(s.get("shot_language", {}).get("shot_size", "none")) for s in scenes]
-    most_common_size, most_common_size_count = Counter(sizes).most_common(1)[0]
-    size_ratio = most_common_size_count / n
-
-    # 1. repetition
-    rep_score = 0.0
-    if duplicate_ratio > 0:
-        rep_score += duplicate_ratio * 5.0
-    if n >= 2 and (most_common_size in ("none", "unspecified") or size_ratio >= 0.67):
-        rep_score += 3.5
-    if static_type_count / n >= 0.4:
-        rep_score += 4.0
-    rep_score = min(5.0, rep_score)
-
-    # 2. decorative_visuals
-    decorative_count = sum(
-        1 for s in scenes
-        if not (s.get("information_role") or s.get("narrative_role") or s.get("shot_intent"))
-    )
-    dec_score = (decorative_count / n) * 5.0
-    if duplicate_ratio >= 0.5 or static_type_count / n >= 0.5:
-        dec_score = max(dec_score, 4.2)
-    dec_score = min(5.0, dec_score)
-
-    # 3. weak_motion
-    moving_shots = [
-        s for s in scenes
-        if str(s.get("type", "video")).lower() not in static_types
-        and str(s.get("motion_type", "motion_clip")).lower() not in ("static_image", "still", "none")
-        and str(s.get("shot_language", {}).get("camera_movement", "static")).lower()
-        not in ("static", "unspecified", "none", "locked", "")
-    ]
-    if not moving_shots or len(moving_shots) < n * 0.5 or duplicate_ratio >= 0.5:
-        motion_score = 4.8
-    else:
-        purposeless_moving = sum(1 for s in moving_shots if not s.get("shot_intent"))
-        motion_score = min(5.0, (purposeless_moving / len(moving_shots)) * 4.0)
-
-    # 4. weak_shot_intent
-    intents = [str(s.get("shot_intent") or "").strip() for s in scenes if str(s.get("shot_intent") or "").strip()]
-    unique_intents = len(set(intents))
-    if not intents or (n >= 2 and unique_intents <= max(1, n // 3)):
-        intent_score = 4.5
-    else:
-        intent_score = min(5.0, (1.0 - (len(intents) / n)) * 5.0)
-
-    # 5. typography_overreliance
-    text_Ratio = static_type_count / n
-    typo_score = 4.5 if text_Ratio >= 0.5 else (2.5 if text_Ratio > 0.3 else 0.0)
-
-    # 6. unsupported_cinematic_claims
-    cin_issues = 0
-    if "cinematic" in renderer_family.lower():
-        if not any(s.get("hero_moment") for s in scenes):
-            cin_issues += 1
-        if len(moving_shots) < n * 0.5:
-            cin_issues += 1
-        has_lighting = sum(1 for s in scenes if s.get("shot_language", {}).get("lighting_key"))
-        if has_lighting < n * 0.5:
-            cin_issues += 1
-        if duplicate_ratio >= 0.4:
-            cin_issues += 2
-    cin_score = min(5.0, cin_issues * 1.6)
-
-    dimensions = {
-        "repetition": {"score": round(rep_score, 2), "reason": "Checks prompt, shot_size, and visual type diversity"},
-        "decorative_visuals": {"score": round(dec_score, 2), "reason": "Checks narrative role and non-static substance"},
-        "weak_motion": {"score": round(motion_score, 2), "reason": "Checks real camera/subject motion vs static stills"},
-        "weak_shot_intent": {"score": round(intent_score, 2), "reason": f"{unique_intents}/{n} unique shot intents"},
-        "typography_overreliance": {"score": round(typo_score, 2), "reason": "Checks static slide/card ratio"},
-        "unsupported_cinematic_claims": {"score": round(cin_score, 2), "reason": "Checks hero_moment, lighting, and motion"},
-    }
-    avg = round(sum(d["score"] for d in dimensions.values()) / len(dimensions), 2)
-    verdict = "strong" if avg < 2.0 else ("acceptable" if avg < 3.0 else ("revise" if avg < 3.8 else "fail"))
-    return {
-        "average": avg,
-        "score": avg,
-        "total_score": avg,
-        "verdict": verdict,
-        "dimensions": dimensions,
-        "render_runtime": render_runtime,
-    }
-
-
-def check_scene_variation(scenes: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Run the 8-point scene variation and anti-slop check before asset generation.
-    Fixes C2: Rejects identical/duplicate scenes, static image sequences, and missing/repeated shot sizes.
-    """
-    if not scenes or not isinstance(scenes, list):
-        return {"score": 5.0, "verdict": "fail", "violations": ["No scenes provided"], "suggestions": []}
-
-    n = len(scenes)
-    violations: List[str] = []
-    suggestions: List[str] = []
-    penalty = 0.0
-
-    # 1. Duplicate scene / visual_prompt check
-    prompts = [
-        str(s.get("visual_prompt") or s.get("visual_prompt_en") or json.dumps(s, sort_keys=True)).strip()
-        for s in scenes
-    ]
-    unique_prompts = len(set(prompts))
-    if unique_prompts < n:
-        dup_count = n - unique_prompts
-        violations.append(f"{dup_count} duplicate/identical scenes or visual prompts detected.")
-        suggestions.append("Give every scene a distinct visual_prompt, subject action, and spatial framing.")
-        penalty += 3.5
-
-    # 2. Shot size specification & consecutive run check
-    shot_sizes = [str(s.get("shot_language", {}).get("shot_size", "unspecified")) for s in scenes]
-    unspecified_count = sum(1 for sz in shot_sizes if sz in ("unspecified", "none", ""))
-    if unspecified_count > 0:
-        violations.append(f"{unspecified_count}/{n} scenes are missing explicit shot_language.shot_size.")
-        penalty += 2.2
-
-    longest_run = 1
-    current_run = 1
-    for idx in range(1, n):
-        if shot_sizes[idx] == shot_sizes[idx - 1]:
-            current_run += 1
-            longest_run = max(longest_run, current_run)
-        else:
-            current_run = 1
-    if n >= 3 and longest_run >= 2:
-        violations.append(f"{longest_run} consecutive same-size shots detected ({shot_sizes[0]}).")
-        suggestions.append("Alternate shot sizes across consecutive scenes (e.g. MCU -> ECU -> MW).")
-        penalty += 2.0
-
-    # 3. Camera movement variety & static image detection
-    static_types = {"image", "still", "static_image", "slide", "text_card", "stat_card"}
-    static_scenes = sum(
-        1 for s in scenes
-        if str(s.get("type", "video")).lower() in static_types
-        or str(s.get("motion_type", "")).lower() in ("static_image", "still", "none")
-    )
-    if static_scenes > 0:
-        violations.append(f"{static_scenes}/{n} scenes are static images/slides instead of real motion.")
-        penalty += 3.2
-
-    cam_moves = [str(s.get("shot_language", {}).get("camera_movement", "static")) for s in scenes]
-    if n >= 2 and len(set(cam_moves)) == 1:
-        violations.append(f"All {n} scenes use the exact same camera_movement ('{cam_moves[0]}').")
-        penalty += 2.0
-
-    # 4. Hero moment presence
-    if not any(s.get("hero_moment") for s in scenes):
-        violations.append("No hero_moment flagged across scene_breakdown.")
-        suggestions.append("Mark the climax or primary showcase scene with hero_moment=True.")
-        penalty += 1.2
-
-    # 5. Generic AI slop phrasing
-    generic_hits = sum(
-        1 for s in scenes
-        if any(phrase in str(s.get("visual_prompt", "")).lower() for phrase in GENERIC_SLOP_PHRASES)
-    )
-    if generic_hits >= max(1, math.ceil(n * 0.34)):
-        violations.append(f"{generic_hits}/{n} scenes contain generic AI slop phrasing.")
-        penalty += 1.5
-
-    # 6. Texture keyword coverage
-    textured = sum(1 for s in scenes if s.get("texture_keywords"))
-    if textured < n * 0.3:
-        violations.append("Insufficient texture_keywords coverage across scenes.")
-        penalty += 1.2
-
-    score = round(min(5.0, penalty), 2)
-    verdict = "strong" if score < 2.0 else ("acceptable" if score < 3.0 else ("revise" if score < 3.8 else "fail"))
-    return {
-        "score": score,
-        "verdict": verdict,
-        "violations": violations,
-        "suggestions": suggestions,
-    }
-
-
-def validate_delivery_promise(
-    scenes: List[Dict[str, Any]],
-    promise_type: str = "motion_led",
-    motion_required: bool = True,
-) -> Dict[str, Any]:
-    """Validate that a motion-led promise has >= 70% real motion cuts and zero unapproved still fallback."""
-    if not scenes:
-        return {"valid": False, "violations": ["No scenes to validate"], "motion_ratio": 0.0}
-
-    real_motion_types = {"video", "animation", "avatar"}
-    motion_cuts = sum(
-        1 for s in scenes
-        if str(s.get("type", "video")).lower() in real_motion_types
-        and str(s.get("motion_type", "motion_clip")).lower() not in ("static_image", "still", "none")
-    )
-    motion_ratio = round(motion_cuts / len(scenes), 2)
-    violations: List[str] = []
-    if motion_required and promise_type == "motion_led" and motion_ratio < 0.7:
-        violations.append(f"Motion ratio {motion_ratio:.0%} is below 70% floor for motion_led delivery promise.")
-    return {
-        "promise_type": promise_type,
-        "motion_required": motion_required,
-        "motion_ratio": motion_ratio,
-        "motion_cuts": motion_cuts,
-        "total_cuts": len(scenes),
-        "valid": len(violations) == 0,
-        "violations": violations,
-    }
-
-
-def score_providers(
-    purpose: str,
-    video_format: str,
-    style_variant: str = "Commercial Promo",
-    budget_tier: str = "standard",
-) -> Dict[str, Any]:
-    """
-    Score providers dynamically across 7 weighted dimensions based on purpose, format, style_variant, and budget_tier.
-    Fixes C3: Different tasks/formats/budgets genuinely select different optimal providers:
-    - Live-Action Commercials/Corporate/Events -> `google_flow_veo_3_1`
-    - Documentaries -> `clip_archival_remotion_hybrid`
-    - Animation (2D / 3D) -> `ink_theater_cmu_mocap`
-    - Motion Graphics / Explainer Videos -> `hyperframes_remotion_60fps`
-    - Entertainment / Music Videos -> `seedance_2_0`
-    - Draft / Low-budget preview -> `gemini_omni_flash_1_1`
-    """
-    weights = {
-        "task_fit": 0.30,
-        "output_quality": 0.20,
-        "control_features": 0.15,
-        "reliability": 0.15,
-        "cost_efficiency": 0.10,
-        "latency": 0.05,
-        "continuity": 0.05,
-    }
-
-    is_doc = purpose == "Documentaries"
-    is_anim = video_format in ("Animation", "Animation (2D / 3D)")
-    is_motion = video_format == "Motion Graphics" or purpose in ("Explainer Videos", "Educational & Training")
-    is_music_ent = purpose == "Entertainment Videos" or style_variant == "Music Videos"
-    is_draft = budget_tier in ("draft", "low", "preview")
-
-    candidates = [
-        {
-            "provider": "google_flow_veo_3_1",
-            "label": "Google Flow (Veo 3.1 Quality + Nano Banana 2 Lite + Scene Handshake)",
-            "metrics": {
-                "task_fit": 9.7 if (video_format == "Live-Action" and not is_doc and not is_music_ent) else 7.4,
-                "output_quality": 9.7,
-                "control_features": 9.5,
-                "reliability": 9.3,
-                "cost_efficiency": 7.8 if not is_draft else 5.5,
-                "latency": 8.2,
-                "continuity": 9.6,
-            },
-        },
-        {
-            "provider": "clip_archival_remotion_hybrid",
-            "label": "CLIP Real-Footage Archival Corpus + Remotion ProRes 4444 Alpha End-Tag",
-            "metrics": {
-                "task_fit": 9.8 if is_doc else 6.2,
-                "output_quality": 9.5 if is_doc else 7.5,
-                "control_features": 9.6,
-                "reliability": 9.7,
-                "cost_efficiency": 9.8,
-                "latency": 9.2,
-                "continuity": 9.4,
-            },
-        },
-        {
-            "provider": "ink_theater_cmu_mocap",
-            "label": "HyperFrames Ink Theater (Rigged SVG + 12 CMU Mocap Clips + Three.js 3D)",
-            "metrics": {
-                "task_fit": 9.8 if is_anim else 6.5,
-                "output_quality": 9.4 if is_anim else 7.8,
-                "control_features": 9.7,
-                "reliability": 9.6,
-                "cost_efficiency": 9.7,
-                "latency": 9.1,
-                "continuity": 9.5,
-            },
-        },
-        {
-            "provider": "hyperframes_remotion_60fps",
-            "label": "60fps Three.js WebGL + Remotion/HyperFrames Atelier Motion Engine",
-            "metrics": {
-                "task_fit": 9.8 if (is_motion and not is_anim) else 7.5,
-                "output_quality": 9.6,
-                "control_features": 9.8,
-                "reliability": 9.7,
-                "cost_efficiency": 9.6,
-                "latency": 9.3,
-                "continuity": 9.7,
-            },
-        },
-        {
-            "provider": "seedance_2_0",
-            "label": "Seedance 2.0 (Multi-Shot Beat Sync + Native Quoted Lip-Sync)",
-            "metrics": {
-                "task_fit": 9.8 if (is_music_ent and not is_anim) else 8.4,
-                "output_quality": 9.6,
-                "control_features": 9.4,
-                "reliability": 9.1,
-                "cost_efficiency": 8.2,
-                "latency": 8.5,
-                "continuity": 9.4,
-            },
-        },
-        {
-            "provider": "gemini_omni_flash_1_1",
-            "label": "Gemini Omni Flash 1.1 (360p Fast Draft -> 0-Credit 720p Upscale)",
-            "metrics": {
-                "task_fit": 9.8 if is_draft else 8.0,
-                "output_quality": 8.6,
-                "control_features": 8.9,
-                "reliability": 9.5,
-                "cost_efficiency": 9.9,
-                "latency": 9.8,
-                "continuity": 8.8,
-            },
-        },
-    ]
-
-    ranked: List[Dict[str, Any]] = []
-    for item in candidates:
-        total = sum(item["metrics"][k] * weights[k] for k in weights)
-        ranked.append({
-            "provider": item["provider"],
-            "label": item["label"],
-            "weighted_score": round(total, 2),
-            "dimensions": item["metrics"],
-        })
-    ranked.sort(key=lambda x: x["weighted_score"], reverse=True)
-    return {
-        "scoring_weights": weights,
-        "selected_primary": ranked[0]["provider"],
-        "selected_label": ranked[0]["label"],
-        "selected_score": ranked[0]["weighted_score"],
-        "candidates_ranked": ranked,
-        "purpose_context": purpose,
-        "format_context": video_format,
-        "budget_tier": budget_tier,
-    }
 
 
 def _build_scene_and_block(
@@ -1091,8 +168,11 @@ def _build_scene_and_block(
         narr_role = "climax_demonstration" if is_hero else f"rising_proof_{idx}"
         overlay_text = "تفاصيل أصيلة وجودة عالية" if idx == 2 else f"خطوة عملية متقنة {idx}"
 
-    dl_sync = optimize_arabic_lip_sync(raw_dialogue_slice, dur) if raw_dialogue_slice else "[Mouth closed naturally, warm confident nod]"
-    # Clean display dialogue <= 8 words per clause for package validator
+    dl_sync = (
+        optimize_arabic_lip_sync(raw_dialogue_slice, dur)
+        if raw_dialogue_slice
+        else "[Mouth closed naturally, warm confident nod]"
+    )
     dl_words = [w for w in raw_dialogue_slice.split() if w]
     dl_clauses = [" ".join(dl_words[i : i + 6]) for i in range(0, len(dl_words), 6)]
     dl_ar_clean = " . ".join(dl_clauses)
@@ -1198,11 +278,6 @@ def compile_blueprint(
 ) -> Dict[str, Any]:
     """
     Compile a unified CineFlow AI Studio JSON blueprint + Showrunner Package (`06_package.json`).
-    Fixes C1, C2, C3, H1, H2, H3, H4, H5, H6:
-    - Validates `purpose`, `video_format`, `style_variant`, and `total_runtime_seconds`.
-    - Partitions runtime into allowed `{4, 6, 8, 10}`s blocks with `Extend` chain capping (`<= 40s`).
-    - Emits both `blocks`/`project`/`identity_bible`/`outro` AND `scene_breakdown` so `validate_package.py`,
-      `estimate_cost.py`, `make_srt.py`, and `blueprint_schema.json` all pass on the exact same output!
     """
     validate_taxonomy_inputs(purpose, video_format, style_variant)
     block_durations = partition_runtime_into_allowed_blocks(total_runtime_seconds)
@@ -1238,10 +313,9 @@ def compile_blueprint(
             "--no frame flicker, no garbled Arabic text, no subtitles, no geometry distortion, no identity drift"
         )
 
-    # Distribute all user dialogue words across scenes without dropping any words (fixes H4)
     all_words = [w for w in str(dialogue or "").strip().split() if w]
     n_blocks = len(block_durations)
-    spoken_blocks = max(1, n_blocks - 1)  # Final block is visual loop outro unless single block
+    spoken_blocks = max(1, n_blocks - 1)
     words_per_block = math.ceil(len(all_words) / spoken_blocks) if all_words else 0
 
     hook_focus_word = all_words[1] if len(all_words) > 1 else (all_words[0] if all_words else "الفخامة")
@@ -1261,7 +335,6 @@ def compile_blueprint(
         else:
             w_slice = ""
 
-        # Reset Extend chain before exceeding 40s cap
         if idx == 1 or current_chain_s + dur > MAX_EXTEND_CHAIN_SECONDS:
             block_mode = "Ingredients"
             ext_from = None
@@ -1358,7 +431,6 @@ def compile_blueprint(
         },
     ]
 
-    # Determine rhythmic montage style (Corporate Videos without music/beat cues default to 'none')
     idea_low = idea.lower()
     has_music_cue = any(
         tok in idea_low
@@ -1415,7 +487,7 @@ def compile_blueprint(
             "verified_capabilities": {
                 "status": "VERIFIED",
                 "verification_policy": CAPABILITY_VERIFICATION_STATUS,
-                "last_verified_date": "2026-11-01",
+                "last_verified_date": MODEL_REGISTRY_LAST_VERIFIED,
                 "verification_note": "Verify on screen before spending credits (references/model-registry.md)",
                 "per_clip_s_options": list(ALLOWED_CLIP_DURATIONS),
                 "extend_cap_s": MAX_EXTEND_CHAIN_SECONDS,

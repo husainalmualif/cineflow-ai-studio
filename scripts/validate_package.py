@@ -453,7 +453,7 @@ def main() -> None:
     try:
         with open(sys.argv[1], encoding="utf-8") as f:
             raw_data = json.load(f)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    except (OSError, ValueError, TypeError) as exc:
         print(f"FAIL: cannot read JSON: {exc}")
         sys.exit(1)
 

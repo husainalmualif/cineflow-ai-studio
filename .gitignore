@@ -1,0 +1,31 @@
+# OAuth, API Keys & Local MCP Config (Never commit secrets)
+client_secrets.json
+token.*
+.mcp.json
+.env
+.env.*
+*gemini.key
+gemini.key
+
+# Python Bytecode & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Test & Lint Caches
+.pytest_cache/
+.pylint.d/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Generated Studio & Media Scratches
+studio/
+*.mp4
+*.mov
+*.webm
+*.wav
+*.mp3

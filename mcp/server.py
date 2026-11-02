@@ -1,19 +1,64 @@
-import os
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""CineFlow AI Studio — FastMCP Server for Gemini Omni Flash Stateful Video Generation & Editing."""
+
+from __future__ import annotations
+
 import base64
+import os
+import sys
 import time
-from typing import Any, cast
+from pathlib import Path
+from typing import Any, Dict, List, cast
+
 from google import genai
 from mcp.server.fastmcp import FastMCP
 
+# Ensure scripts/ is importable so studio_config is the single source of truth for model names
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+try:
+    from studio_config import OMNI_FLASH_MODEL_DEFAULT
+except ImportError:
+    OMNI_FLASH_MODEL_DEFAULT = "gemini-omni-flash-preview"
+
 # Initialize FastMCP Server
-mcp = FastMCP("Gemini Omni Flash Video Agent")
+mcp = FastMCP("CineFlow Gemini Omni Flash Video Agent")
 
-# Initialize the Gemini client
-client = genai.Client()
-MODEL_NAME = os.environ.get("GEMINI_OMNI_MODEL", "gemini-omni-flash-preview")
+# Lazy client attribute (kept at module level so unittest.mock.patch("server.client") works seamlessly)
+client: Any = None
+MODEL_NAME = os.environ.get("GEMINI_OMNI_MODEL", OMNI_FLASH_MODEL_DEFAULT)
+
+_API_ERROR = getattr(getattr(genai, "errors", None), "APIError", RuntimeError)
+TOOL_EXCEPTIONS = (
+    OSError,
+    ValueError,
+    RuntimeError,
+    TimeoutError,
+    TypeError,
+    AttributeError,
+    KeyError,
+    _API_ERROR if isinstance(_API_ERROR, type) and issubclass(_API_ERROR, Exception) else RuntimeError,
+)
 
 
-def _get_image_data(image_path: str) -> dict:
+def _get_client() -> Any:
+    """Lazily initializes and returns the Gemini client with a clear error if API key is missing."""
+    global client  # pylint: disable=global-statement
+    if client is not None:
+        return client
+    if not (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")):
+        raise RuntimeError(
+            "Missing Gemini API key. Set GEMINI_API_KEY (or GOOGLE_API_KEY) in the environment "
+            "before invoking Gemini Omni Flash tools."
+        )
+    client = genai.Client()
+    return client
+
+
+def _get_image_data(image_path: str) -> Dict[str, str]:
     """Helper to convert local image file to base64 input dict."""
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Image not found at path: {image_path}")
@@ -30,7 +75,7 @@ def _get_image_data(image_path: str) -> dict:
     return {"type": "image", "data": data_b64, "mime_type": mime_type}
 
 
-def _handle_response(interaction, delivery: str, output_prefix: str) -> str:
+def _handle_response(interaction: Any, delivery: str, output_prefix: str) -> str:
     """Helper to handle inline vs URI delivery and save the resulting video."""
     video_output = getattr(interaction, "output_video", None)
     if not video_output:
@@ -41,6 +86,7 @@ def _handle_response(interaction, delivery: str, output_prefix: str) -> str:
         )
 
     output_filename = f"{output_prefix}_{int(time.time())}.mp4"
+    active_client = _get_client()
 
     if delivery == "uri" and getattr(video_output, "uri", None):
         # The URI may be a bare file resource or a full download URL
@@ -54,15 +100,15 @@ def _handle_response(interaction, delivery: str, output_prefix: str) -> str:
                 raise TimeoutError(
                     f"Polling timed out waiting for Google File API processing (ID: {file_name})."
                 )
-            f_info = client.files.get(name=f"files/{file_name}")
+            f_info = active_client.files.get(name=f"files/{file_name}")
             if f_info.state and f_info.state.name == "ACTIVE":
                 break
-            elif f_info.state and f_info.state.name == "FAILED":
+            if f_info.state and f_info.state.name == "FAILED":
                 raise RuntimeError("Google File API video processing failed.")
             time.sleep(5)
 
         print("Downloading video via File API...")
-        video_bytes = client.files.download(file=f"files/{file_name}")
+        video_bytes = active_client.files.download(file=f"files/{file_name}")
     else:
         # Default/inline base64 delivery
         data = getattr(video_output, "data", None)
@@ -92,13 +138,14 @@ def generate_video(
     - delivery: 'inline' (default, base64) or 'uri' (recommended for files > 4MB).
     """
     try:
-        response_format = {"type": "video"}
+        active_client = _get_client()
+        response_format: Dict[str, str] = {"type": "video"}
         if aspect_ratio in ["9:16", "16:9"]:
             response_format["aspect_ratio"] = aspect_ratio
         if delivery == "uri":
             response_format["delivery"] = "uri"
 
-        interaction = client.interactions.create(
+        interaction = active_client.interactions.create(
             model=MODEL_NAME,
             input=prompt,
             response_format=response_format,
@@ -108,7 +155,7 @@ def generate_video(
         )
 
         return _handle_response(interaction, delivery, "gen")
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"🔴 Generation failed: {str(e)}"
 
 
@@ -124,11 +171,12 @@ def edit_video(
     - delivery: 'inline' or 'uri'.
     """
     try:
-        response_format = {"type": "video"}
+        active_client = _get_client()
+        response_format: Dict[str, str] = {"type": "video"}
         if delivery == "uri":
             response_format["delivery"] = "uri"
 
-        interaction = client.interactions.create(
+        interaction = active_client.interactions.create(
             model=MODEL_NAME,
             previous_interaction_id=previous_interaction_id,
             input=edit_prompt,
@@ -139,7 +187,7 @@ def edit_video(
         )
 
         return _handle_response(interaction, delivery, "edit")
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"🔴 Editing failed: {str(e)}"
 
 
@@ -152,13 +200,14 @@ def animate_image(image_path: str, motion_prompt: str, delivery: str = "inline")
     - delivery: 'inline' or 'uri'.
     """
     try:
+        active_client = _get_client()
         img_data = _get_image_data(image_path)
 
-        response_format = {"type": "video"}
+        response_format: Dict[str, str] = {"type": "video"}
         if delivery == "uri":
             response_format["delivery"] = "uri"
 
-        interaction = client.interactions.create(
+        interaction = active_client.interactions.create(
             model=MODEL_NAME,
             input=cast(Any, [img_data, {"type": "text", "text": motion_prompt}]),
             response_format=response_format,
@@ -168,7 +217,7 @@ def animate_image(image_path: str, motion_prompt: str, delivery: str = "inline")
         )
 
         return _handle_response(interaction, delivery, "animated")
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"🔴 Animation failed: {str(e)}"
 
 
@@ -184,14 +233,15 @@ def interpolate_images(
     - delivery: 'inline' or 'uri'.
     """
     try:
+        active_client = _get_client()
         start_img = _get_image_data(start_image_path)
         end_img = _get_image_data(end_image_path)
 
-        response_format = {"type": "video"}
+        response_format: Dict[str, str] = {"type": "video"}
         if delivery == "uri":
             response_format["delivery"] = "uri"
 
-        interaction = client.interactions.create(
+        interaction = active_client.interactions.create(
             model=MODEL_NAME,
             input=cast(Any, [start_img, end_img, {"type": "text", "text": prompt}]),
             response_format=response_format,
@@ -201,13 +251,13 @@ def interpolate_images(
         )
 
         return _handle_response(interaction, delivery, "interpolation")
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"🔴 Interpolation failed: {str(e)}"
 
 
 @mcp.tool()
 def generate_with_subjects(
-    subject_image_paths: list[str], prompt: str, delivery: str = "inline"
+    subject_image_paths: List[str], prompt: str, delivery: str = "inline"
 ) -> str:
     """
     Generates a video incorporating specific subjects provided as reference image paths.
@@ -216,16 +266,17 @@ def generate_with_subjects(
     - delivery: 'inline' or 'uri'.
     """
     try:
-        inputs = []
+        active_client = _get_client()
+        inputs: List[Dict[str, str]] = []
         for path in subject_image_paths:
             inputs.append(_get_image_data(path))
         inputs.append({"type": "text", "text": prompt})
 
-        response_format = {"type": "video"}
+        response_format: Dict[str, str] = {"type": "video"}
         if delivery == "uri":
             response_format["delivery"] = "uri"
 
-        interaction = client.interactions.create(
+        interaction = active_client.interactions.create(
             model=MODEL_NAME,
             input=cast(Any, inputs),
             response_format=response_format,
@@ -235,7 +286,7 @@ def generate_with_subjects(
         )
 
         return _handle_response(interaction, delivery, "subject")
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"🔴 Subject reference generation failed: {str(e)}"
 
 
@@ -251,8 +302,9 @@ def edit_user_video(video_path: str, edit_prompt: str, delivery: str = "inline")
         if not os.path.exists(video_path):
             return f"🔴 Video file not found: {video_path}"
 
+        active_client = _get_client()
         print(f"Uploading video {video_path} via Gemini File API...")
-        video_file = client.files.upload(file=video_path)
+        video_file = active_client.files.upload(file=video_path)
 
         if not video_file.name:
             raise ValueError("File upload failed to return a valid name.")
@@ -266,18 +318,18 @@ def edit_user_video(video_path: str, edit_prompt: str, delivery: str = "inline")
                     f"Timed out waiting for uploaded video to be processed (File: {video_file.name})."
                 )
             time.sleep(5)
-            video_file = client.files.get(name=video_file.name)
+            video_file = active_client.files.get(name=video_file.name)
 
         if video_file.state == "FAILED":
             raise ValueError("Gemini File API video upload processing failed.")
 
         print(f"Video uploaded successfully. URI: {video_file.uri}")
 
-        response_format = {"type": "video"}
+        response_format: Dict[str, str] = {"type": "video"}
         if delivery == "uri":
             response_format["delivery"] = "uri"
 
-        interaction = client.interactions.create(
+        interaction = active_client.interactions.create(
             model=MODEL_NAME,
             input=cast(
                 Any,
@@ -293,7 +345,7 @@ def edit_user_video(video_path: str, edit_prompt: str, delivery: str = "inline")
         )
 
         return _handle_response(interaction, delivery, "user_edit")
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"🔴 Editing user video failed: {str(e)}"
 
 
@@ -307,21 +359,18 @@ def upload_to_youtube(
 ) -> str:
     """
     Uploads a local video file to YouTube using the YouTube Data API v3.
-    Requires 'client_secrets.json' in the project directory.
+    Requires 'client_secrets.json' in the project directory and stores OAuth tokens safely as JSON ('token.json').
     - video_path: Path to the local video file.
     - title: Title of the video.
     - description: Description of the video.
     - category_id: YouTube category ID (default '22' for People & Blogs).
     - privacy_status: 'private', 'public', or 'unlisted'.
     """
-    import os
-    import pickle
-
     if not os.path.exists(video_path):
         return f"❌ Error: Video file not found at {video_path}"
 
     client_secrets_file = "client_secrets.json"
-    token_file = "token.pickle"
+    token_file = "token.json"
 
     if not os.path.exists(client_secrets_file) and not os.path.exists(token_file):
         return (
@@ -336,40 +385,39 @@ def upload_to_youtube(
         )
 
     try:
+        from google.auth.transport.requests import Request
+        from google.oauth2.credentials import Credentials
+        from google_auth_oauthlib.flow import InstalledAppFlow
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaFileUpload
-        from google_auth_oauthlib.flow import InstalledAppFlow
-        from google.auth.transport.requests import Request
     except ImportError:
         return (
             "❌ Required Python packages for YouTube integration are missing.\n"
             "Please run: pip install google-api-python-client google-auth-oauthlib google-auth-httplib2"
         )
 
-    # Scopes required for YouTube uploading
     scopes = ["https://www.googleapis.com/auth/youtube.upload"]
     creds = None
 
-    # Load credentials if they exist
+    # Safely load JSON OAuth credentials if they exist
     if os.path.exists(token_file):
-        with open(token_file, "rb") as token:
-            creds = pickle.load(token)
+        creds = Credentials.from_authorized_user_file(token_file, scopes)
 
-    # If credentials are not valid/exist, request them
+    # If credentials are not valid/exist, refresh or request them
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             if not os.path.exists(client_secrets_file):
-                return "❌ client_secrets.json not found, and token.pickle is expired or invalid."
+                return "❌ client_secrets.json not found, and token.json is expired or invalid."
             flow = InstalledAppFlow.from_client_secrets_file(
                 client_secrets_file, scopes
             )
             creds = flow.run_local_server(port=0)
 
-        # Save credentials for future runs
-        with open(token_file, "wb") as token:
-            pickle.dump(creds, token)
+        # Save credentials safely as JSON for future runs
+        with open(token_file, "w", encoding="utf-8") as token_fp:
+            token_fp.write(creds.to_json())
 
     try:
         youtube = build("youtube", "v3", credentials=creds)
@@ -405,7 +453,7 @@ def upload_to_youtube(
             f"• Status: {privacy_status}"
         )
 
-    except Exception as e:
+    except TOOL_EXCEPTIONS as e:
         return f"❌ Upload failed with error: {str(e)}"
 
 
@@ -415,7 +463,7 @@ def get_help() -> str:
     Returns a summary, prompting best practices, and usage guide for all available MCP tools in the Gemini Omni Flash Video Agent.
     """
     summary = (
-        "🤖 Gemini Omni Flash Video Agent (Model: gemini-omni-flash-preview) - MCP Tools Summary & Guide\n\n"
+        f"🤖 CineFlow Gemini Omni Flash Video Agent (Model: {MODEL_NAME}) - MCP Tools Summary & Guide\n\n"
         "Here are the available tools you can use to generate, edit, and animate videos:\n\n"
         "1. generate_video\n"
         "   - Description: Generates an initial video from a text prompt.\n"
@@ -455,7 +503,7 @@ def get_help() -> str:
         "     • edit_prompt (str): Instruction of what to change in the video.\n"
         "     • delivery (str, default 'inline'): 'inline' or 'uri'.\n\n"
         "7. upload_to_youtube\n"
-        "   - Description: Uploads a local video file to YouTube.\n"
+        "   - Description: Uploads a local video file to YouTube using JSON OAuth credentials.\n"
         "   - Parameters:\n"
         "     • video_path (str): Path to the local video file.\n"
         "     • title (str): Title of the video.\n"
@@ -476,7 +524,7 @@ def get_help() -> str:
         "🔗 Key Links:\n"
         "   - Interactions API: https://ai.google.dev/api/interactions-api\n"
         "   - Prompting Guide: https://deepmind.google/models/gemini-omni/prompt-guide/\n"
-        "   - Project Mapping: GEMINI.md / README.md"
+        "   - Project Mapping: SKILL.md / README.md"
     )
     return summary
 

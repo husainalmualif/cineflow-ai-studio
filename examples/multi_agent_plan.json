@@ -1,0 +1,145 @@
+{
+  "topic": "إعلان تقني ثلاثي الأبعاد لتطبيق ذكي",
+  "pipeline_type": "route_3_motion_stage_60fps",
+  "duration_seconds": 30.0,
+  "agent_count": 7,
+  "showrunner_role_count": 13,
+  "showrunner_roles": [
+    "A1_Research_and_Trends",
+    "A2_Script_and_Strategy",
+    "A3_Visual_Lab_and_Identity_Bible",
+    "A4_2D_3D_60fps_Motion_Engine",
+    "A5_Director_of_Photography",
+    "A6_Sound_Music_and_Broadcast_DSP",
+    "A7_Flow_Producer",
+    "A8_Auditor_and_Red_Team_QA",
+    "A9_Developer_and_Automation",
+    "A10_Marketing_and_Growth",
+    "A11_Compliance_and_Brand_Safety",
+    "A12_Post_Production_and_Mastering",
+    "Alt_Cross_Model_Second_Opinion"
+  ],
+  "agents": [
+    {
+      "agent_id": "agent_1_master_orchestrator",
+      "showrunner_roles": [
+        "Showrunner",
+        "A8",
+        "A9",
+        "A11"
+      ],
+      "name_ar": "مدير المشروع والمايسترو",
+      "name_en": "Master Orchestrator & Showrunner Agent",
+      "endpoint": "local://cineflow-orchestrator",
+      "phase": "All Phases (0 -> 9)",
+      "deliverables": [
+        "00_brief.md",
+        "07_audit.md",
+        "state.json",
+        "decision_log.json"
+      ]
+    },
+    {
+      "agent_id": "agent_2_gemini_multimodal",
+      "showrunner_roles": [
+        "A2",
+        "A10"
+      ],
+      "name_ar": "وكيل جيميناي متعدد الوسائط",
+      "name_en": "Gemini Multimodal Script & Marketing Agent",
+      "endpoint": "https://gemini.google.com/app",
+      "phase": "Phase 2 & 9: Vocalized Scriptwriting & Marketing Expansion",
+      "deliverables": [
+        "02_script.md",
+        "script_source.json",
+        "10_marketing.md"
+      ]
+    },
+    {
+      "agent_id": "agent_3_google_labs_creative",
+      "showrunner_roles": [
+        "A3"
+      ],
+      "name_ar": "وكيل مختبرات جوجل للابتكار البصري",
+      "name_en": "Google Labs Creative & Identity Bible Agent",
+      "endpoint": "https://labs.google/",
+      "phase": "Phase 3: 0-Credit Identity & Style Prototyping",
+      "deliverables": [
+        "03_identity_bible.md",
+        "assets/character_anchor.png",
+        "assets/product_anchor.png"
+      ]
+    },
+    {
+      "agent_id": "agent_4_google_flow_director",
+      "showrunner_roles": [
+        "A5",
+        "A7"
+      ],
+      "name_ar": "وكيل جوجل فلو للإخراج السينمائي",
+      "name_en": "Google Flow DoP & Video Producer Agent",
+      "endpoint": "https://flow.google.com/",
+      "phase": "Phase 4 & 7: 06_package.json & Veo 3.1 / Omni 1.1 Generation",
+      "deliverables": [
+        "06_package.json",
+        "08_flow_runlog.md",
+        "assets/scene_01..06.mp4"
+      ]
+    },
+    {
+      "agent_id": "agent_5_flowmusic_audio_dsp",
+      "showrunner_roles": [
+        "A6",
+        "A12"
+      ],
+      "name_ar": "وكيل فلو ميوزك والهندسة الصوتية الإذاعية",
+      "name_en": "FlowMusic, Broadcast TTS & -14 LUFS Mastering Agent",
+      "endpoint": "https://www.flowmusic.app/session",
+      "phase": "Phase 3 & 8: Musical Stems, Whisper-Verified TTS & -14 LUFS Master",
+      "deliverables": [
+        "05_audio_map.md",
+        "09_post_plan.md",
+        "vo_full.wav",
+        "master.wav"
+      ]
+    },
+    {
+      "agent_id": "agent_6_google_search_grounding",
+      "showrunner_roles": [
+        "A1"
+      ],
+      "name_ar": "وكيل بحث جوجل للتوثيق المعرفي",
+      "name_en": "Google Search Grounding & Capability Verification Agent",
+      "endpoint": "https://www.google.com/",
+      "phase": "Phase 1: 5-Batch Web Research & Verified Capabilities Ledger",
+      "deliverables": [
+        "01_research.md",
+        "facts.md"
+      ]
+    },
+    {
+      "agent_id": "agent_7_cross_model_critic_code",
+      "showrunner_roles": [
+        "A4",
+        "Alt"
+      ],
+      "name_ar": "وكيل المراجعة النقدية وهندسة التحريك العابر للنماذج",
+      "name_en": "Cross-Model Critique & 60fps 3D/2D Motion Architect",
+      "endpoint": "https://chatgpt.com/ + https://claude.ai/new",
+      "phase": "Phase 3 & 5: 04_style_bible.md, 60fps 3D Stage & Second-Opinion QA",
+      "deliverables": [
+        "04_style_bible.md",
+        "scenes/*.js",
+        "renders/final.mp4"
+      ]
+    }
+  ],
+  "quality_gates": {
+    "phonetic_tts_validation": ">= 75% vocalized base letters + clause-final هْ + zero dagger alifs + Whisper medium check",
+    "min_diacritic_ratio": 0.75,
+    "slideshow_risk_threshold": "< 3.0",
+    "motion_fps": 60,
+    "audio_loudness_target_lufs": -14.0,
+    "true_peak_dbtp": -1.0
+  }
+}

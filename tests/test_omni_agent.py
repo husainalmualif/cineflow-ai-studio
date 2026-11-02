@@ -6,6 +6,8 @@ Compatible with both `pytest -v tests/test_omni_agent.py` and direct CLI executi
 `python tests/test_omni_agent.py` (even in bare CI environments without `google-genai` or `mcp` installed).
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import tempfile
@@ -16,7 +18,9 @@ from unittest.mock import MagicMock, patch
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 MCP_DIR = ROOT_DIR / "mcp"
+SCRIPTS_DIR = ROOT_DIR / "scripts"
 sys.path.insert(0, str(MCP_DIR))
+sys.path.insert(0, str(SCRIPTS_DIR))
 
 os.environ.setdefault("GEMINI_API_KEY", "test-key")
 
@@ -71,7 +75,10 @@ except ImportError:
     sys.modules.setdefault("mcp.server", mcp_server_pkg)
     sys.modules.setdefault("mcp.server.fastmcp", fastmcp_mod)
 
+import server  # noqa: E402
 from server import (  # noqa: E402
+    MODEL_NAME,
+    _get_client,
     _get_image_data,
     animate_image,
     edit_user_video,
@@ -81,10 +88,14 @@ from server import (  # noqa: E402
     get_help,
     interpolate_images,
     mcp,
+    upload_to_youtube,
 )
+from studio_config import OMNI_FLASH_MODEL_DEFAULT  # noqa: E402
 
 
 class TestOmniVideoAgent(unittest.TestCase):
+    """Comprehensive mocked unit test suite for mcp/server.py."""
+
     def setUp(self):
         self.test_dir = tempfile.TemporaryDirectory()
         self.test_image_path = os.path.join(self.test_dir.name, "test.png")
@@ -106,6 +117,18 @@ class TestOmniVideoAgent(unittest.TestCase):
             interaction.output_video.data = data
             interaction.output_video.uri = uri
         return interaction
+
+    def test_default_model_matches_studio_config(self):
+        """Verify server MODEL_NAME reads default from studio_config.OMNI_FLASH_MODEL_DEFAULT."""
+        self.assertEqual(MODEL_NAME, OMNI_FLASH_MODEL_DEFAULT)
+
+    def test_lazy_client_raises_clear_error_without_api_key(self):
+        """Verify _get_client() is lazy and raises a clear RuntimeError if no API key is configured."""
+        with patch.object(server, "client", None):
+            with patch.dict(os.environ, {}, clear=True):
+                with self.assertRaises(RuntimeError) as ctx:
+                    _get_client()
+                self.assertIn("Missing Gemini API key", str(ctx.exception))
 
     def test_get_image_data_valid(self):
         """Test image encoding helper with a valid image file."""
@@ -166,7 +189,7 @@ class TestOmniVideoAgent(unittest.TestCase):
     @patch("server.client")
     def test_generate_video_failure(self, mock_client):
         """Test generate_video tool gracefully handles exceptions."""
-        mock_client.interactions.create.side_effect = Exception("API Key expired")
+        mock_client.interactions.create.side_effect = RuntimeError("API Key expired")
 
         result = generate_video(prompt="test prompt")
         self.assertIn("🔴 Generation failed: API Key expired", result)
@@ -222,6 +245,25 @@ class TestOmniVideoAgent(unittest.TestCase):
         """Test edit_user_video returns an error string for a missing video file."""
         res = edit_user_video(video_path="missing_clip.mp4", edit_prompt="Pixar style")
         self.assertIn("🔴 Video file not found:", res)
+
+    def test_upload_to_youtube_missing_video_and_credentials(self):
+        """Test upload_to_youtube validates video path and uses JSON credentials (no pickle)."""
+        res_missing = upload_to_youtube(
+            video_path="non_existent_video.mp4",
+            title="Test",
+            description="Test",
+        )
+        self.assertIn("❌ Error: Video file not found", res_missing)
+
+        dummy_video = os.path.join(self.test_dir.name, "clip.mp4")
+        with open(dummy_video, "wb") as f:
+            f.write(b"0000")
+        res_no_creds = upload_to_youtube(
+            video_path=dummy_video,
+            title="Test",
+            description="Test",
+        )
+        self.assertIn("YouTube API credentials missing", res_no_creds)
 
     def test_mcp_tools_registered(self):
         """Verify that the expected 8 tools are registered to the FastMCP server."""

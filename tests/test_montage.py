@@ -75,7 +75,7 @@ def test_positive_sports_commercial_15s_produces_commercial_promo_montage() -> N
     assert montage["cut_pattern"] in ("steady", "build_up", "call_response", "breathe")
     assert len(montage["ramps"]) >= 1
     errs, _ = validate_package_dict(bp)
-    assert errs == [], f"Sports commercial blueprint failed validation: {errs}"
+    assert not errs, f"Sports commercial blueprint failed validation: {errs}"
 
 
 def test_positive_music_video_links_cuts_to_song_structure() -> None:
@@ -94,7 +94,7 @@ def test_positive_music_video_links_cuts_to_song_structure() -> None:
     assert any("verse" in n for n in section_names)
     assert any("chorus" in n or "drop" in n for n in section_names)
     errs, _ = validate_package_dict(bp)
-    assert errs == []
+    assert not errs
 
 
 def test_positive_corporate_video_without_music_disables_rhythmic_montage() -> None:
@@ -111,7 +111,7 @@ def test_positive_corporate_video_without_music_disables_rhythmic_montage() -> N
     assert montage["style"] == "none"
     assert montage["beat_map"] is None
     errs, _ = validate_package_dict(bp)
-    assert errs == []
+    assert not errs
 
 
 def test_negative_cut_deviating_120ms_from_beat_is_rejected() -> None:
@@ -229,7 +229,7 @@ def test_remotion_v4_arabic_zwj_splitter_and_video_first_layout() -> None:
     # 3. Video-First Layout validation (Headline >= 84px, Supporting >= 44px, Margins >= 80/100, 1 focal point)
     ok_layout = validate_video_first_layout(headline_px=92, supporting_px=48, margin_x_px=80, margin_y_px=120, focal_points_per_scene=1)
     assert ok_layout["valid"] is True
-    assert ok_layout["errors"] == []
+    assert not ok_layout["errors"]
 
     bad_webpage_layout = validate_video_first_layout(headline_px=32, supporting_px=18, margin_x_px=24, margin_y_px=40, focal_points_per_scene=4)
     assert bad_webpage_layout["valid"] is False

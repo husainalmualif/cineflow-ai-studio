@@ -1,0 +1,924 @@
+{
+  "project": {
+    "title": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب مع نوتات العود والعنبر    9:16",
+    "purpose": "Commercials & TVCs",
+    "format": "Live-Action",
+    "style": "Commercial Promo",
+    "edit_style": "Commercial Promo",
+    "aspect_ratio": "9:16",
+    "total_runtime_s": 16,
+    "requested_runtime_s": 16,
+    "motion_engine_60fps": {
+      "enabled": true,
+      "fps": 60,
+      "bloom": {
+        "strength": 0.42,
+        "radius": 0.45,
+        "threshold": 0.78
+      },
+      "max_rtl_header_chars": 30
+    },
+    "verified_capabilities": {
+      "status": "VERIFIED",
+      "verification_policy": "verify_live",
+      "last_verified_date": "2026-11-02",
+      "verification_note": "Verify on screen before spending credits (references/model-registry.md)",
+      "per_clip_s_options": [
+        4,
+        6,
+        8,
+        10
+      ],
+      "extend_cap_s": 40,
+      "extend_max_s": 40,
+      "max_ref_images": 7
+    },
+    "montage": {
+      "style": "commercial_promo",
+      "beat_map": {
+        "bpm": 120.0,
+        "time_signature": "4/4",
+        "fps": 30.0,
+        "downbeats_s": [
+          0.0,
+          2.0,
+          4.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          14.0,
+          16.0
+        ],
+        "beats_s": [
+          0.0,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          6.5,
+          7.0,
+          7.5,
+          8.0,
+          8.5,
+          9.0,
+          9.5,
+          10.0,
+          10.5,
+          11.0,
+          11.5,
+          12.0,
+          12.5,
+          13.0,
+          13.5,
+          14.0,
+          14.5,
+          15.0,
+          15.5,
+          16.0
+        ],
+        "drops_s": [
+          8.0
+        ],
+        "sections": [
+          {
+            "name": "verse_hook",
+            "start_s": 0.0,
+            "end_s": 2.0,
+            "energy": 7
+          },
+          {
+            "name": "build_up_bridge",
+            "start_s": 2.0,
+            "end_s": 8.0,
+            "energy": 8
+          },
+          {
+            "name": "chorus_drop",
+            "start_s": 8.0,
+            "end_s": 16.0,
+            "energy": 10
+          }
+        ],
+        "source": "generated_with_music",
+        "confidence": 0.85
+      },
+      "cut_pattern": "build_up",
+      "cut_points_s": [
+        0.0,
+        2.0,
+        3.0,
+        4.0,
+        4.5,
+        5.0,
+        5.25,
+        5.5,
+        6.0,
+        6.5,
+        7.5,
+        8.0,
+        8.5,
+        8.75,
+        9.0,
+        9.5,
+        10.5,
+        11.0,
+        11.5,
+        12.0,
+        12.25,
+        12.5,
+        13.5,
+        14.0,
+        14.5,
+        15.0,
+        15.5,
+        15.75
+      ],
+      "ramps": [
+        {
+          "clip_id": "1A",
+          "start_s": 7.5,
+          "end_s": 8.5,
+          "from_speed": 2.0,
+          "to_speed": 0.5,
+          "curve": "ease_in_out",
+          "musical_reason": "Slow-motion emphasis into primary drop at 8s"
+        }
+      ],
+      "sfx_cues": [
+        {
+          "t_s": 7.0,
+          "layer": "riser",
+          "name": "2-beat tension riser before drop",
+          "pre_roll_ms": 0
+        },
+        {
+          "t_s": 8.0,
+          "layer": "impact_hit",
+          "name": "sub_drop + impact hit on chorus/drop downbeat",
+          "pre_roll_ms": 0
+        },
+        {
+          "t_s": 2.0,
+          "layer": "whoosh_transition",
+          "name": "whip-pan whoosh transition",
+          "pre_roll_ms": 110
+        }
+      ]
+    }
+  },
+  "project_state": {
+    "phase": "06_package_compiled",
+    "decisions": [
+      {
+        "category": "provider_selection",
+        "subject": "Primary Video Generation & Keyframe Stack",
+        "selected": "google_flow_veo_3_1",
+        "options_considered": [
+          "google_flow_veo_3_1",
+          "hyperframes_remotion_60fps",
+          "seedance_2_0",
+          "gemini_omni_flash_1_1",
+          "ink_theater_cmu_mocap",
+          "clip_archival_remotion_hybrid"
+        ],
+        "confidence": 0.92,
+        "reason": "Selected Google Flow (Veo 3.1 Quality + Nano Banana 2 Lite + Scene Handshake) for Commercials & TVCs (Live-Action).",
+        "user_visible": true
+      },
+      {
+        "category": "render_runtime_selection",
+        "subject": "Programmatic Composition Runtime",
+        "selected": "remotion",
+        "options_considered": [
+          "remotion",
+          "hyperframes",
+          "ffmpeg"
+        ],
+        "confidence": 0.9,
+        "reason": "Deterministic RTL caption burn, 4-state spatial layouts, and 60fps composition.",
+        "user_visible": true
+      },
+      {
+        "category": "composition_mode",
+        "subject": "Composition Authoring Mode (Templated vs Atelier)",
+        "selected": "atelier",
+        "options_considered": [
+          "atelier",
+          "templated"
+        ],
+        "confidence": 0.94,
+        "reason": "Bespoke atelier authoring with distinct primary visual subject per scene.",
+        "user_visible": true
+      }
+    ],
+    "approvals": {
+      "gate_1_concept_approved": true,
+      "gate_2_paid_credits_approved": false
+    },
+    "beat_map_status": "generated_with_music",
+    "credits_spent_vs_estimated": {
+      "spent": 0,
+      "estimated_minimum": 30,
+      "estimated_expected": 60
+    },
+    "open_issues": []
+  },
+  "identity_bible": [
+    {
+      "id": "CHAR_01",
+      "type": "character",
+      "name": "@Character_Lead_01",
+      "descriptor": "@Character_Lead_01 with consistent facial geometry, wardrobe, and natural skin texture",
+      "description": "@Character_Lead_01 with consistent facial geometry, wardrobe, and natural skin texture",
+      "reference_images": [
+        "assets/CHAR_01_turnaround.png"
+      ]
+    },
+    {
+      "id": "PROD_01",
+      "type": "product",
+      "name": "@Product_Hero_01",
+      "descriptor": "@Product_Hero_01 with locked dimensions, logo placement, and specular material finish",
+      "description": "@Product_Hero_01 with locked dimensions, logo placement, and specular material finish",
+      "reference_images": [
+        "assets/PROD_01_hero.png"
+      ]
+    },
+    {
+      "id": "ENV_01",
+      "type": "environment",
+      "name": "Primary Studio Environment",
+      "descriptor": "Architectural setting with Cinematic Warm Golden-Amber LUT with Skin-Tone Protection and volumetric depth",
+      "description": "Architectural setting with Cinematic Warm Golden-Amber LUT with Skin-Tone Protection and volumetric depth",
+      "reference_images": [
+        "assets/ENV_01_plate.png"
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "block_id": 1,
+      "duration_s": 4,
+      "mode": "Ingredients",
+      "extend_from_block": null,
+      "ids_used": [
+        "CHAR_01",
+        "PROD_01",
+        "ENV_01"
+      ],
+      "shots": [
+        {
+          "shot_id": "1A",
+          "t_range": "0-4",
+          "visual_prompt_en": "Beat 1 medium_close_up: [CHAR_01] demonstrates [PROD_01] inside [ENV_01] with confident physical gesture (smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, as).",
+          "camera": "dolly_in, medium_close_up, eye_level, shallow f/1.4 depth of field",
+          "lighting_grade": "Cinematic Warm Golden-Amber LUT with Skin-Tone Protection, motivated key and rim light",
+          "emotion_body_language": "Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق)",
+          "audio_sync": "clean studio ambience and tactile foley; 120 BPM bed ducked -9.5 dB in post",
+          "dialogue_ar": "عبيرٌ يَروي حِكايةَ الفَخامةِ",
+          "dialogue_tts_ar": "عَبَيَرٌ يَرَوَيْ حِكَاَيَهْ الَفَخَاَمَهْ",
+          "dialogue_gloss_en": "Spoken Arabic marketing line for beat 1",
+          "negatives": "no extra fingers, no distorted text, no logo morphing, no watermark, no CGI plastic skin, no static-photo mouth cutout"
+        }
+      ]
+    },
+    {
+      "block_id": 2,
+      "duration_s": 6,
+      "mode": "Extend",
+      "extend_from_block": 1,
+      "ids_used": [
+        "CHAR_01",
+        "PROD_01",
+        "ENV_01"
+      ],
+      "shots": [
+        {
+          "shot_id": "2A",
+          "t_range": "0-6",
+          "visual_prompt_en": "Beat 2 extreme_close_up: [CHAR_01] demonstrates [PROD_01] inside [ENV_01] with confident physical gesture (smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, as).",
+          "camera": "orbit_arc, extreme_close_up, low_angle, shallow f/1.4 depth of field",
+          "lighting_grade": "Cinematic Warm Golden-Amber LUT with Skin-Tone Protection, motivated key and rim light",
+          "emotion_body_language": "Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق)",
+          "audio_sync": "clean studio ambience and tactile foley; 120 BPM bed ducked -9.5 dB in post",
+          "dialogue_ar": "الأصيلةِ في كُلِّ لَحظة.",
+          "dialogue_tts_ar": "الَأَصَيَلَهْ فَيْ كُلِّ لَحَظَهْ.",
+          "dialogue_gloss_en": "Spoken Arabic marketing line for beat 2",
+          "negatives": "no extra fingers, no distorted text, no logo morphing, no watermark, no CGI plastic skin, no static-photo mouth cutout"
+        }
+      ]
+    },
+    {
+      "block_id": 3,
+      "duration_s": 6,
+      "mode": "Extend",
+      "extend_from_block": 2,
+      "ids_used": [
+        "CHAR_01",
+        "PROD_01",
+        "ENV_01"
+      ],
+      "shots": [
+        {
+          "shot_id": "3A",
+          "t_range": "0-6",
+          "visual_prompt_en": "Beat 3 medium_wide: [CHAR_01] demonstrates [PROD_01] inside [ENV_01] with confident physical gesture (smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, as).",
+          "camera": "dolly_out, medium_wide, level_angle, shallow f/1.4 depth of field",
+          "lighting_grade": "Cinematic Warm Golden-Amber LUT with Skin-Tone Protection, motivated key and rim light",
+          "emotion_body_language": "Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق)",
+          "audio_sync": "clean studio ambience and tactile foley; 120 BPM bed ducked -9.5 dB in post",
+          "dialogue_ar": "",
+          "dialogue_tts_ar": "",
+          "dialogue_gloss_en": "",
+          "negatives": "no extra fingers, no distorted text, no logo morphing, no watermark, no CGI plastic skin, no static-photo mouth cutout"
+        }
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "start_s": 0.0,
+      "end_s": 4.0,
+      "text_ar": "يَـــروي",
+      "position": "bottom-safe"
+    },
+    {
+      "start_s": 4.0,
+      "end_s": 10.0,
+      "text_ar": "تفاصيل أصيلة وجودة عالية",
+      "position": "bottom-safe"
+    },
+    {
+      "start_s": 10.0,
+      "end_s": 16.0,
+      "text_ar": "اطلب الآن — الرابط في البايو",
+      "position": "bottom-safe"
+    }
+  ],
+  "outro": {
+    "safe_zone": "9:16 central 80% safe zone; top 8% (Y:0..160) and bottom 20% (Y:1500..1920) clear",
+    "safe_zone_note": "9:16 central 80% safe zone; top 8% (Y:0..160) and bottom 20% (Y:1500..1920) clear",
+    "cta_ar": "اطلب الآن — الرابط في البايو"
+  },
+  "production_profile": {
+    "purpose": "Commercials & TVCs",
+    "format": "Live-Action",
+    "style_variant": "Commercial Promo",
+    "pipeline_type": "route_1_generative_cinema",
+    "execution_route": "Hybrid Generative (Google Flow / Seedance 2.0) + Programmatic Studio (Remotion / HyperFrames / FFmpeg)",
+    "target_platform": "Google Flow (Veo 3.1 / Omni Flash 1.1 / Nano Banana Pro / Seedance 2.0) + Remotion/HyperFrames/FFmpeg Studio",
+    "aspect_ratio": "9:16",
+    "runtime_category": "Short-Form Viral / Micro-Content (10-15s)"
+  },
+  "script_and_content": {
+    "video_title": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب مع نوتات العود والعنبر    9:16",
+    "narrative_framework": "6-Stage Direct-Response Curve: Hook (0-2s) -> Problem Agitation -> Product Hero Showcase -> Safe-Zone Offer & CTA",
+    "audience_emotional_truth": "البحث عن الجودة الأصيلة والحل العملي المباشر الذي يمنح المشاهد نتيجة فورية وملموسة بعيداً عن المقدمات الطويلة والمبالغات التسويقية",
+    "expected_cliche_rejected": "البدء بمقدمة ترحيبية تقليدية بطيئة أو لقطة ثابتة للمنتج مع عبارات إعلانية مستهلكة",
+    "chosen_divergence_angle": "الدخول الفوري من الثانية 0.0 بلقطة بصرية خاطفة مع هوك ثلاثي الطبقات خلف الرأس يكسر التوقع البصري",
+    "research_brief_summary": {
+      "batches_executed": [
+        "1. Landscape Scan & Gap Analysis",
+        "2. Trending Pulse",
+        "3. Citable Data & Evidence",
+        "4. Audience Questions & Misconceptions",
+        "5. Expert & Contrarian Angles"
+      ],
+      "timeliness_window": "evergreen_with_trending_hook",
+      "primary_gap_addressed": "Visualizing the physical mechanism immediately in the first 1.5 seconds."
+    },
+    "hook_variants_scene_1": {
+      "contrarian": "أغلب الناس يركزون على الشكل الخارجي.. لكن السر الحقيقي يبدأ من هذه التفصيلة.",
+      "visual_payoff": "لقطة ماكرو سينمائية فورية للحظة الذروة البصرية مع حركة كاميرا تخطف العين من أول إطار.",
+      "pain_point": "تعبت من الخيارات العادية اللي ما تعطيك النتيجة اللي في بالك؟ شوف الفرق الحقيقي.",
+      "authority": "بمعايير هندسية دقيقة وتجربة متقنة.. هكذا تُصنع النتيجة الاحترافية من أول مرة."
+    },
+    "full_spoken_script": "[المشهد 1]: عبيرٌ يَروي حِكايةَ الفَخامةِ | [المشهد 2]: الأصيلةِ في كُلِّ لَحظة. | [المشهد 3]: [Mouth closed naturally, warm confident nod]",
+    "facts_ledger": [
+      "العنصر الأساسي المقفول: @Product_Hero_01",
+      "الشخصية المرجعية المقفولة: @Character_Lead_01",
+      "المدة القياسية المعتمدة: 16 ثانية (3 بلوكات)"
+    ]
+  },
+  "global_parameters": {
+    "tone": "Warm, Confident, Inviting (دافئ، واثق، وجذاب)",
+    "body_language_baseline": "Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق)",
+    "dialect_lock": "MSA (العربية الفصحى العصرية)",
+    "color_grading": "Cinematic Warm Golden-Amber LUT with Skin-Tone Protection",
+    "camera_gear_emulation": "ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens",
+    "identity_lock_target": "Lock [Character ID: @Character_Lead_01] + Lock [Product ID: @Product_Hero_01] + Lock [Setting DNA]",
+    "credit_governance_mode": "Step 1: Nano Banana 2 Lite (0-Credit Keyframes) -> Step 2: Gemini Omni Flash 360p Draft (0-Credit 720p Upscale) -> Step 3: Veo 3.1 Quality Final Render",
+    "total_runtime_seconds": 16,
+    "requested_runtime_seconds": 16
+  },
+  "scene_breakdown": [
+    {
+      "scene_id": 1,
+      "scene_role": "SCENE 1 — VISUAL HOOK & 3-LAYER STACK (0.0s - 4s)",
+      "duration_seconds": 4,
+      "layout_mode": "R_FULL",
+      "type": "video",
+      "shot_intent": "Stop scroll within 1.5s via physical dolly push-in and 3-layer Behind-Head Kashida hook.",
+      "information_role": "hook_premise",
+      "narrative_role": "inciting_visual_hook",
+      "hero_moment": false,
+      "shot_language": {
+        "shot_size": "medium_close_up",
+        "camera_movement": "dolly_in",
+        "camera_angle": "eye_level",
+        "focus_dof": "shallow_dof_f1.4",
+        "lighting_key": "golden_hour_rim_and_rembrandt_key"
+      },
+      "chai_5_aspect_breakdown": {
+        "subject": "@Character_Lead_01 (verbatim identity lock) with @Product_Hero_01 in [ENV_01].",
+        "subject_motion": "In beat 1, @Character_Lead_01 demonstrates @Product_Hero_01 with Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق).",
+        "scene": "Overlays (R_FULL): 'يَـــروي' | Setting: Architectural studio [ENV_01] with volumetric light.",
+        "spatial_framing": "medium_close_up framing at eye_level, distinct from adjacent scenes.",
+        "camera": "Real-time -> ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens -> dolly_in -> smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, aspect ratio override flag."
+      },
+      "texture_keywords": [
+        "35mm film grain ISO 800",
+        "microscopic skin pores",
+        "natural fabric weave",
+        "optical halation"
+      ],
+      "flow_mode": "Ingredients-to-Video",
+      "continuity_handshake": "Scene 1 continuity lock binding @Character_Lead_01 and @Product_Hero_01.",
+      "visual_prompt": "[Beat 1 Identity Lock: @Character_Lead_01 [CHAR_01], @Product_Hero_01 [PROD_01], [ENV_01]] + [Action: Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق), medium_close_up view] + [Camera: ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens, dolly_in, smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, aspect ratio override flag] + [Grade: Cinematic Warm Golden-Amber LUT with Skin-Tone Protection, 35mm film grain ISO 800, subtle optical halation, microscopic skin pores and authentic fabric texture --no CGI, no 3D render, no plastic skin, no AI sheen, no garbled Arabic text, no subtitles, no extra fingers, no identity drift]",
+      "stage_motion_actors": "Stage layout `R_FULL` anchored to 'يَـــروي' with +0.45s post-word hold",
+      "audio_foley_sync": "Tone: Warm, Confident, Inviting (دافئ، واثق، وجذاب) | Beat 1 foley + -9.5dB sidechain ducked 120 BPM bed",
+      "dialogue_lip_sync": "عبيرٌ يَروي حِكايةَ الفَخامةِ",
+      "dialogue_tts_ar": "عَبَيَرٌ يَرَوَيْ حِكَاَيَهْ الَفَخَاَمَهْ",
+      "text_overlay": "يَـــروي"
+    },
+    {
+      "scene_id": 2,
+      "scene_role": "SCENE 2 — ACTION-VERB STAGE & CORE PROOF (4s - 10s)",
+      "duration_seconds": 6,
+      "layout_mode": "R_LOWER",
+      "type": "video",
+      "shot_intent": "Deliver tangible physical proof in beat 2 while Action-Verb Stage illustrates spoken verb.",
+      "information_role": "core_mechanism_beat_2",
+      "narrative_role": "climax_demonstration",
+      "hero_moment": true,
+      "shot_language": {
+        "shot_size": "extreme_close_up",
+        "camera_movement": "orbit_arc",
+        "camera_angle": "low_angle",
+        "focus_dof": "rack_focus_foreground_to_midground",
+        "lighting_key": "chiaroscuro_specular_macro"
+      },
+      "chai_5_aspect_breakdown": {
+        "subject": "@Character_Lead_01 (verbatim identity lock) with @Product_Hero_01 in [ENV_01].",
+        "subject_motion": "In beat 2, @Character_Lead_01 demonstrates @Product_Hero_01 with Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق).",
+        "scene": "Overlays (R_LOWER): 'تفاصيل أصيلة وجودة عالية' | Setting: Architectural studio [ENV_01] with volumetric light.",
+        "spatial_framing": "extreme_close_up framing at low_angle, distinct from adjacent scenes.",
+        "camera": "Real-time -> ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens -> orbit_arc -> smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, aspect ratio override flag."
+      },
+      "texture_keywords": [
+        "35mm film grain ISO 800",
+        "microscopic skin pores",
+        "natural fabric weave",
+        "optical halation"
+      ],
+      "flow_mode": "Frames-to-Video (<FIRST_FRAME> Scene Handshake)",
+      "continuity_handshake": "Scene 2 continuity lock binding @Character_Lead_01 and @Product_Hero_01.",
+      "visual_prompt": "[Beat 2 Identity Lock: @Character_Lead_01 [CHAR_01], @Product_Hero_01 [PROD_01], [ENV_01]] + [Action: Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق), extreme_close_up view] + [Camera: ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens, orbit_arc, smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, aspect ratio override flag] + [Grade: Cinematic Warm Golden-Amber LUT with Skin-Tone Protection, 35mm film grain ISO 800, subtle optical halation, microscopic skin pores and authentic fabric texture --no CGI, no 3D render, no plastic skin, no AI sheen, no garbled Arabic text, no subtitles, no extra fingers, no identity drift]",
+      "stage_motion_actors": "Stage layout `R_LOWER` anchored to 'تفاصيل أصيلة وجودة عالية' with +0.45s post-word hold",
+      "audio_foley_sync": "Tone: Warm, Confident, Inviting (دافئ، واثق، وجذاب) | Beat 2 foley + -9.5dB sidechain ducked 120 BPM bed",
+      "dialogue_lip_sync": "الأصيلةِ في كُلِّ لَحظة.",
+      "dialogue_tts_ar": "الَأَصَيَلَهْ فَيْ كُلِّ لَحَظَهْ.",
+      "text_overlay": "تفاصيل أصيلة وجودة عالية"
+    },
+    {
+      "scene_id": 3,
+      "scene_role": "SCENE 3 — STANDARDIZED SAFE-ZONE OUTRO & LOOP (10s - 16s)",
+      "duration_seconds": 6,
+      "layout_mode": "R_FULL",
+      "type": "video",
+      "shot_intent": "Resolve visual tension into a clean 35% negative-space composition for Safe-Zone Brand Logo and CTA.",
+      "information_role": "call_to_action_resolution",
+      "narrative_role": "loop_back_payoff",
+      "hero_moment": false,
+      "shot_language": {
+        "shot_size": "medium_wide",
+        "camera_movement": "dolly_out",
+        "camera_angle": "level_angle",
+        "focus_dof": "rack_focus_foreground_to_midground",
+        "lighting_key": "golden_hour_rim_and_rembrandt_key"
+      },
+      "chai_5_aspect_breakdown": {
+        "subject": "@Character_Lead_01 (verbatim identity lock) with @Product_Hero_01 in [ENV_01].",
+        "subject_motion": "In beat 3, @Character_Lead_01 demonstrates @Product_Hero_01 with Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق).",
+        "scene": "Overlays (R_FULL): 'اطلب الآن — الرابط في البايو' | Setting: Architectural studio [ENV_01] with volumetric light.",
+        "spatial_framing": "medium_wide framing at level_angle, distinct from adjacent scenes.",
+        "camera": "Real-time -> ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens -> dolly_out -> smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, aspect ratio override flag."
+      },
+      "texture_keywords": [
+        "35mm film grain ISO 800",
+        "microscopic skin pores",
+        "natural fabric weave",
+        "optical halation"
+      ],
+      "flow_mode": "Frames-to-Video (<FIRST_FRAME> Scene Handshake)",
+      "continuity_handshake": "Scene 3 continuity lock binding @Character_Lead_01 and @Product_Hero_01.",
+      "visual_prompt": "[Beat 3 Identity Lock: @Character_Lead_01 [CHAR_01], @Product_Hero_01 [PROD_01], [ENV_01]] + [Action: Relaxed shoulders, confident steady hands, warm eye contact (مرتاح وواثق), medium_wide view] + [Camera: ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens, dolly_out, smooth physical camera dolly push-in toward subject on precision rails, vertical 9:16 (1080x1920) mobile composition, aspect ratio override flag] + [Grade: Cinematic Warm Golden-Amber LUT with Skin-Tone Protection, 35mm film grain ISO 800, subtle optical halation, microscopic skin pores and authentic fabric texture --no CGI, no 3D render, no plastic skin, no AI sheen, no garbled Arabic text, no subtitles, no extra fingers, no identity drift]",
+      "stage_motion_actors": "Stage layout `R_FULL` anchored to 'اطلب الآن — الرابط في البايو' with +0.45s post-word hold",
+      "audio_foley_sync": "Tone: Warm, Confident, Inviting (دافئ، واثق، وجذاب) | Beat 3 foley + -9.5dB sidechain ducked 120 BPM bed",
+      "dialogue_lip_sync": "[Mouth closed naturally, warm confident nod]",
+      "dialogue_tts_ar": "",
+      "text_overlay": "اطلب الآن — الرابط في البايو"
+    }
+  ],
+  "post_production_timeline": {
+    "render_runtime": "remotion",
+    "composition_mode": "atelier",
+    "visual_design_style": "studio3D+keynote",
+    "color_palette": "gold",
+    "silence_cut_config": {
+      "noise_db": -32,
+      "min_silence_sec": 0.35,
+      "pre_roll_ms": 120,
+      "post_roll_ms": 150,
+      "merge_gap_ms": 180,
+      "crossfade_ms": 20
+    },
+    "depth_moments_planned": [
+      "Moment 1 (Hook): 3-Layer Stacked Hook (`stack`) with pixel-stretched Kashida 'يَـــروي' behind speaker head",
+      "Moment 2 (Core): Action-Verb Stage (`R_LOWER + headout`) anchored to word 'الأصيلةِ' with +0.45s hold",
+      "Moment 3 (Brand Climax): Radial brand-colored wall illumination behind rotoscoped speaker (`grade: false` on skin)"
+    ],
+    "rtl_caption_config": {
+      "cap_style": "chunk",
+      "font_family": "Cairo",
+      "max_words_per_pill": 4,
+      "pill_center_y": 1395,
+      "post_word_hold_sec": 0.45,
+      "exit_ease_sec": 0.4,
+      "never_on_face": true,
+      "caption_onscreen_text_dedup": true,
+      "kashida_rules_enforced": true
+    },
+    "audio_mastering_spec": {
+      "target_lufs": -14.0,
+      "true_peak_dbtp": -1.5,
+      "lra_lu": 11.0,
+      "sidechain_ducking": "threshold=0.03:ratio=5:attack=15:release=450",
+      "max_sfx_events_per_min": 15,
+      "sfx_peak_limit_dbfs": -18.0
+    },
+    "export_targets": [
+      "MP4 Master (-14 LUFS + 0.1s First-Frame Cover, < 29MB)",
+      "SRT Subtitles (.srt)",
+      "Clean Transcript (.txt)",
+      "CapCut Editable Draft Project (draft_content.json)",
+      "Interactive Browser Timeline Editor (editor.mjs / studio.html / Backlot Live Board)"
+    ]
+  },
+  "production_governance": {
+    "taste_profile": {
+      "design_read": "High-craft Commercials & TVCs (Commercial Promo): tactile physical realism paired with disciplined 'gold' palette typography and purposeful camera momentum; zero generic AI templates.",
+      "visual_variance": 6,
+      "motion_intensity": 8,
+      "information_density": 4,
+      "palette_discipline": "Curated 'gold' palette with strict presenter skin-tone protection (grade: false on faces).",
+      "layout_variation": "Alternating R_FULL hero framing with R_LOWER + Headout Action-Verb Stage and clean safe-zone outro.",
+      "reference_strategy": "Zero-credit Nano Banana 2 Lite reference keyframes per scene family before Veo 3.1 / Seedance 2.0 motion generation.",
+      "anti_patterns": [
+        "generic AI-purple gradient backgrounds",
+        "same camera shot size across 3 consecutive scenes",
+        "caption duplicating on-screen SerifLine headline verbatim",
+        "reusing the same hero-component spine across every beat"
+      ],
+      "quality_gates": [
+        "Every scene carries an explicit shot_intent and CHAI 5-aspect breakdown.",
+        "Signature depth device appears in at most 1-2 climactic beats."
+      ]
+    },
+    "delivery_promise": {
+      "promise_type": "motion_led",
+      "motion_required": true,
+      "motion_ratio": 1.0,
+      "motion_cuts": 3,
+      "total_cuts": 3,
+      "valid": true,
+      "violations": []
+    },
+    "slideshow_risk_report": {
+      "average": 0.0,
+      "score": 0.0,
+      "total_score": 0.0,
+      "verdict": "strong",
+      "dimensions": {
+        "repetition": {
+          "score": 0.0,
+          "reason": "Checks prompt, shot_size, and visual type diversity"
+        },
+        "decorative_visuals": {
+          "score": 0.0,
+          "reason": "Checks narrative role and non-static substance"
+        },
+        "weak_motion": {
+          "score": 0.0,
+          "reason": "Checks real camera/subject motion vs static stills"
+        },
+        "weak_shot_intent": {
+          "score": 0.0,
+          "reason": "3/3 unique shot intents"
+        },
+        "typography_overreliance": {
+          "score": 0.0,
+          "reason": "Checks static slide/card ratio"
+        },
+        "unsupported_cinematic_claims": {
+          "score": 0.0,
+          "reason": "Checks hero_moment, lighting, and motion"
+        }
+      },
+      "render_runtime": "remotion"
+    },
+    "scene_variation_report": {
+      "score": 0.0,
+      "verdict": "strong",
+      "violations": [],
+      "suggestions": []
+    },
+    "scored_provider_selection": {
+      "scoring_weights": {
+        "task_fit": 0.3,
+        "output_quality": 0.2,
+        "control_features": 0.15,
+        "reliability": 0.15,
+        "cost_efficiency": 0.1,
+        "latency": 0.05,
+        "continuity": 0.05
+      },
+      "selected_primary": "google_flow_veo_3_1",
+      "selected_label": "Google Flow (Veo 3.1 Quality + Nano Banana 2 Lite + Scene Handshake)",
+      "selected_score": 9.34,
+      "candidates_ranked": [
+        {
+          "provider": "google_flow_veo_3_1",
+          "label": "Google Flow (Veo 3.1 Quality + Nano Banana 2 Lite + Scene Handshake)",
+          "weighted_score": 9.34,
+          "dimensions": {
+            "task_fit": 9.7,
+            "output_quality": 9.7,
+            "control_features": 9.5,
+            "reliability": 9.3,
+            "cost_efficiency": 7.8,
+            "latency": 8.2,
+            "continuity": 9.6
+          }
+        },
+        {
+          "provider": "hyperframes_remotion_60fps",
+          "label": "60fps Three.js WebGL + Remotion/HyperFrames Atelier Motion Engine",
+          "weighted_score": 9.0,
+          "dimensions": {
+            "task_fit": 7.5,
+            "output_quality": 9.6,
+            "control_features": 9.8,
+            "reliability": 9.7,
+            "cost_efficiency": 9.6,
+            "latency": 9.3,
+            "continuity": 9.7
+          }
+        },
+        {
+          "provider": "seedance_2_0",
+          "label": "Seedance 2.0 (Multi-Shot Beat Sync + Native Quoted Lip-Sync)",
+          "weighted_score": 8.93,
+          "dimensions": {
+            "task_fit": 8.4,
+            "output_quality": 9.6,
+            "control_features": 9.4,
+            "reliability": 9.1,
+            "cost_efficiency": 8.2,
+            "latency": 8.5,
+            "continuity": 9.4
+          }
+        },
+        {
+          "provider": "gemini_omni_flash_1_1",
+          "label": "Gemini Omni Flash 1.1 (360p Fast Draft -> 0-Credit 720p Upscale)",
+          "weighted_score": 8.8,
+          "dimensions": {
+            "task_fit": 8.0,
+            "output_quality": 8.6,
+            "control_features": 8.9,
+            "reliability": 9.5,
+            "cost_efficiency": 9.9,
+            "latency": 9.8,
+            "continuity": 8.8
+          }
+        },
+        {
+          "provider": "ink_theater_cmu_mocap",
+          "label": "HyperFrames Ink Theater (Rigged SVG + 12 CMU Mocap Clips + Three.js 3D)",
+          "weighted_score": 8.3,
+          "dimensions": {
+            "task_fit": 6.5,
+            "output_quality": 7.8,
+            "control_features": 9.7,
+            "reliability": 9.6,
+            "cost_efficiency": 9.7,
+            "latency": 9.1,
+            "continuity": 9.5
+          }
+        },
+        {
+          "provider": "clip_archival_remotion_hybrid",
+          "label": "CLIP Real-Footage Archival Corpus + Remotion ProRes 4444 Alpha End-Tag",
+          "weighted_score": 8.16,
+          "dimensions": {
+            "task_fit": 6.2,
+            "output_quality": 7.5,
+            "control_features": 9.6,
+            "reliability": 9.7,
+            "cost_efficiency": 9.8,
+            "latency": 9.2,
+            "continuity": 9.4
+          }
+        }
+      ],
+      "purpose_context": "Commercials & TVCs",
+      "format_context": "Live-Action",
+      "budget_tier": "standard"
+    },
+    "decision_log": [
+      {
+        "category": "provider_selection",
+        "subject": "Primary Video Generation & Keyframe Stack",
+        "selected": "google_flow_veo_3_1",
+        "options_considered": [
+          "google_flow_veo_3_1",
+          "hyperframes_remotion_60fps",
+          "seedance_2_0",
+          "gemini_omni_flash_1_1",
+          "ink_theater_cmu_mocap",
+          "clip_archival_remotion_hybrid"
+        ],
+        "confidence": 0.92,
+        "reason": "Selected Google Flow (Veo 3.1 Quality + Nano Banana 2 Lite + Scene Handshake) for Commercials & TVCs (Live-Action).",
+        "user_visible": true
+      },
+      {
+        "category": "render_runtime_selection",
+        "subject": "Programmatic Composition Runtime",
+        "selected": "remotion",
+        "options_considered": [
+          "remotion",
+          "hyperframes",
+          "ffmpeg"
+        ],
+        "confidence": 0.9,
+        "reason": "Deterministic RTL caption burn, 4-state spatial layouts, and 60fps composition.",
+        "user_visible": true
+      },
+      {
+        "category": "composition_mode",
+        "subject": "Composition Authoring Mode (Templated vs Atelier)",
+        "selected": "atelier",
+        "options_considered": [
+          "atelier",
+          "templated"
+        ],
+        "confidence": 0.94,
+        "reason": "Bespoke atelier authoring with distinct primary visual subject per scene.",
+        "user_visible": true
+      }
+    ],
+    "budget_governance": {
+      "mode": "cap",
+      "workflow": "estimate -> reserve -> reconcile",
+      "sample_first_gate_sec": 12,
+      "zero_credit_keyframes": "Nano Banana 2 Lite",
+      "zero_credit_draft_upscale": "Gemini Omni Flash 1.1 (360p -> 720p)"
+    },
+    "chai_final_review_checklist": {
+      "critique_axes": [
+        "Accurate (concrete field/frame ref)",
+        "Complete (pattern-wide scan)",
+        "Constructive (mandatory proposed_fix on CRITICAL)"
+      ],
+      "post_render_5_checks": [
+        "1. technical_probe (ffprobe container, resolution, duration within 1.0s)",
+        "2. visual_spotcheck (>= 4 sampled frames, zero black frames or 640x360 letterbox traps)",
+        "3. audio_spotcheck (-14.0 LUFS, -1.5 dBTP, zero clipping)",
+        "4. promise_preservation (motion_ratio >= 70%, silent_downgrade_detected == false)",
+        "5. subtitle_and_distinctness_check (zero caption/SerifLine duplication, no hero-component spine)"
+      ]
+    }
+  },
+  "outro_standardization": {
+    "aspect_ratio": "9:16 (Safe-Zone Enforced)",
+    "brand_logo_safe_zone": "Y: 420..820, X: 120..960 (Upper-Center Clean Negative Space)",
+    "cta_and_handles_safe_zone": "Y: 950..1280, X: 120..900 (Lower-Middle Safe Zone)",
+    "defaults_from_existing_skill": {
+      "aspect_ratio": "9:16",
+      "logo_zone": "Y 420..820",
+      "cta_zone": "Y 950..1280, X 120..900",
+      "avoid": [
+        "أعلى 220",
+        "أسفل من 1500",
+        "يمين من 920"
+      ],
+      "status": "tuned_default"
+    },
+    "loop_back_visual_cue": "Final frame lighting and subject angle match Scene 1 Frame 0 for replay loop"
+  },
+  "marketing_expansion": {
+    "first_frame_cover": {
+      "injected_at": "First 0.1s frame of delivered MP4 (--first)",
+      "safe_square_bounds": "1080x1080 Center Square (Y: 420..1500)",
+      "hook_headline": "السر الحقيقي|*يَروي*",
+      "typography_floors": "Headline >= 170px, Subtext >= 110px, Logo >= 200px, Chin >= 30px above headline"
+    },
+    "marketing_poster": "4:5 poster (1080x1350) locking @Character_Lead_01 and @Product_Hero_01 with 35% upper negative space for Arabic headline",
+    "poster_layout_prompt": "Commercial advertising poster (4:5 aspect ratio, 1080x1350) rendered in Nano Banana Pro: Hero composition featuring @Product_Hero_01 and @Character_Lead_01 in the lower two-thirds, matching Cinematic Warm Golden-Amber LUT with Skin-Tone Protection and ARRI Alexa 65 + 35mm Anamorphic Prime & 85mm Macro Lens look, with 35% clean negative space in the top third, 35mm film grain ISO 800, subtle optical halation, microscopic skin pores and authentic fabric texture --no CGI, no 3D render, no plastic skin, no AI sheen, no garbled Arabic text, no subtitles, no extra fingers, no identity drift",
+    "social_design_set": "Unified 9:16 cover, 4:5 feed card, and 1:1 profile/community graphic locking @Product_Hero_01 visual identity",
+    "social_design_brief": "High-contrast 9:16 Reels Cover & 1:1 Quote Card featuring @Product_Hero_01 macro detail, #FFFFFF setup text + #FFD60A highlighted keyword in Cairo Black font.",
+    "arabic_carousel": [
+      "الشريحة 1: ليش الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ اسحب لليسار.",
+      "الشريحة 2: المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق الحقيقي.",
+      "الشريحة 3: لما تجتمع الخامة الأصيلة مع الإتقان، تتحول التجربة إلى معيار جديد.",
+      "الشريحة 4: ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر.",
+      "الشريحة 5: تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون تعقيد.",
+      "الشريحة 6: احفظ المنشور واكتب كلمة (إبداع) بالتعليقات ليصلك الرابط فوراً."
+    ],
+    "carousel_arabic_copy": [
+      "الشريحة 1: ليش الخيارات العادية ما تعطيك النتيجة اللي تبحث عنها؟ اسحب لليسار.",
+      "الشريحة 2: المشكلة في إهمال التفاصيل الدقيقة اللي تصنع الفارق الحقيقي.",
+      "الشريحة 3: لما تجتمع الخامة الأصيلة مع الإتقان، تتحول التجربة إلى معيار جديد.",
+      "الشريحة 4: ثبات الجودة في كل مرة بفضل العناية بأدق التفاصيل من المصدر.",
+      "الشريحة 5: تصميم يجمع بين الهوية الأصيلة والأداء العصري العملي بدون تعقيد.",
+      "الشريحة 6: احفظ المنشور واكتب كلمة (إبداع) بالتعليقات ليصلك الرابط فوراً."
+    ],
+    "publish_pack": {
+      "ab_test_plan": "Test Hook A (Contrarian Question) vs Hook B (Visual Macro Payoff) across first 3 seconds.",
+      "ai_content_disclosure": "Apply platform AI-generated / synthetic media disclosure label where applicable.",
+      "prohibited_claims_checked": true,
+      "post_publish_feedback_file": "project_state.json"
+    },
+    "social_publish_pack": {
+      "primary_search_phrase": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب",
+      "comment_keyword_variants": [
+        "إبداع",
+        "ابداع"
+      ],
+      "instagram": {
+        "caption": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب — تفصيلة واحدة تغير النتيجة بالكامل.\n\nاكتب كلمة (إبداع) في التعليقات وبيوصلك الدليل والتفاصيل مباشرة!",
+        "hashtags": [
+          "#صناعة_المحتوى",
+          "#تسويق_رقمي",
+          "#جودة",
+          "#ابداع"
+        ],
+        "alt_text": "فيديو يوضح إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب مع نوتات العود والعنبر    9:16 بتصوير سينمائي وموشن جرافيك توضيحي",
+        "pinned_comment": "اكتب (إبداع) في تعليق وبيوصلك الرابط المباشر فوراً 👇"
+      },
+      "tiktok": {
+        "caption": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب — اكتب (إبداع) بالتعليقات للتفاصيل!",
+        "hashtags": [
+          "#اكسبلور",
+          "#صناعة_محتوى",
+          "#تيك_توك"
+        ]
+      },
+      "youtube_shorts": {
+        "title": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب مع نوتات العود والع | السر العملي",
+        "description": "إعلان عطر شرقي فاخر في صحراء ذهبية وقت الغروب بخطوات عملية مركزة. اكتب (إبداع) للتفاصيل.",
+        "hashtags": [
+          "#Shorts",
+          "#تسويق",
+          "#إنتاج_فيديو"
+        ]
+      }
+    }
+  },
+  "qa_audit": {
+    "audio_math_passed": true,
+    "micro_scene_limit_passed": true,
+    "physicality_firewall_passed": true,
+    "anti_cgi_guardrails_injected": true,
+    "dialect_lock_verified": true,
+    "outro_safe_zone_verified": true,
+    "kashida_and_rtl_caption_verified": true,
+    "calmness_and_hold_laws_verified": true,
+    "audio_lufs_and_sfx_cap_verified": true,
+    "slideshow_risk_passed": true,
+    "scene_variation_passed": true,
+    "delivery_promise_verified": true,
+    "chai_critique_and_decision_log_verified": true
+  }
+}

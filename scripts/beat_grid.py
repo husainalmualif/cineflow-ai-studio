@@ -222,13 +222,12 @@ def validate_cuts_against_beats(
         valid_grid.add(mid)
     sorted_grid = sorted(valid_grid)
 
-    tol_s = snap_tolerance_ms / 1000.0
     errors: List[str] = []
     for cut_t in cut_points_s:
         if not _is_valid_number(cut_t):
             errors.append(f"Invalid non-numeric cut point: {cut_t!r}")
             continue
-        nearest = min(sorted_grid, key=lambda b: abs(b - float(cut_t)))
+        nearest = min(sorted_grid, key=lambda b, c=float(cut_t): abs(b - c))
         diff_ms = abs(float(cut_t) - nearest) * 1000.0
         if diff_ms > snap_tolerance_ms + 1e-3:
             errors.append(

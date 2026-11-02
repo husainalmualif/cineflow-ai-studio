@@ -1,0 +1,37 @@
+# Changelog — CineFlow AI Studio
+
+All notable changes to `cineflow-ai-studio` are documented in this file.
+
+## [6.2.0] — 2026-11-02
+### Fixed & Improved (Repository Audit & Code Review Hardening)
+- **Modularized Compiler & Pylint Cleanliness**:
+  - Split `scripts/cineflow_compiler.py` (previously 1,764 lines) into three focused modules under the 1,000-line limit:
+    - `scripts/arabic_helpers.py` (Arabic dialect detection, safe Kashida/Tatweel, lip-sync splitting, ZWJ letter splitter, video-first layout validator).
+    - `scripts/governance_and_omni.py` (delivery promise validator, scene variation & anti-slideshow auditor, Gemini Omni Flash stateful payload builder).
+    - `scripts/cineflow_compiler.py` (core blueprint compiler and CLI).
+  - Fixed missing `Optional, Set` typing imports and `text_ratio` naming in `cineflow_compiler.py` / `governance_and_omni.py`.
+  - Removed unused variables/imports in `scripts/beat_grid.py` (`tol_s`, loop cell variable binding), `scripts/make_srt.py` (`Dict`), and `tests/test_cineflow_compiler.py` (`pytest`).
+  - Updated empty list assertions (`not errs`) in `tests/test_montage.py`.
+- **Unified Naming & Centralized Model Registry**:
+  - Unified skill name (`cineflow-ai-studio`) and MCP server name (`cineflow-omni-agent`) in `mcp/project-setup.sh`.
+  - Centralized `MODEL_REGISTRY`, `MODEL_REGISTRY_LAST_VERIFIED = "2026-11-02"`, and `OMNI_FLASH_MODEL_DEFAULT` in `scripts/studio_config.py`, read directly by `mcp/server.py` and `mcp/project-setup.sh`.
+- **MCP Server Security & Lazy Initialization (`mcp/server.py`)**:
+  - Replaced `pickle.load` / `token.pickle` in `upload_to_youtube` with safe JSON serialization (`token.json` via `Credentials.from_authorized_user_file` and `creds.to_json()`).
+  - Replaced import-time `genai.Client()` initialization with lazy `_get_client()` initialization that raises a clear error if `GEMINI_API_KEY` / `GOOGLE_API_KEY` is missing.
+  - Added `.gitignore` to protect `client_secrets.json`, `token.*`, `.mcp.json`, `.env`, and `*gemini.key`.
+- **CI Coverage & Dynamic Reference Verification**:
+  - Added `pyproject.toml`, `requirements-dev.txt`, and `scripts/verify_skill_references.py` (automatically checks every file referenced in `SKILL.md` and `README.md` and ensures `evals/evals.json` and `resources/evals.json` stay in sync).
+  - Added `mcp/server.py` and `tests/test_omni_agent.py` to `.github/workflows/ci.yml` (`pylint` and `pytest`).
+- **Documentation & Attribution**:
+  - Streamlined `README.md` as a concise entry point and moved deep architectural documentation to `references/architecture-and-pipelines.md`.
+  - Added sample generated files (`examples/generated_perfume_ad.json`, `examples/multi_agent_plan.json`, `examples/script_source.json`) so every command in `README.md` runs out of the box.
+  - Documented external source, version (`v4.0.539`), and license attribution for `references/remotion_skills_official/` and added `scripts/sync_remotion_skills.py`.
+
+## [6.1.0] — 2026-11-02
+### Added
+- Integrated official **Remotion v4.0.539** rules (`references/remotion-v4-mastery.md` and `references/remotion_skills_official/`), including Arabic ZWJ per-letter animation (`split_arabic_letters_zwj`) and video-first layout validation (`validate_video_first_layout`).
+- Integrated **Gemini Omni Flash Stateful Interactions API** (`references/gemini-interactions-api.md`, `mcp/server.py`, `mcp/project-setup.sh`, `tests/test_omni_agent.py`).
+
+## [6.0.0] — 2026-11-01
+### Added
+- Initial unified release combining CineFlow AI Studio, Rhythmic Beat-Locked Montage (`scripts/beat_grid.py`), 7-Agent Orchestrator (`scripts/multi_agent_orchestrator.py`), Showrunner validators (`scripts/validate_package.py`, `scripts/estimate_cost.py`, `scripts/make_srt.py`), and 4 golden examples.

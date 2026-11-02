@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Any, Dict, List, Tuple
+from typing import Any, List, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from validate_package import (  # noqa: E402
@@ -141,7 +141,7 @@ def main() -> None:
         srt_content = build_srt_string(raw_data)
         with open(sys.argv[2], "w", encoding="utf-8") as out:
             out.write(srt_content)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"ERROR: {exc}")
         sys.exit(1)
     print(f"wrote {sys.argv[2]}")
