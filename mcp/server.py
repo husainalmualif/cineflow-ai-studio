@@ -31,7 +31,7 @@ mcp = FastMCP("CineFlow Gemini Omni Flash Video Agent")
 client: Any = None  # pylint: disable=invalid-name
 MODEL_NAME = os.environ.get("GEMINI_OMNI_MODEL", OMNI_FLASH_MODEL_DEFAULT)
 
-API_ERROR_CLS = getattr(getattr(genai, "errors", None), "APIError", RuntimeError)
+ApiErrorType = getattr(getattr(genai, "errors", None), "APIError", RuntimeError)  # pylint: disable=invalid-name
 TOOL_EXCEPTIONS = (
     OSError,
     ValueError,
@@ -40,7 +40,7 @@ TOOL_EXCEPTIONS = (
     TypeError,
     AttributeError,
     KeyError,
-    API_ERROR_CLS if isinstance(API_ERROR_CLS, type) and issubclass(API_ERROR_CLS, Exception) else RuntimeError,
+    ApiErrorType if isinstance(ApiErrorType, type) and issubclass(ApiErrorType, Exception) else RuntimeError,
 )
 
 
