@@ -13,7 +13,7 @@ import os
 import re
 import sys
 from collections import Counter
-from typing import Any, Dict, FrozenSet, List, Optional
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from studio_config import (  # noqa: E402
@@ -606,7 +606,7 @@ def audit_sfx_governor(
         measured_onset_s = float(ev.get("measured_onset_s", t_s - lead_s))
 
         if word_timestamps:
-            nearest_w = min(word_timestamps, key=lambda w_t, cur_t=t_s: abs(float(w_t) - cur_t))
+            nearest_w = min(word_timestamps, key=lambda w_t, target=t_s: abs(float(w_t) - target))
             drift_ms = abs(t_s - float(nearest_w)) * 1000.0
             if drift_ms > 120.0:
                 violations.append(
@@ -733,17 +733,9 @@ def validate_window_schedule_and_face_guard(
 
 def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
     """
-    Enforces the 4 field-tested Google Flow / `Omni 1.1 Flash` Anti-Hallucination & Slate.js Laws
-    (`09-google-flow-agent-scenes-and-tools-mastery.md` & `07-field-tested-production-lessons.md`):
-    1. Strips numeric camera lens/aperture specs (`85mm`, `50mm`, `35mm`, `f/1.4`, `f/1.8`, `Anamorphic`)
-       that cause `Omni 1.1 Flash` to burn camera-HUD text overlays onto still-life frames.
-    2. Strips negative text phrases (`no text`, `no subtitles`, `no watermark`, `no captions`) that trigger
-       positive-token Arabic gibberish hallucinations on ceilings/backgrounds, replacing them with
-       positive optical framing (`Clean unblemished cinema frame, pure optical capture`).
-    3. Replaces handwritten paper note prompts (`handwritten note`, `folded paper note`) with non-text
-       physical heirlooms (`silver-rimmed reading glasses, amber prayer beads`).
-    4. Flattens multi-line prompts into a single line (replacing `\\n` with spaces) so Google Flow's
-       Slate.js editor never rejects the paste (`typeText: editor rejected text`).
+    Enforces the 4 field-tested Google Flow / `Omni 1.1 Flash` Anti-Hallucination & Slate.js Laws:
+    strips numeric lens/aperture HUD tokens, replaces negative text tokens with positive optical framing,
+    replaces handwritten paper note props, and flattens newlines into a single line for Slate.js.
     """
     text = str(prompt or "")
     applied_fixes: List[str] = []
@@ -784,8 +776,7 @@ def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
         applied_fixes.append("replaced_handwritten_note_prop")
 
     had_newlines = "\n" in text or "\r" in text
-    single_line = re.sub(r"[\r\n]+", " ", text)
-    single_line = re.sub(r"\s{2,}", " ", single_line).strip()
+    single_line = re.sub(r"\s{2,}", " ", re.sub(r"[\r\n]+", " ", text)).strip()
     if had_newlines:
         applied_fixes.append("flattened_newlines_for_flow_slate_editor")
 
@@ -793,4 +784,205 @@ def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
         "sanitized_prompt": single_line,
         "is_single_line": "\n" not in single_line and "\r" not in single_line,
         "applied_fixes": applied_fixes,
+    }
+
+
+FLOW_SURFACE_MODE_DURATIONS: Dict[Tuple[str, str, str], Tuple[int, ...]] = {
+    **{("flow", "veo-3.1-lite", m): (4, 6, 8) for m in ("text-to-video", "first-frame", "first-last-frame")},
+    ("flow", "veo-3.1-lite", "references-to-video"): (8,),
+    ("flow", "veo-3.1-lite", "extend"): (8,),
+    **{("flow", "veo-3.1-fast", m): (4, 6, 8) for m in ("text-to-video", "first-frame", "first-last-frame")},
+    ("flow", "veo-3.1-fast", "references-to-video"): (8,),
+    **{("flow", "veo-3.1-quality", m): (8,) for m in ("text-to-video", "first-frame", "first-last-frame")},
+    **{
+        ("flow", "omni-flash", m): (4, 6, 8, 10)
+        for m in ("text-to-video", "first-frame", "first-last-frame", "references-to-video", "video-edit")
+    },
+    **{("gemini-api", "veo-3.1-lite", m): (4, 6, 8) for m in ("text-to-video", "first-frame", "first-last-frame")},
+    ("gemini-api", "veo-3.1-lite", "extend"): (7,),
+    **{("gemini-api", "veo-3.1-fast", m): (4, 6, 8) for m in ("text-to-video", "first-frame", "first-last-frame")},
+    ("gemini-api", "veo-3.1-fast", "references-to-video"): (8,),
+    ("gemini-api", "veo-3.1-fast", "extend"): (7,),
+    **{
+        ("gemini-api", "omni-flash", m): (3, 4, 5, 6, 7, 8, 9, 10)
+        for m in ("text-to-video", "first-frame", "references-to-video", "video-edit")
+    },
+}
+
+_BACKWARD_REF_PATTERNS: Tuple[Tuple[str, str], ...] = (
+    (r"\bfrom\s+segment\s+\d+\b", "backward reference 'from segment N'"),
+    (r"\bas\s+in\s+(?:segment|scene|shot)\s+\d+\b", "backward reference 'as in scene/segment N'"),
+    (
+        r"\bthe\s+same\s+(?:trader|man|woman|person|character|room|set|prop|outfit)\b",
+        "backward reference 'the same <noun>'",
+    ),
+    (r"\bas\s+(?:before|previously|earlier)\b", "backward reference 'as before/previously'"),
+    (r"\bcontinuing\s+from\s+before\b", "backward reference 'continuing from before'"),
+    (r"\bstill\s+(?:wet|dirty|holding|wearing|standing|sitting)\b", "backward state 'still <adj>'"),
+)
+
+_TOKEN_LEAK_PATTERNS: Tuple[Tuple[str, str], ...] = (
+    (r"\b\d{4}\s*K\b", "colour-temperature number (e.g. 3500K) that risks rendering as text"),
+    (r"#[0-9A-Fa-f]{6}\b", "hex colour code (e.g. #FFAA00) that risks rendering as text"),
+    (
+        r"\([A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+)+\)",
+        "parenthesized Title-Case set label (e.g. (Market Lane)) that risks token bleed",
+    ),
+)
+
+
+def lint_flow_continuity_and_platform_profile(
+    prompt_text: str,
+    surface: str = "flow",
+    model: str = "omni-flash",
+    mode: str = "references-to-video",
+    duration_s: int = 8,
+    declared_handles: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    Mechanical continuity & platform profile linter (`google-flow-scripting v1.6.0`):
+    1. Verifies `(surface, model, mode, duration_s)` against `FLOW_SURFACE_MODE_DURATIONS`.
+    2. Detects `BACKWARD_REFS` (`"from segment 1"`, `"the same trader"`, `"as before"`, `"still wet"`).
+    3. Detects `TOKEN_LEAKS` (`3500K`, `#FFAA00`, `(Market Lane)`).
+    4. Validates `@PascalCase` handle syntax (`^@[A-Za-z][A-Za-z0-9]*$`) and detects bare uses of
+       declared handles (`Kwame` instead of `@Kwame`) or em dashes (`\u2014`).
+    """
+    errors: List[Dict[str, str]] = []
+    warnings: List[Dict[str, str]] = []
+    text = str(prompt_text or "")
+
+    key = (str(surface).lower(), str(model).lower(), str(mode).lower())
+    allowed_durations = FLOW_SURFACE_MODE_DURATIONS.get(key)
+    if allowed_durations is None:
+        errors.append(
+            {
+                "code": "UNSUPPORTED_MODE_COMBO",
+                "message": f"Unsupported (surface={surface}, model={model}, mode={mode}) combination.",
+            }
+        )
+    elif int(duration_s) not in allowed_durations:
+        errors.append(
+            {
+                "code": "INVALID_DURATION_FOR_MODE",
+                "message": (
+                    f"Duration {duration_s}s is not supported for {key}; "
+                    f"allowed: {list(allowed_durations)}."
+                ),
+            }
+        )
+
+    for pattern, label in _BACKWARD_REF_PATTERNS:
+        if re.search(pattern, text, flags=re.I):
+            errors.append({"code": "BACKWARD_REF", "message": f"Forbidden {label} found in prompt."})
+
+    for pattern, label in _TOKEN_LEAK_PATTERNS:
+        if re.search(pattern, text):
+            errors.append({"code": "TOKEN_LEAK", "message": f"Forbidden {label} found in prompt."})
+
+    if "\u2014" in text:
+        warnings.append(
+            {
+                "code": "EM_DASH_PUNCTUATION",
+                "message": "Prompt contains em dash ('\u2014'); replace with comma or colon for parser safety.",
+            }
+        )
+
+    for handle in declared_handles or []:
+        if not re.match(r"^@[A-Za-z][A-Za-z0-9]*$", str(handle)):
+            errors.append(
+                {
+                    "code": "INVALID_HANDLE_SYNTAX",
+                    "message": f"Handle '{handle}' must be canonical @PascalCase without spaces or hyphens.",
+                }
+            )
+            continue
+        bare_name = str(handle)[1:]
+        if re.search(rf"(?<!@)\b{re.escape(bare_name)}\b", text):
+            errors.append(
+                {
+                    "code": "BARE_HANDLE",
+                    "message": f"Bare handle name '{bare_name}' used without '@' prefix (expected '{handle}').",
+                }
+            )
+
+    return {
+        "valid": len(errors) == 0,
+        "surface": surface,
+        "model": model,
+        "mode": mode,
+        "duration_s": int(duration_s),
+        "errors": errors,
+        "warnings": warnings,
+    }
+
+
+def generate_contract_storyboard_prompt(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Contract-compliant Storyboard Contact-Sheet Prompt Generator (`google-flow-scripting v1.6.0`):
+    - Maps segment duration to default panel layout (`4s -> 2x1`, `6s/8s -> 3x1`, `10s -> 2x2`).
+    - Rewrites bare occurrences of declared `@PascalCase` handles to `@Handle` and strips em dashes.
+    - Guarantees the copy-paste prompt opens with `GENERATE THE STORYBOARD IMAGE NOW.` and keeps
+      Internal Operator Notes and Approval Checklist outside the copy-paste prompt block.
+    """
+    duration_s = int(spec.get("duration_s", 8))
+    grid_map = {
+        4: (2, "2x1 horizontal strip (2 panels)"),
+        6: (3, "3x1 horizontal strip (3 panels)"),
+        8: (3, "3x1 horizontal strip (3 panels)"),
+        10: (4, "2x2 contact sheet grid (4 panels)"),
+    }
+    panel_count, grid_layout = grid_map.get(duration_s, (3, "3x1 horizontal strip (3 panels)"))
+    handles: List[str] = [str(h) for h in spec.get("handles", []) if str(h).startswith("@")]
+
+    def _clean(val: str) -> str:
+        out = str(val or "").replace("\u2014", ", ").replace("\u2013", "-")
+        for h in handles:
+            bare = h[1:]
+            out = re.sub(rf"(?<!@)\b{re.escape(bare)}\b", h, out)
+        return re.sub(r"\s{2,}", " ", out).strip()
+
+    raw_panels: List[Dict[str, Any]] = list(spec.get("panels", []))
+    panel_lines: List[str] = []
+    panel_labels = "ABCDEFGHI"
+    for idx in range(panel_count):
+        letter = panel_labels[idx]
+        timestamp_s = round((idx * duration_s) / max(1, panel_count - 1), 1) if panel_count > 1 else 0.0
+        p_data = raw_panels[idx] if idx < len(raw_panels) else {}
+        framing = _clean(
+            p_data.get(
+                "framing",
+                f"Medium shot of {handles[0] if handles else 'the subject'} in stable studio lighting",
+            )
+        )
+        panel_lines.append(
+            f"PANEL {letter} FRAMING (static composition visible at {timestamp_s}s): {framing}."
+        )
+
+    aspect_ratio = str(spec.get("aspect_ratio", "16:9"))
+    style_desc = _clean(
+        spec.get("style", "Photorealistic cinema contact sheet, natural skin texture, warm tungsten key light")
+    )
+    copy_paste_prompt = (
+        f"GENERATE THE STORYBOARD IMAGE NOW. "
+        f"Render a {grid_layout} in {aspect_ratio} aspect ratio with thin black dividers and zero text or numbers "
+        f"inside any panel. Visual style: {style_desc}. "
+        + " ".join(panel_lines)
+    )
+
+    return {
+        "duration_s": duration_s,
+        "panel_count": panel_count,
+        "grid_layout": grid_layout,
+        "operator_notes": {
+            "surface": spec.get("surface", "flow"),
+            "model": spec.get("model", "omni-flash"),
+            "mode": spec.get("mode", "references-to-video"),
+            "handles": handles,
+        },
+        "copy_paste_prompt": copy_paste_prompt,
+        "approval_checklist": [
+            "All recurring characters and props match their @PascalCase reference sheets.",
+            "Every panel shows a static keyframe composition with zero burned-in labels or timecodes.",
+            "Lighting direction and wardrobe remain consistent across all panels.",
+        ],
     }

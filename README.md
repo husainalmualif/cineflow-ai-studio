@@ -1,8 +1,8 @@
 # استوديو سينما فلو الذكي — CineFlow AI Studio 🎬
 
-**الإصدار `6.4.0`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • B Studio v1.0.10 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
+**الإصدار `6.5.0`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • B Studio v1.0.10 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
 
-> 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) و[`references/09-google-flow-agent-scenes-and-tools-mastery.md`](references/09-google-flow-agent-scenes-and-tools-mastery.md).
+> 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) و[`references/09-google-flow-agent-scenes-and-tools-mastery.md`](references/09-google-flow-agent-scenes-and-tools-mastery.md) و[`references/10-google-flow-cli-scripting-and-automation-mastery.md`](references/10-google-flow-cli-scripting-and-automation-mastery.md).
 
 ---
 
@@ -140,7 +140,7 @@ cineflow-ai-studio/
 │   ├── example_03_showrunner_package.json       # مثال 4 (Blueprint): حزمة إنتاج Showrunner متكاملة
 │   ├── generated_perfume_ad.json                # مثال 5 (Blueprint): حزمة ناتجة عن cineflow_compiler.py
 │   ├── multi_agent_plan.json                    # خطة تنسيق الوكلاء السبعة (تُفحص بـ multi_agent_orchestrator.py --verify-plan)
-│   └── script_source.json                       # مدخل سكربت إذاعي مشكول (يُفحص بـ multi_agent_orchestrator.py --validate-script)
+│   └── script_source.json                       # مدخل سكربت إذاعي مشكول (تُفحص بـ multi_agent_orchestrator.py --validate-script)
 └── tests/
     ├── test_cineflow_compiler.py                # اختبارات المترجم واللغة العربية والحوكمة
     ├── test_montage.py                          # اختبارات المونتاج الإيقاعي وRemotion v4 وOmni API

@@ -35,11 +35,14 @@ from arabic_helpers import (  # noqa: E402
 )
 from beat_grid import build_project_montage  # noqa: E402
 from governance_and_omni import (  # noqa: E402
+    FLOW_SURFACE_MODE_DURATIONS,
     GENERIC_SLOP_PHRASES,
     audit_sfx_governor,
     build_omni_interaction_payload,
     build_taste_profile,
     check_scene_variation,
+    generate_contract_storyboard_prompt,
+    lint_flow_continuity_and_platform_profile,
     partition_runtime_into_allowed_blocks,
     sanitize_flow_video_prompt,
     score_providers,
@@ -65,6 +68,7 @@ from studio_config import (  # noqa: E402
 
 __all__ = [
     "ARABIC_BASE_RE",
+    "FLOW_SURFACE_MODE_DURATIONS",
     "GENERIC_SLOP_PHRASES",
     "HARAKAT_CHARS",
     "Optional",
@@ -80,8 +84,10 @@ __all__ = [
     "detect_arabic_dialect",
     "detect_arabic_dialect_with_confidence",
     "format_omni_flash_dialect_dialogue",
+    "generate_contract_storyboard_prompt",
     "generate_keyword_variants",
     "is_rtl_text",
+    "lint_flow_continuity_and_platform_profile",
     "optimize_arabic_lip_sync",
     "partition_runtime_into_allowed_blocks",
     "resolve_slash_macros",

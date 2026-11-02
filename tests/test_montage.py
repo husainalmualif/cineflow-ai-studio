@@ -29,7 +29,9 @@ from cineflow_compiler import (  # noqa: E402
     build_omni_interaction_payload,
     compile_blueprint,
     format_omni_flash_dialect_dialogue,
+    generate_contract_storyboard_prompt,
     is_rtl_text,
+    lint_flow_continuity_and_platform_profile,
     optimize_arabic_lip_sync,
     partition_runtime_into_allowed_blocks,
     sanitize_flow_video_prompt,
@@ -346,7 +348,6 @@ def test_b_studio_window_schedule_and_face_guard() -> None:
     assert len(bad["violations"]) == 4
 
 
-
 def test_google_flow_omni_dialect_and_prompt_sanitizer() -> None:
     """Verify Omni 1.1 Flash Native Dialect Law formatter and Google Flow prompt sanitizer."""
     dialect_res = format_omni_flash_dialect_dialogue(
@@ -368,6 +369,58 @@ def test_google_flow_omni_dialect_and_prompt_sanitizer() -> None:
     assert "handwritten paper note" not in sanitized["sanitized_prompt"].lower()
     assert "Clean unblemished cinema frame" in sanitized["sanitized_prompt"]
     assert len(sanitized["applied_fixes"]) == 4
+
+
+def test_flow_continuity_linter_and_storyboard_generator() -> None:
+    """Verify google-flow-scripting v1.6.0 continuity linter and contract storyboard generator."""
+    clean_lint = lint_flow_continuity_and_platform_profile(
+        prompt_text="@Kwame lifts the @AmberFlacon toward the warm tungsten key light and smiles.",
+        surface="flow",
+        model="omni-flash",
+        mode="references-to-video",
+        duration_s=10,
+        declared_handles=["@Kwame", "@AmberFlacon"],
+    )
+    assert clean_lint["valid"] is True
+    assert not clean_lint["errors"]
+
+    bad_lint = lint_flow_continuity_and_platform_profile(
+        prompt_text=(
+            "The same trader Kwame from segment 1 is still wet inside (Market Lane) "
+            "under 3500K #FFAA00 lighting \u2014 holding the lantern as before."
+        ),
+        surface="flow",
+        model="veo-3.1-quality",
+        mode="references-to-video",
+        duration_s=6,
+        declared_handles=["@Kwame", "@Bad-Handle"],
+    )
+    assert bad_lint["valid"] is False
+    err_codes = {e["code"] for e in bad_lint["errors"]}
+    assert "UNSUPPORTED_MODE_COMBO" in err_codes
+    assert "BACKWARD_REF" in err_codes
+    assert "TOKEN_LEAK" in err_codes
+    assert "INVALID_HANDLE_SYNTAX" in err_codes
+    assert "BARE_HANDLE" in err_codes
+    assert any(w["code"] == "EM_DASH_PUNCTUATION" for w in bad_lint["warnings"])
+
+    sb = generate_contract_storyboard_prompt(
+        {
+            "duration_s": 10,
+            "aspect_ratio": "16:9",
+            "handles": ["@Kwame", "@AmberFlacon"],
+            "panels": [
+                {"framing": "Kwame holds AmberFlacon at eye level \u2014 warm rim light"},
+                {"framing": "Close-up of @AmberFlacon placed on the walnut table"},
+            ],
+        }
+    )
+    assert sb["panel_count"] == 4
+    assert "2x2" in sb["grid_layout"]
+    assert sb["copy_paste_prompt"].startswith("GENERATE THE STORYBOARD IMAGE NOW.")
+    assert "@Kwame holds @AmberFlacon" in sb["copy_paste_prompt"]
+    assert "\u2014" not in sb["copy_paste_prompt"]
+    assert len(sb["approval_checklist"]) == 3
 
 
 if __name__ == "__main__":

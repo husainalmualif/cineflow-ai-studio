@@ -2,6 +2,18 @@
 
 All notable changes to `cineflow-ai-studio` are documented in this file.
 
+## [6.5.0] — 2026-11-03
+### Added (Google Flow CLI, Scripting `v1.6.0`, Omni Flash UGC & Browser Automation Mastery)
+- **Unified Reference & Declarative Pipeline Schema (`references/10-google-flow-cli-scripting-and-automation-mastery.md` & `resources/flow_pipeline_schema.json`)**:
+  - Synthesized `google-flow-scripting-skill` (`v1.6.0`), `google-flow-cli`, `google-flow-api` (`omni-flash-video` & `ugc-product-video`), and `Google-Flow-Automation`:
+    1. **Surface × Model × Mode × Duration Matrix (`FLOW_SURFACE_MODE_DURATIONS`)** across `flow` and `gemini-api` (`veo-3.1-lite`, `veo-3.1-fast`, `veo-3.1-quality`, `omni-flash`).
+    2. **8-Point Continuity & Mechanical Script Linter**: forbids backward references (`"from segment 1"`, `"the same trader"`, `"as before"`, `"still wet"`), token-bleed numbers/hex codes/bracketed set names (`3500K`, `#FFAA00`, `(Market Lane)`), and non-canonical or bare `@PascalCase` handles.
+    3. **Contract-Compliant Storyboard Contact-Sheet Generator**: maps `4s -> 2x1`, `6s/8s -> 3x1`, `10s -> 2x2`, opens copy-paste prompt with `GENERATE THE STORYBOARD IMAGE NOW.`, and separates Operator Notes and Approval Checklist.
+    4. **Zero-Bot-Flag Chrome CDP (`port 9222`), 5-Stage Agent State Machine & Angular CDK/ProseMirror Selector Map**: documents `aisandbox-root > flow-project-shell`, `.cdk-overlay-pane` mediaType-first switching, `Escape` backdrop dismissal, virtualized `flow-video-tile` hover-to-mount, signed CDN URLs, and declarative `flow.json` chained-keyframe pipelines.
+    5. **Exact Credit Table & 6-Step Checkpointed UGC Product Video Pipeline (`ugc_state.json`)**: documents `Omni 1.1 Flash` (`4s=7/4`, `6s=10/5`, `8s=12/6`, `10s=15/7`, `edit=20/10` at `720p/360p`), free `1080p` upscales, `0-credit` `Nano Banana` reference sheets, shared `startImage = endImage` unified anchor stills for seamless loop cuts, and React native prototype value/file setters + `Policy Error` vs `Server Busy` queue classification.
+- **Programmable Validators & Generators (`scripts/governance_and_omni.py` & `scripts/cineflow_compiler.py`)**:
+  - Added `lint_flow_continuity_and_platform_profile` and `generate_contract_storyboard_prompt` with full unit test coverage in `tests/test_montage.py`.
+
 ## [6.4.0] — 2026-11-02
 ### Added (Google Flow Complete Ecosystem Mastery, Native Dialect Law & Anti-Hallucination Prompt Sanitizer)
 - **Google Flow Agent, Voices/Characters/Avatars, Scene Builder & `Mondo Sónico` (`references/09-google-flow-agent-scenes-and-tools-mastery.md` & `templates/flow_agent_project_init.template.json`)**:
