@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, cast
 
 from google import genai
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP  # pylint: disable=no-name-in-module
 
 # Ensure scripts/ is importable so studio_config is the single source of truth for model names
 _SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
@@ -28,10 +28,10 @@ except ImportError:
 mcp = FastMCP("CineFlow Gemini Omni Flash Video Agent")
 
 # Lazy client attribute (kept at module level so unittest.mock.patch("server.client") works seamlessly)
-client: Any = None
+client: Any = None  # pylint: disable=invalid-name
 MODEL_NAME = os.environ.get("GEMINI_OMNI_MODEL", OMNI_FLASH_MODEL_DEFAULT)
 
-_API_ERROR = getattr(getattr(genai, "errors", None), "APIError", RuntimeError)
+API_ERROR_CLS = getattr(getattr(genai, "errors", None), "APIError", RuntimeError)
 TOOL_EXCEPTIONS = (
     OSError,
     ValueError,
@@ -40,7 +40,7 @@ TOOL_EXCEPTIONS = (
     TypeError,
     AttributeError,
     KeyError,
-    _API_ERROR if isinstance(_API_ERROR, type) and issubclass(_API_ERROR, Exception) else RuntimeError,
+    API_ERROR_CLS if isinstance(API_ERROR_CLS, type) and issubclass(API_ERROR_CLS, Exception) else RuntimeError,
 )
 
 

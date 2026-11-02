@@ -182,8 +182,8 @@ def split_arabic_letters_zwj(word: str) -> List[str]:
     i = 0
     while i < len(clusters):
         c = clusters[i]
-        nxt = clusters[i + 1] if (i + 1) < len(clusters) else None
-        if c["base"] == "ل" and nxt and nxt["base"] in _ALEF_WITH_LAM_SET:
+        if c["base"] == "ل" and (i + 1) < len(clusters) and clusters[i + 1]["base"] in _ALEF_WITH_LAM_SET:
+            nxt = clusters[i + 1]
             units.append({
                 "text": c["base"] + c["marks"] + nxt["base"] + nxt["marks"],
                 "first_base": c["base"],

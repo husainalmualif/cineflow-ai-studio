@@ -552,7 +552,7 @@ def score_providers(
 
     ranked: List[Dict[str, Any]] = []
     for item in candidates:
-        total = sum(item["metrics"][k] * weights[k] for k in weights)
+        total = sum(item["metrics"][k] * w for k, w in weights.items())
         ranked.append({
             "provider": item["provider"],
             "label": item["label"],

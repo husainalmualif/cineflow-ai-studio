@@ -5,6 +5,7 @@
 Compatible with both `pytest -v tests/test_omni_agent.py` and direct CLI execution:
 `python tests/test_omni_agent.py` (even in bare CI environments without `google-genai` or `mcp` installed).
 """
+# pylint: disable=unused-import,too-few-public-methods,missing-function-docstring,protected-access,consider-using-with
 
 from __future__ import annotations
 

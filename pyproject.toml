@@ -17,7 +17,7 @@ addopts = "-v"
 
 [tool.pylint.main]
 py-version = "3.9"
-ignore-Paths = ["^references/remotion_skills_official/.*$"]
+ignore-paths = ["^references/remotion_skills_official/.*$"]
 
 [tool.pylint."messages control"]
 disable = [
