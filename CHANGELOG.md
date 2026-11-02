@@ -2,6 +2,17 @@
 
 All notable changes to `cineflow-ai-studio` are documented in this file.
 
+## [6.3.0] — 2026-11-02
+### Added (B Studio `v1.0.10` & Video-Edit `v1.1` Mastery Integration)
+- **Reference Constitution (`references/b-studio-and-video-edit-mastery.md`)**:
+  - Documented the **Zero-Loss Voice & Color Preservation Pipeline** (`48kHz` 24-bit stereo `pcm_s24le` `voice.wav` separate from `16kHz` Whisper `a.wav`, `corr >= 0.999`, `|gain| < 0.15 dB`, `yuv444p` `bt709/tv` intermediate, silent PNG Remotion render, `|ΔY| <= 0.6`, `|ΔR - ΔB| <= 0.8`).
+  - Documented **Balanced Two-Line Word-Reveal Captions** (Rule 76 `even(ws, n)` balanced word partitioning with `visibility: 'hidden'` pre-spoken layout lock and `CAPMOVE` collision avoidance).
+  - Documented the **4 Window States (`FULL`, `CARD`, `SIDE`, `NONE`)** for `9:16` (`1080×1920`) and `16:9` (`1920×1080`), hair-safe ceiling `fullFloor = face_top_y - 158`, and `baked_faces` guard.
+  - Documented the **10 Visual Metaphor Mechanisms** (`odometer`, `dotGrid`, `donutSplit`, `flipCard`, `stackBlocks`, `growBars`, `iconStrip`, `windingPath`, `rings`, `gauge`), the **Vox Paper-Collage Kit** (`15fps` `step(t)` posterized time, `PushPin`, `Yarn`/`yarnPath`, `HandStamp`, `Highlight` with `isolation: 'isolate'`), **Gaze-Raise Cuts**, **Source-Cut Alignment**, and **Interactive NLE Operations (`rollSpine`, `slideSpine`, `slip`, `cutWords`, `capPauses`, `detachVoice`, 5+1 Inspiration Session & Clip Dissection)**.
+- **Programmable Validators & Helpers**:
+  - Added `split_caption_cards_balanced` in `scripts/arabic_helpers.py`.
+  - Added `audit_sfx_governor` and `validate_window_schedule_and_face_guard` in `scripts/governance_and_omni.py` (re-exported in `scripts/cineflow_compiler.py`) with full unit test coverage in `tests/test_montage.py`.
+
 ## [6.2.0] — 2026-11-02
 ### Fixed & Improved (Repository Audit & Code Review Hardening)
 - **Modularized Compiler & Pylint Cleanliness**:

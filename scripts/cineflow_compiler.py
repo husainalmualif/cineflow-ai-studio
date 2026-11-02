@@ -29,11 +29,13 @@ from arabic_helpers import (  # noqa: E402
     optimize_arabic_lip_sync,
     resolve_slash_macros,
     split_arabic_letters_zwj,
+    split_caption_cards_balanced,
     validate_video_first_layout,
 )
 from beat_grid import build_project_montage  # noqa: E402
 from governance_and_omni import (  # noqa: E402
     GENERIC_SLOP_PHRASES,
+    audit_sfx_governor,
     build_omni_interaction_payload,
     build_taste_profile,
     check_scene_variation,
@@ -43,6 +45,7 @@ from governance_and_omni import (  # noqa: E402
     select_pipeline_route,
     validate_delivery_promise,
     validate_taxonomy_inputs,
+    validate_window_schedule_and_face_guard,
 )
 from studio_config import (  # noqa: E402
     ALLOWED_CLIP_DURATIONS,
@@ -65,6 +68,7 @@ __all__ = [
     "Optional",
     "Set",
     "apply_safe_arabic_kashida",
+    "audit_sfx_governor",
     "auto_vocalize_arabic_for_tts",
     "build_omni_interaction_payload",
     "build_taste_profile",
@@ -82,9 +86,11 @@ __all__ = [
     "score_slideshow_risk",
     "select_pipeline_route",
     "split_arabic_letters_zwj",
+    "split_caption_cards_balanced",
     "validate_delivery_promise",
     "validate_taxonomy_inputs",
     "validate_video_first_layout",
+    "validate_window_schedule_and_face_guard",
 ]
 
 PURPOSE_FRAMEWORKS: Dict[str, str] = {

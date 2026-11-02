@@ -570,3 +570,162 @@ def score_providers(
         "format_context": video_format,
         "budget_tier": budget_tier,
     }
+
+
+def audit_sfx_governor(
+    sfx_events: List[Dict[str, Any]],
+    word_timestamps: Optional[List[float]] = None,
+    duration_s: float = 60.0,
+) -> Dict[str, Any]:
+    """
+    Implements B Studio `05b_sfx_audit.py` + Rules 1, 29, 54, 55, 70, 86:
+    1. Every SFX event must be within <= 120 ms of a spoken word timestamp (when provided).
+    2. Actual acoustic onset after subtracting `lead_s` must be within <= 60 ms of target time.
+    3. Minimum >= 1.0 s spacing between any two SFX events.
+    4. Spectral budget: at most 2.0/min synthetic SFX with spectral centroid > 4000 Hz
+       (creator-owned library sounds `is_creator_lib=True` are exempt).
+    5. Density & repeats: transition SFX <= 10.0/min, total SFX <= 20.0/min,
+       and any single semantic SFX name used at most 3 times per video.
+    """
+    violations: List[str] = []
+    mins = max(1.0, float(duration_s) / 60.0)
+    sorted_ev = sorted(sfx_events, key=lambda item: float(item.get("time_s", 0.0)))
+
+    high_freq_synthetic = 0
+    transition_count = 0
+    semantic_counts: Dict[str, int] = {}
+
+    for idx, ev in enumerate(sorted_ev):
+        t_s = float(ev.get("time_s", 0.0))
+        name = str(ev.get("name", "sfx")).strip()
+        category = str(ev.get("category", "semantic")).lower()
+        centroid_hz = float(ev.get("centroid_hz", 1800.0))
+        is_creator_lib = bool(ev.get("is_creator_lib", False))
+        lead_s = float(ev.get("lead_s", 0.0))
+        measured_onset_s = float(ev.get("measured_onset_s", t_s - lead_s))
+
+        if word_timestamps:
+            nearest_w = min(word_timestamps, key=lambda w_t: abs(float(w_t) - t_s))
+            drift_ms = abs(t_s - float(nearest_w)) * 1000.0
+            if drift_ms > 120.0:
+                violations.append(
+                    f"Rule1_WordLock: '{name}' at {t_s:.2f}s drifts {drift_ms:.0f}ms from nearest word (> 120ms)."
+                )
+
+        onset_drift_ms = abs((measured_onset_s + lead_s) - t_s) * 1000.0
+        if onset_drift_ms > 60.0:
+            violations.append(
+                f"Rule2_OnsetDrift: '{name}' at {t_s:.2f}s has onset drift {onset_drift_ms:.0f}ms (> 60ms)."
+            )
+
+        if idx > 0:
+            prev_t = float(sorted_ev[idx - 1].get("time_s", 0.0))
+            gap_s = t_s - prev_t
+            if gap_s < 1.0 - 1e-6:
+                violations.append(
+                    f"Rule3_MinSpacing: '{name}' at {t_s:.2f}s is {gap_s:.2f}s after previous SFX (< 1.0s)."
+                )
+
+        if centroid_hz > 4000.0 and not is_creator_lib:
+            high_freq_synthetic += 1
+
+        if category == "transition":
+            transition_count += 1
+        else:
+            semantic_counts[name] = semantic_counts.get(name, 0) + 1
+            if semantic_counts[name] > 3:
+                violations.append(
+                    f"Rule55_SemanticRepeat: semantic SFX '{name}' used {semantic_counts[name]} times (> 3)."
+                )
+
+    high_freq_per_min = high_freq_synthetic / mins
+    if high_freq_per_min > 2.0 + 1e-6:
+        violations.append(
+            f"Rule4_SpectralBudget: {high_freq_per_min:.1f}/min synthetic SFX > 4kHz (limit 2.0/min)."
+        )
+
+    transition_per_min = transition_count / mins
+    if transition_per_min > 10.0 + 1e-6:
+        violations.append(
+            f"Rule1_TransitionDensity: {transition_per_min:.1f}/min transition SFX (limit 10.0/min)."
+        )
+
+    total_per_min = len(sorted_ev) / mins
+    if total_per_min > 20.0 + 1e-6:
+        violations.append(
+            f"Rule5_TotalDensity: {total_per_min:.1f}/min total SFX (limit 20.0/min)."
+        )
+
+    return {
+        "valid": len(violations) == 0,
+        "total_sfx": len(sorted_ev),
+        "density_per_min": round(total_per_min, 2),
+        "transition_per_min": round(transition_per_min, 2),
+        "high_freq_per_min": round(high_freq_per_min, 2),
+        "target_peak_over_voice_rms_db": 6.5,
+        "violations": violations,
+    }
+
+
+def validate_window_schedule_and_face_guard(
+    stage_windows: List[Dict[str, Any]],
+    duration_s: float = 60.0,
+    face_top_y: int = 578,
+    graphics_boxes: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """
+    Implements B Studio `18_stage_from_scenes.py` + `19_scene_audit.py` + Rules 77-82:
+    - Computes hair-safe ceiling `full_floor = face_top_y - 158` (default 420px in 9:16).
+    - Enforces minimum window state hold >= 2.0s and speaker `FULL` return >= 2.5s between graphics.
+    - Enforces `NONE` (speaker hidden, after initial 3.0s hook) <= 2 times per 120s.
+    - Rejects any `FULL` graphic descending below `full_floor + 5`.
+    """
+    violations: List[str] = []
+    full_floor = int(face_top_y) - 158
+    none_count_after_hook = 0
+
+    for idx, win in enumerate(stage_windows):
+        mode = str(win.get("m", win.get("mode", "FULL"))).upper()
+        start_s = float(win.get("s", win.get("start_s", 0.0)))
+        end_s = min(float(win.get("e", win.get("end_s", duration_s))), float(duration_s))
+        span_s = end_s - start_s
+
+        if span_s < 2.0 - 1e-6 and end_s < float(duration_s) - 0.1:
+            violations.append(
+                f"Rule79_MinWindowHold: window #{idx} ({mode}) lasts {span_s:.2f}s (< 2.0s)."
+            )
+
+        if (
+            mode == "FULL"
+            and 0 < idx < len(stage_windows) - 1
+            and span_s < 2.5 - 1e-6
+        ):
+            violations.append(
+                f"Rule82_MinFaceReturn: speaker FULL return at {start_s:.2f}s lasts {span_s:.2f}s (< 2.5s)."
+            )
+
+        if mode == "NONE" and start_s >= 3.0:
+            none_count_after_hook += 1
+
+    max_none_allowed = max(2, int(2 * (max(120.0, float(duration_s)) / 120.0)))
+    if none_count_after_hook > max_none_allowed:
+        violations.append(
+            f"Rule77_NoneCap: speaker hidden (NONE) {none_count_after_hook} times after hook (max {max_none_allowed})."
+        )
+
+    for box in graphics_boxes or []:
+        b_mode = str(box.get("mode", "FULL")).upper()
+        top_px = int(box.get("top", 200))
+        height_px = int(box.get("height", 150))
+        if b_mode == "FULL" and top_px >= 150 and (top_px + height_px) > full_floor + 5:
+            violations.append(
+                f"Rule78_FaceHairGuard: FULL graphic box {top_px}..{top_px + height_px}px crosses fullFloor ({full_floor}px)."
+            )
+
+    return {
+        "valid": len(violations) == 0,
+        "full_floor_px": full_floor,
+        "none_count_after_hook": none_count_after_hook,
+        "violations": violations,
+    }
+

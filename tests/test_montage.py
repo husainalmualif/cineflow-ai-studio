@@ -25,13 +25,16 @@ from beat_grid import (  # noqa: E402
     validate_montage_section,
 )
 from cineflow_compiler import (  # noqa: E402
+    audit_sfx_governor,
     build_omni_interaction_payload,
     compile_blueprint,
     is_rtl_text,
     optimize_arabic_lip_sync,
     partition_runtime_into_allowed_blocks,
     split_arabic_letters_zwj,
+    split_caption_cards_balanced,
     validate_video_first_layout,
+    validate_window_schedule_and_face_guard,
 )
 from validate_package import validate_package_dict  # noqa: E402
 
@@ -263,6 +266,82 @@ def test_omni_flash_stateful_interactions_payload_builder() -> None:
     # 3. Missing previous_interaction_id on edit_video is rejected
     with assert_raises(ValueError, match="previous_interaction_id"):
         build_omni_interaction_payload(task="edit_video", prompt="make it rain")
+
+
+def test_b_studio_balanced_caption_cards() -> None:
+    """Verify Rule 76 balanced 2-line word-reveal caption splitting with no orphan single-word cards."""
+    words = [
+        {"t": "هذا", "s": 0.0, "e": 0.3},
+        {"t": "النظام", "s": 0.3, "e": 0.7},
+        {"t": "الهندسي", "s": 0.7, "e": 1.1},
+        {"t": "يحافظ", "s": 1.1, "e": 1.5},
+        {"t": "على", "s": 1.5, "e": 1.7},
+        {"t": "نقاء", "s": 1.7, "e": 2.1},
+        {"t": "الصوت", "s": 2.1, "e": 2.5},
+        {"t": "والصورة", "s": 2.5, "e": 3.0},
+        {"t": "بالكامل", "s": 3.0, "e": 3.5},
+    ]
+    cards = split_caption_cards_balanced(words, max_chars_per_line=18, max_lines=2)
+    assert len(cards) >= 2
+    for card in cards:
+        assert card["line_count"] <= 2
+        assert card["pre_spoken_css"] == "visibility:hidden"
+        assert card["has_orphan_word_card"] is False
+        assert len(card["w"]) >= 2
+
+
+def test_b_studio_sfx_governor() -> None:
+    """Verify `05b_sfx_audit.py` 5-rule SFX governor (word lock, onset lead, >=1.0s spacing, spectral budget, density)."""
+    word_ts = [1.0, 2.5, 4.2, 6.0, 8.5]
+    clean_events = [
+        {"name": "whoosh_soft", "time_s": 1.04, "category": "transition", "centroid_hz": 1400.0, "lead_s": 0.08, "measured_onset_s": 0.96},
+        {"name": "paper_slide", "time_s": 2.48, "category": "semantic", "centroid_hz": 2100.0, "lead_s": 0.0, "measured_onset_s": 2.49},
+        {"name": "stamp_hit", "time_s": 4.22, "category": "semantic", "centroid_hz": 1850.0, "lead_s": 0.05, "measured_onset_s": 4.18},
+    ]
+    ok_res = audit_sfx_governor(clean_events, word_timestamps=word_ts, duration_s=60.0)
+    assert ok_res["valid"] is True
+    assert not ok_res["violations"]
+
+    bad_events = [
+        {"name": "sharp_ding", "time_s": 1.0, "category": "semantic", "centroid_hz": 5200.0},
+        {"name": "sharp_ding", "time_s": 1.4, "category": "semantic", "centroid_hz": 5200.0},  # < 1.0s gap & > 120ms from word 2.5
+        {"name": "sharp_ding", "time_s": 2.5, "category": "semantic", "centroid_hz": 5200.0},  # 3rd >4kHz in 1 min (> 2.0/min)
+        {"name": "sharp_ding", "time_s": 4.2, "category": "semantic", "centroid_hz": 5200.0},  # 4th repeat (> 3)
+    ]
+    bad_res = audit_sfx_governor(bad_events, word_timestamps=word_ts, duration_s=60.0)
+    assert bad_res["valid"] is False
+    assert any("Rule3_MinSpacing" in v for v in bad_res["violations"])
+    assert any("Rule4_SpectralBudget" in v for v in bad_res["violations"])
+    assert any("Rule55_SemanticRepeat" in v for v in bad_res["violations"])
+
+
+def test_b_studio_window_schedule_and_face_guard() -> None:
+    """Verify Rules 77-82 window schedule hold times, face return >= 2.5s, NONE cap, and fullFloor hair guard."""
+    valid_stage = [
+        {"m": "FULL", "s": 0.0, "e": 4.0},
+        {"m": "CARD", "s": 4.0, "e": 8.5},
+        {"m": "FULL", "s": 8.5, "e": 12.0},
+        {"m": "SIDE", "s": 12.0, "e": 17.0},
+        {"m": "NONE", "s": 17.0, "e": 21.0},
+        {"m": "FULL", "s": 21.0, "e": 30.0},
+    ]
+    valid_boxes = [{"mode": "FULL", "top": 210, "height": 180}]  # 390 <= fullFloor (578 - 158 = 420)
+    ok = validate_window_schedule_and_face_guard(valid_stage, duration_s=30.0, face_top_y=578, graphics_boxes=valid_boxes)
+    assert ok["valid"] is True
+    assert ok["full_floor_px"] == 420
+
+    bad_stage = [
+        {"m": "FULL", "s": 0.0, "e": 3.5},
+        {"m": "CARD", "s": 3.5, "e": 4.8},   # < 2.0s window hold
+        {"m": "FULL", "s": 4.8, "e": 7.0},   # 2.2s: >= 2.0s hold, but < 2.5s speaker return between graphics
+        {"m": "NONE", "s": 7.0, "e": 9.5},
+        {"m": "NONE", "s": 10.0, "e": 13.0},
+        {"m": "NONE", "s": 14.0, "e": 17.0},  # 3rd NONE after hook (> 2 per 120s)
+    ]
+    bad_boxes = [{"mode": "FULL", "top": 260, "height": 220}]  # 480 > fullFloor (420)
+    bad = validate_window_schedule_and_face_guard(bad_stage, duration_s=30.0, face_top_y=578, graphics_boxes=bad_boxes)
+    assert bad["valid"] is False
+    assert len(bad["violations"]) == 4
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 # استوديو سينما فلو الذكي — CineFlow AI Studio 🎬
 
-**الإصدار `6.2.0`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
+**الإصدار `6.3.0`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • B Studio v1.0.10 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
 
-> 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md).
+> 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md).
 
 ---
 
@@ -120,6 +120,7 @@ cineflow-ai-studio/
 │   ├── arabic-text-and-lipsync.md               # سلامة النص العربي ومزامنة الشفاه
 │   ├── model-registry.md                        # سجل النماذج الموحد (MODEL_REGISTRY) وتاريخ آخر تحقق
 │   ├── remotion-v4-mastery.md                   # دليل إتقان Remotion v4.0.539
+│   ├── b-studio-and-video-edit-mastery.md       # إتقان B Studio v1.0.10 و Video-Edit v1.1 (حفظ الصوت واللون، النوافذ الأربع، كولاج Vox، وحاكم المؤثرات)
 │   ├── gemini-interactions-api.md               # دليل واجهة التفاعلات الحفظية لـ Gemini Omni Flash
 │   ├── 01-team-and-roles.md .. 08-model-registry-and-benchmarks.md
 │   └── remotion_skills_official/                # مكتبة قواعد Remotion v4.0.539 المرجعية الرسمية (مع UPSTREAM_ATTRIBUTION.md)

@@ -402,3 +402,82 @@ def resolve_slash_macros(idea: str) -> List[str]:
             "smooth physical camera dolly push-in, 35mm anamorphic prime lens, volumetric cinematic lighting"
         )
     return expanded
+
+
+def _partition_even(items: List[Any], parts: int) -> List[List[Any]]:
+    """
+    Balanced word partitioning (`even(ws, n)` from B Studio `Captions.tsx` Rule 76).
+    Splits `items` into `parts` contiguous slices of nearly equal size so no single
+    orphan word is left alone on a line or caption card.
+    """
+    total = len(items)
+    if parts <= 1 or total <= 1:
+        return [items] if items else []
+    parts = min(parts, total)
+    out: List[List[Any]] = []
+    for idx in range(parts):
+        start_i = int(round(idx * total / parts))
+        end_i = int(round((idx + 1) * total / parts))
+        if end_i > start_i:
+            out.append(items[start_i:end_i])
+    return out
+
+
+def split_caption_cards_balanced(
+    words: List[Dict[str, Any]],
+    max_chars_per_line: int = 24,
+    max_lines: int = 2,
+) -> List[Dict[str, Any]]:
+    """
+    Implements B Studio Rule 76 (`Captions.tsx`):
+    - Maximum `max_lines` (default 2) lines per caption card.
+    - If a sentence wraps to > `max_lines`, splits it into `ceil(lines / max_lines)` cards
+      with balanced word counts (`_partition_even`) so no orphan single-word card is produced.
+    - Inside each card, balances words across at most 2 lines and enforces
+      `pre_spoken_css = "visibility:hidden"` so the card bounding box never jumps as words reveal.
+    """
+    if not words:
+        return []
+
+    normalized: List[Dict[str, Any]] = []
+    for idx, item in enumerate(words):
+        if isinstance(item, dict):
+            text = str(item.get("t", item.get("word", ""))).strip()
+            start_s = float(item.get("s", item.get("start", idx * 0.35)))
+            end_s = float(item.get("e", item.get("end", start_s + 0.32)))
+            hi = bool(item.get("hi", False))
+        else:
+            text = str(item).strip()
+            start_s = round(idx * 0.35, 3)
+            end_s = round(start_s + 0.32, 3)
+            hi = False
+        if text:
+            normalized.append({"t": text, "s": start_s, "e": end_s, "hi": hi})
+
+    if not normalized:
+        return []
+
+    total_chars = sum(len(w["t"]) + 1 for w in normalized) - 1
+    estimated_lines = max(1, (total_chars + max_chars_per_line - 1) // max(1, max_chars_per_line))
+    num_cards = max(1, (estimated_lines + max_lines - 1) // max(1, max_lines))
+
+    card_slices = _partition_even(normalized, num_cards)
+    cards: List[Dict[str, Any]] = []
+    for card_words in card_slices:
+        card_chars = sum(len(w["t"]) + 1 for w in card_words) - 1
+        line_count = 2 if (card_chars > max_chars_per_line and len(card_words) >= 2) else 1
+        lines = _partition_even(card_words, line_count)
+        cards.append(
+            {
+                "s": card_words[0]["s"],
+                "e": card_words[-1]["e"],
+                "w": card_words,
+                "lines": [[w["t"] for w in ln] for ln in lines],
+                "line_count": len(lines),
+                "max_lines_enforced": max_lines,
+                "pre_spoken_css": "visibility:hidden",
+                "has_orphan_word_card": len(card_words) == 1 and len(normalized) > 1,
+            }
+        )
+    return cards
+
