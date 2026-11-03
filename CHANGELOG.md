@@ -2,6 +2,15 @@
 
 All notable changes to `cineflow-ai-studio` are documented in this file.
 
+## [6.5.1] — 2026-11-03
+### Added
+- **`scripts/lint_package.py`**: CLI for the governance functions that had no entry point (`audit_sfx_governor`, `validate_window_schedule_and_face_guard`, `lint_flow_continuity_and_platform_profile`, `sanitize_flow_video_prompt`, `generate_contract_storyboard_prompt`) with `check` / `sanitize` / `storyboard` sub-commands; wired into SKILL.md Section 4, README and CI.
+- `tests/test_lint_package.py` (12 tests): linter behaviour, CLI exit codes, hard JSON-schema validation of blueprint examples, `flow_pipeline_schema.json` validity, template structure.
+- `examples/flow_pipeline.example.json`: a schema-valid Flow pipeline sample.
+### Changed
+- CI runs on a Python `3.9 / 3.11 / 3.12` matrix (MCP dependencies are installed only on Python >= 3.11) and now also runs `--verify-plan` and the new linter.
+- `jsonschema` is a hard dev dependency; the schema test no longer skips silently when it is missing.
+
 ## [6.5.0] — 2026-11-03
 ### Added (Google Flow CLI, Scripting `v1.6.0`, Omni Flash UGC & Browser Automation Mastery)
 - **Unified Reference & Declarative Pipeline Schema (`references/10-google-flow-cli-scripting-and-automation-mastery.md` & `resources/flow_pipeline_schema.json`)**:

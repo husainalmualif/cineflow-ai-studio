@@ -1,4 +1,5 @@
-# Development, Linting & CI Test Dependencies
+# Development & CI testing dependencies
 pytest>=8.0.0
 pylint>=3.0.0
 -r mcp/requirements.txt
+jsonschema>=4.0.0

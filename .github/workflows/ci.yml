@@ -11,20 +11,28 @@ jobs:
   validate-skill-and-compiler:
     name: Validate Skill References, Pylint, Pytest (3 Suites), Beat Grid & Showrunner Tools
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
-      - name: Install Runtime, Lint & Test dependencies
+      - name: Install Core Lint & Test dependencies (all Python versions)
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install pytest pylint jsonschema
+
+      - name: Install optional MCP server dependencies (google-genai / mcp need Python >= 3.11)
+        if: matrix.python-version != '3.9'
+        run: pip install -r requirements-dev.txt
 
       - name: Verify Skill References & Evals Synchronization Dynamically
         run: |
@@ -32,11 +40,11 @@ jobs:
 
       - name: Lint All Scripts, MCP Server & Unit Tests with Pylint (via pyproject.toml)
         run: |
-          pylint scripts/studio_config.py scripts/arabic_helpers.py scripts/governance_and_omni.py scripts/beat_grid.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py scripts/verify_skill_references.py scripts/sync_remotion_skills.py mcp/server.py tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py
+          pylint scripts/studio_config.py scripts/arabic_helpers.py scripts/governance_and_omni.py scripts/beat_grid.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py scripts/verify_skill_references.py scripts/sync_remotion_skills.py mcp/server.py tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py scripts/lint_package.py tests/test_lint_package.py
 
       - name: Run Automated Unit, Montage & MCP Agent Tests with Pytest
         run: |
-          pytest -v tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py
+          pytest -v tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py tests/test_lint_package.py
 
       - name: Test End-to-End Beat Grid -> Compiler -> Orchestrator -> Validator -> Cost -> SRT Interoperability
         run: |
@@ -50,6 +58,13 @@ jobs:
           test -s /tmp/test_blueprint.srt
           python scripts/multi_agent_orchestrator.py --validate-script examples/script_source.json --output-plan /tmp/test_plan.json
           test -s /tmp/test_plan.json
+          python scripts/multi_agent_orchestrator.py --verify-plan examples/multi_agent_plan.json
+          python scripts/lint_package.py check /tmp/test_blueprint.json
+          python scripts/lint_package.py check examples/example_01_commercial_promo.json
+          python scripts/lint_package.py check examples/example_03_showrunner_package.json
+          python scripts/lint_package.py check examples/generated_perfume_ad.json
+          python scripts/lint_package.py sanitize "35mm f/1.4 portrait, no text" > /tmp/test_sanitized.json
+          test -s /tmp/test_sanitized.json
           python scripts/multi_agent_orchestrator.py --verify-plan /tmp/test_plan.json
           python scripts/multi_agent_orchestrator.py --verify-plan examples/multi_agent_plan.json
           python scripts/validate_package.py examples/example_01_commercial_promo.json

@@ -347,15 +347,12 @@ def test_jsonschema_and_evals_suite() -> None:
     for req_key in schema["required"]:
         assert req_key in bp, f"Missing required schema key: {req_key}"
 
-    try:
-        import jsonschema  # type: ignore
+    import jsonschema  # hard dependency (requirements-dev.txt): never skip schema validation silently
 
-        jsonschema.validate(instance=bp, schema=schema)
-        for ex_name in ("example_01_commercial_promo.json", "example_02_explainer_and_story_script.json"):
-            ex_data = json.loads((ROOT_DIR / "examples" / ex_name).read_text(encoding="utf-8"))
-            jsonschema.validate(instance=ex_data, schema=schema)
-    except ImportError:
-        pass
+    jsonschema.validate(instance=bp, schema=schema)
+    for ex_name in ("example_01_commercial_promo.json", "example_02_explainer_and_story_script.json"):
+        ex_data = json.loads((ROOT_DIR / "examples" / ex_name).read_text(encoding="utf-8"))
+        jsonschema.validate(instance=ex_data, schema=schema)
 
     evals = json.loads((ROOT_DIR / "resources" / "evals.json").read_text(encoding="utf-8"))
     assert len(evals["cases"]) >= 20

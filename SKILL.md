@@ -87,7 +87,10 @@ python scripts/cineflow_compiler.py --title "..." --purpose "Commercials & TVCs"
 python scripts/validate_package.py studio/project/06_package.json
 python scripts/estimate_cost.py studio/project/06_package.json 10 1
 python scripts/make_srt.py studio/project/06_package.json studio/project/08_captions.srt
+python scripts/lint_package.py check studio/project/06_package.json   # Flow continuity + SFX governor + window/face guard; add --model <id> once the model is chosen
 ```
+
+Prompt-level helpers (same CLI): `lint_package.py sanitize "<prompt>"` applies the Flow / Omni anti-hallucination sanitizer, and `lint_package.py storyboard spec.json` builds the contract-compliant storyboard contact-sheet prompt. Exit code `1` means a rule violation: fix it before delivery.
 
 ---
 
@@ -111,4 +114,5 @@ Open only the reference file required for the active task:
 | **Remotion v4.0.539 Mastery (`video-layout.md`, `splitArabicLetters` ZWJ, `@remotion/effects`, `<HtmlInCanvasMotionBlur>`, Adaptive Silence Cut)** | [`references/remotion-v4-mastery.md`](references/remotion-v4-mastery.md) |
 | **B Studio (`v1.0.10`) & Video-Edit (`v1.1`) Mastery (Zero-Loss Voice/Color, Balanced 2-Line Captions, 4 Window States `FULL/CARD/SIDE/NONE`, 10 Mechanisms, Vox Collage Kit, 5-Gate SFX Governor & Interactive NLE)** | [`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) |
 | **Gemini Omni Flash Stateful Interactions API (`client.interactions.create`, `previous_interaction_id`, `inline`/`uri` Delivery) & FastMCP 8-Tool Agent (`mcp/server.py`)** | [`references/gemini-interactions-api.md`](references/gemini-interactions-api.md) & [`mcp/server.py`](mcp/server.py) |
+| **Schemas, Templates & Examples (`blueprint_schema.json`, `flow_pipeline_schema.json`, `package.template.json`, `flow_pipeline.example.json`) & Evals (`evals.json`)** | [`resources/blueprint_schema.json`](resources/blueprint_schema.json), [`resources/flow_pipeline_schema.json`](resources/flow_pipeline_schema.json), [`templates/package.template.json`](templates/package.template.json), [`examples/flow_pipeline.example.json`](examples/flow_pipeline.example.json), [`resources/evals.json`](resources/evals.json) |
 | **190+ Slash Macros, 9 Arabic Dialects & Programmatic Editing Guides** | [`references/cinematic_macros_and_continuity.md`](references/cinematic_macros_and_continuity.md), [`references/scriptwriting_and_lip_sync_guide.md`](references/scriptwriting_and_lip_sync_guide.md), [`references/programmatic_editing_and_motion_guide.md`](references/programmatic_editing_and_motion_guide.md) |

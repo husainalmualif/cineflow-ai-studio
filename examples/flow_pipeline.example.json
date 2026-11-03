@@ -1,0 +1,24 @@
+{
+  "project": "Demo Flow Pipeline",
+  "defaults": {
+    "surface": "flow",
+    "mediaType": "Video",
+    "mode": "Ingredients",
+    "aspect": "9:16",
+    "duration": "8s",
+    "model": "Omni 1.1 Flash"
+  },
+  "declared_handles": ["@Kwame", "@MarketLane"],
+  "scenes": [
+    {
+      "id": "scene_01",
+      "handoff": "FIRST",
+      "prompt": "@Kwame walks through a busy morning market and lifts a ripe mango, smiling toward the camera."
+    },
+    {
+      "id": "scene_02",
+      "handoff": "CUT",
+      "prompt": "@Kwame hands the mango to a young customer at a wooden stall while shoppers pass behind them."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # استوديو سينما فلو الذكي — CineFlow AI Studio 🎬
 
-**الإصدار `6.5.0`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • B Studio v1.0.10 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
+**الإصدار `6.5.1`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • B Studio v1.0.10 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
 
 > 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) و[`references/09-google-flow-agent-scenes-and-tools-mastery.md`](references/09-google-flow-agent-scenes-and-tools-mastery.md) و[`references/10-google-flow-cli-scripting-and-automation-mastery.md`](references/10-google-flow-cli-scripting-and-automation-mastery.md).
 
@@ -74,6 +74,7 @@ python scripts/multi_agent_orchestrator.py --verify-plan examples/multi_agent_pl
 python scripts/validate_package.py examples/example_03_showrunner_package.json
 python scripts/estimate_cost.py examples/example_03_showrunner_package.json 10 1
 python scripts/make_srt.py examples/example_03_showrunner_package.json examples/out_subtitles.srt
+python scripts/lint_package.py check examples/example_03_showrunner_package.json   # فحص الحوكمة: استمرارية Flow + SFX Governor + حارس الوجه/النوافذ
 
 # 5. تشغيل الفحص الديناميكي للمراجع والاختبارات الآلية وفحص pylint
 python scripts/verify_skill_references.py
@@ -112,6 +113,7 @@ cineflow-ai-studio/
 │   ├── validate_package.py                      # مدقق الحزم القياسي ومخرجات الـ Showrunner
 │   ├── estimate_cost.py                         # حاسبة الأرصدة ثلاثية السيناريوهات قبل GATE 2
 │   ├── make_srt.py                              # مولد ملفات الترجمة العربية (.srt)
+│   ├── lint_package.py                          # واجهة سطر أوامر لقواعد الحوكمة: check / sanitize / storyboard
 │   ├── verify_skill_references.py               # مدقق الروابط والمراجع الديناميكي للـ CI
 │   ├── sync_remotion_skills.py                  # أداة تحديث وتوثيق مراجع Remotion الرسمية
 │   └── Compile-CineFlowBlueprint.ps1            # غلاف PowerShell يستدعي cineflow_compiler.py
@@ -139,8 +141,9 @@ cineflow-ai-studio/
 │   ├── example_03_how_to_use_cineflow.json      # مثال 3 (Blueprint): ريل تعليمي لاستخدام المهارة
 │   ├── example_03_showrunner_package.json       # مثال 4 (Blueprint): حزمة إنتاج Showrunner متكاملة
 │   ├── generated_perfume_ad.json                # مثال 5 (Blueprint): حزمة ناتجة عن cineflow_compiler.py
+│   ├── flow_pipeline.example.json               # مثال صالح لـ resources/flow_pipeline_schema.json (تتحقق منه الاختبارات)
 │   ├── multi_agent_plan.json                    # خطة تنسيق الوكلاء السبعة (تُفحص بـ multi_agent_orchestrator.py --verify-plan)
-│   └── script_source.json                       # مدخل سكربت إذاعي مشكول (تُفحص بـ multi_agent_orchestrator.py --validate-script)
+│   └── script_source.json                       # مدخل سكربت إذاعي مشكول (يُفحص بـ multi_agent_orchestrator.py --validate-script)
 └── tests/
     ├── test_cineflow_compiler.py                # اختبارات المترجم واللغة العربية والحوكمة
     ├── test_montage.py                          # اختبارات المونتاج الإيقاعي وRemotion v4 وOmni API
