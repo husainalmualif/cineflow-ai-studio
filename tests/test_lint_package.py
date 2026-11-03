@@ -19,7 +19,12 @@ import pytest
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
 
-from cineflow_compiler import compile_cineflow_blueprint  # noqa: E402
+from cineflow_compiler import (  # noqa: E402
+    ECOSYSTEM_22_TOOLS_REGISTRY,
+    audit_cultural_and_dialect_authenticity,
+    compile_cineflow_blueprint,
+    compile_multi_platform_tool_payload,
+)
 from governance_and_omni import lint_flow_continuity_and_platform_profile  # noqa: E402
 from lint_package import extract_sfx_events, lint_package_dict, main  # noqa: E402
 
@@ -186,3 +191,59 @@ def test_templates_are_well_formed() -> None:
     package_template = _load("templates/package.template.json")
     for key in ("project", "identity_bible", "blocks", "outro"):
         assert key in package_template, f"package.template.json missing '{key}'"
+
+
+def test_22_tool_ecosystem_payload_compiler_and_cli(capsys: pytest.CaptureFixture) -> None:
+    """All 22 creative and generative tools are registered and compile valid payloads."""
+    assert len(ECOSYSTEM_22_TOOLS_REGISTRY) == 22
+    hailuo = compile_multi_platform_tool_payload(
+        prompt="@Kwame lifts the @AmberFlacon in golden hour light.",
+        tool_id="hailuo_minimax",
+        camera_preset="orbit_arc",
+    )
+    assert hailuo["compiled_prompt"].startswith("[Truck left, Pan right]")
+
+    seedance = compile_multi_platform_tool_payload(
+        prompt="@Kwame walks through the market.",
+        tool_id="seedance",
+        duration_s=8,
+        handles=["@Kwame"],
+    )
+    assert "@Image1 (@Kwame)" in seedance["compiled_prompt"]
+    assert "Shot 1 (0s-4s):" in seedance["compiled_prompt"]
+
+    higgs = compile_multi_platform_tool_payload(
+        prompt="Subject stays centered while neon city spins.",
+        tool_id="higgsfield",
+        camera_preset="snorricam",
+    )
+    assert "DoP Preset: SnorriCam" in higgs["compiled_prompt"]
+
+    with pytest.raises(SystemExit) as ok:
+        main(["tool-payload", "davinci_resolve", "Apply 7-node DWG grade", "--camera", "push_in"])
+    assert ok.value.code == 0
+    cli_out = json.loads(capsys.readouterr().out)
+    assert cli_out["tool_name"] == "DaVinci Resolve Studio"
+
+
+def test_cultural_etiquette_and_dialect_authenticity_auditor() -> None:
+    """Cultural auditor catches Majlis left-hand Finjan blunders and cross-dialect contamination."""
+    clean = audit_cultural_and_dialect_authenticity(
+        script_text="يا طويل العمر أبشر بالقهوة السعودية اللي تبيض الوجه",
+        visual_prompt="Host holds brass Dallah in left hand and offers Finjan with right hand, filled to the bottom third.",
+        target_dialect="SAUDI_NAJDI",
+    )
+    assert clean["valid"] is True
+    assert not clean["violations"]
+
+    bad = audit_cultural_and_dialect_authenticity(
+        script_text="وش دعوة يا طويل العمر تعال دلوقتي نشرب القهوة كتير حلوة",
+        visual_prompt="Host offers the finjan with his left hand, arabic coffee cup filled to the top, clinking glasses.",
+        target_dialect="SAUDI_NAJDI",
+    )
+    assert bad["valid"] is False
+    joined = " | ".join(bad["violations"])
+    assert "CulturalEtiquette_MajlisHand" in joined
+    assert "CulturalEtiquette_FinjanFill" in joined
+    assert "CulturalEtiquette_Modesty" in joined
+    assert "DialectContamination" in joined

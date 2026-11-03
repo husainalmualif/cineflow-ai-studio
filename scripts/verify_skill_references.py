@@ -131,6 +131,25 @@ def verify_repository_references(root: Path = ROOT_DIR) -> List[str]:
                 "evals/evals.json and resources/evals.json have diverged; keep them synchronized."
             )
 
+    # Verify relative links inside references/remotion_skills_official/*/*.md resolve on disk
+    remotion_dir = root / "references" / "remotion_skills_official"
+    if remotion_dir.is_dir():
+        for md_file in sorted(remotion_dir.glob("*/*.md")):
+            md_text = md_file.read_text(encoding="utf-8")
+            for link in MD_LINK_RE.findall(md_text):
+                clean_link = link.strip().split("#")[0].strip()
+                if not clean_link or clean_link.startswith(("http://", "https://", "mailto:", "/")):
+                    continue
+                resolved = (md_file.parent / clean_link).resolve()
+                if not resolved.exists():
+                    rel_md = md_file.relative_to(root).as_posix()
+                    errors.append(f"{rel_md} has broken relative link: '{clean_link}'")
+
+    # Guard against stale nested duplicate skill directories
+    for stale_dir in (".agents", "studio"):
+        if (root / stale_dir).exists():
+            errors.append(f"Stale duplicate directory '{stale_dir}/' should not exist at repository root.")
+
     return errors
 
 

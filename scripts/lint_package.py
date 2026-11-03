@@ -30,6 +30,10 @@ import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from arabic_helpers import (  # noqa: E402
+    audit_cultural_and_dialect_authenticity,
+    compile_multi_platform_tool_payload,
+)
 from governance_and_omni import (  # noqa: E402
     audit_sfx_governor,
     generate_contract_storyboard_prompt,
@@ -257,9 +261,35 @@ def _cmd_storyboard(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_tool_payload(args: argparse.Namespace) -> int:
+    try:
+        res = compile_multi_platform_tool_payload(
+            prompt=args.prompt,
+            tool_id=args.tool,
+            camera_preset=args.camera,
+            duration_s=args.duration,
+            handles=args.handles,
+        )
+    except ValueError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0
+
+
+def _cmd_cultural_audit(args: argparse.Namespace) -> int:
+    res = audit_cultural_and_dialect_authenticity(
+        script_text=args.script,
+        visual_prompt=args.visual_prompt,
+        target_dialect=args.dialect,
+    )
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if res["valid"] else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
-    parser = argparse.ArgumentParser(description="CineFlow governance linter (SFX governor, window guard, Flow continuity).")
+    parser = argparse.ArgumentParser(description="CineFlow governance linter (SFX governor, window guard, Flow continuity, 22-tool payloads & cultural audit).")
     sub = parser.add_subparsers(dest="command", required=True)
 
     check = sub.add_parser("check", help="lint a package JSON file")
@@ -281,6 +311,20 @@ def build_parser() -> argparse.ArgumentParser:
     storyboard = sub.add_parser("storyboard", help="build the storyboard contact-sheet prompt")
     storyboard.add_argument("spec", help="path to the storyboard spec JSON")
     storyboard.set_defaults(func=_cmd_storyboard)
+
+    tool_p = sub.add_parser("tool-payload", help="compile a prompt for any of the 22 creative/AI video tools")
+    tool_p.add_argument("tool", help="tool_id from ECOSYSTEM_22_TOOLS_REGISTRY (e.g. hailuo_minimax, higgsfield, seedance, davinci_resolve)")
+    tool_p.add_argument("prompt", help="visual action prompt")
+    tool_p.add_argument("--camera", default="push_in", help="camera move preset (default: push_in)")
+    tool_p.add_argument("--duration", type=int, default=8, help="duration in seconds (default: 8)")
+    tool_p.add_argument("--handles", nargs="*", default=None, help="optional @PascalCase handles")
+    tool_p.set_defaults(func=_cmd_tool_payload)
+
+    cult = sub.add_parser("cultural-audit", help="audit Arabic dialect and Majlis/cultural etiquette")
+    cult.add_argument("script", help="spoken Arabic script")
+    cult.add_argument("visual_prompt", help="English visual prompt")
+    cult.add_argument("--dialect", default="AUTO", help="target dialect code (default: AUTO)")
+    cult.set_defaults(func=_cmd_cultural_audit)
     return parser
 
 

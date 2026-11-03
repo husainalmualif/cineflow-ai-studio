@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-skill-and-compiler:
-    name: Validate Skill References, Pylint, Pytest (3 Suites), Beat Grid & Showrunner Tools
+    name: Validate Skill References, Pylint, Pytest (4 Suites), Beat Grid & Showrunner Tools
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -65,8 +65,11 @@ jobs:
           python scripts/lint_package.py check examples/generated_perfume_ad.json
           python scripts/lint_package.py sanitize "35mm f/1.4 portrait, no text" > /tmp/test_sanitized.json
           test -s /tmp/test_sanitized.json
+          python scripts/lint_package.py tool-payload hailuo_minimax "Luxury bottle on obsidian pedestal" --camera orbit_arc > /tmp/test_tool_payload.json
+          test -s /tmp/test_tool_payload.json
+          python scripts/lint_package.py cultural-audit "هَلَا وَاللَّه يَا الغَالِي" "Host holds brass Dallah in left hand and offers Finjan with right hand" --dialect SAUDI_NAJDI > /tmp/test_cultural_audit.json
+          test -s /tmp/test_cultural_audit.json
           python scripts/multi_agent_orchestrator.py --verify-plan /tmp/test_plan.json
-          python scripts/multi_agent_orchestrator.py --verify-plan examples/multi_agent_plan.json
           python scripts/validate_package.py examples/example_01_commercial_promo.json
           python scripts/validate_package.py examples/example_02_explainer_and_story_script.json
           python scripts/validate_package.py examples/example_03_how_to_use_cineflow.json

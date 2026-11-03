@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Centralized configuration, constants, dialect lexicons, and 185+ slash macros for CineFlow AI Studio.
+"""Centralized configuration, constants, dialect lexicons, and 190+ slash macros for CineFlow AI Studio.
 
 Single Source of Truth (fixes H2, H3, H5, H6, D4, D6):
 - All scripts (cineflow_compiler.py, validate_package.py, estimate_cost.py,
@@ -61,13 +61,38 @@ VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
 
 # Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
 # Single Source of Truth for Model IDs and Verification Metadata
-MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-02"
+MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-03"
 OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-flash-preview"
 OMNI_FLASH_STABLE_MODEL: str = "gemini-omni-1.1-flash"
 VEO_PRIMARY_MODEL: str = "veo-3.1-quality"
 SEEDANCE_PRIMARY_MODEL: str = "seedance-2.0"
 KEYFRAME_REFERENCE_MODEL: str = "nano-banana-pro"
 TEXT_REASONING_MODEL: str = "gemini-2.5-pro"
+
+ECOSYSTEM_22_TOOLS_REGISTRY: Dict[str, Dict[str, Any]] = {
+    "blender": {"category": "3d_motion", "name": "Blender", "automation": "bpy headless CLI + Cycles/AgX"},
+    "cinema_4d": {"category": "3d_motion", "name": "Cinema 4D", "automation": "c4d Python SDK + MoGraph Fields + Redshift AOVs"},
+    "after_effects": {"category": "3d_motion", "name": "Adobe After Effects", "automation": "aerender CLI + JS Expressions + .mogrt"},
+    "apple_motion": {"category": "3d_motion", "name": "Apple Motion", "automation": ".motn XML + Behaviors + FCP Rig publishing"},
+    "premiere_pro": {"category": "nle_post", "name": "Adobe Premiere Pro", "automation": "ExtendScript/UXP + FCPXML + Essential Sound ducking"},
+    "davinci_resolve": {"category": "nle_post", "name": "DaVinci Resolve Studio", "automation": "DaVinciResolveScript + DWG 7-Node CST + Fairlight -14 LUFS"},
+    "capcut": {"category": "nle_post", "name": "CapCut", "automation": "draft_content.json generator (µs timeline + RTL Cairo captions)"},
+    "filmora": {"category": "nle_post", "name": "Wondershare Filmora", "automation": ".wfp + Silence Detection (-32dB) + AI Audio Stretch"},
+    "heygen": {"category": "avatar_repurpose", "name": "HeyGen", "automation": "Avatar IV API v2 + vocalized Arabic viseme sync"},
+    "synthesia": {"category": "avatar_repurpose", "name": "Synthesia", "automation": "Express-2 Avatars API v2 + multi-avatar scenes"},
+    "magiclight_ai": {"category": "avatar_repurpose", "name": "MagicLight.AI", "automation": "Asset Store Character Bible + Nano Storyboard 30-50m pipeline"},
+    "veed_io": {"category": "avatar_repurpose", "name": "Veed.io", "automation": "Eye Contact + Clean Audio (80%) + Magic Cut"},
+    "opusclip": {"category": "avatar_repurpose", "name": "OpusClip", "automation": "ClipAnything virality score + 9:16 active-speaker face tracking"},
+    "google_veo": {"category": "generative_video", "name": "Google Veo 3.1", "automation": "Lite/Fast (4/6/8s), Quality (8s), Extend (+8s Lite)"},
+    "google_flow": {"category": "generative_video", "name": "Google Flow", "automation": "Omni 1.1 Flash (4/6/8/10s, 7 refs, 5 voices) + 0-credit 1080p upscale"},
+    "runway": {"category": "generative_video", "name": "Runway Gen-4", "automation": "Affirmative motion prompt + Act-One facial performance transfer"},
+    "kling_ai": {"category": "generative_video", "name": "Kling AI 2.1/3.0", "automation": "Elements (up to 4 cutouts) + 6-axis Camera Control + Motion Brush"},
+    "hailuo_minimax": {"category": "generative_video", "name": "Hailuo AI / MiniMax", "automation": "I2V-01-Director bracketed camera commands [Push in, Pan right] + S2V-01"},
+    "wan_ai": {"category": "generative_video", "name": "Wan 2.1 / 3.0 (VACE)", "automation": "FLF2V first-last-frame + VACE unified R2V/V2V/inpainting"},
+    "dreamina": {"category": "generative_video", "name": "Dreamina (Jimeng AI)", "automation": "Seedream 3.0 bilingual typography + Seedance 2.0 micro-acting"},
+    "seedance": {"category": "generative_video", "name": "Seedance 2.0", "automation": "@Image1/@Video1/@Audio1 multimodal binding + 2-4 shot narrative cuts"},
+    "higgsfield": {"category": "generative_video", "name": "Higgsfield AI Studio", "automation": "Soul ID character lock + DoP cinema-rig presets (SnorriCam, Crash Zoom, Bullet Time)"},
+}
 
 MODEL_REGISTRY: Dict[str, Any] = {
     "last_verified_date": MODEL_REGISTRY_LAST_VERIFIED,

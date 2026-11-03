@@ -245,6 +245,32 @@
         "slideshow_risk_verdict": "fail",
         "scene_variation_verdict": "fail"
       }
+    },
+    {
+      "id": "EVAL_POS_14",
+      "category": "positive",
+      "prompt": "أريد إنتاج إعلان عطر خليجي باستخدام Hailuo MiniMax وHiggsfield DoP وSeedance 2.0 ثم تلوينه في DaVinci Resolve Studio وتحريكه في Blender وAfter Effects",
+      "should_trigger": true,
+      "expected": {
+        "ecosystem_tools_count": 22,
+        "hailuo_bracket_syntax": "[Truck left, Pan right]",
+        "higgsfield_dop_preset": "SnorriCam",
+        "seedance_multimodal_tags": ["@Image1", "@Audio1"]
+      }
+    },
+    {
+      "id": "EVAL_EDGE_07",
+      "category": "edge_case",
+      "prompt": "فحص مشهد مجلس سعودي يقدم فيه المضيف الفنجان باليد اليسرى مع كاس مملوء للآخر وكلمات مصرية وشامية داخل نص نجدي",
+      "should_trigger": true,
+      "expected": {
+        "cultural_audit_valid": false,
+        "violations_detected": [
+          "CulturalEtiquette_MajlisHand",
+          "CulturalEtiquette_FinjanFill",
+          "DialectContamination"
+        ]
+      }
     }
   ]
 }

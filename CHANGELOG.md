@@ -2,6 +2,19 @@
 
 All notable changes to `cineflow-ai-studio` are documented in this file.
 
+## [6.6.0] — 2026-11-03
+### Added (22-Tool Creative & Generative Video Ecosystem + Human-Level Cultural, Dialect & Media Psychology Mastery)
+- **Complete 22-Tool Creative & AI Video Ecosystem (`references/11-22-tool-video-ecosystem-and-nle-mastery.md` & `ECOSYSTEM_22_TOOLS_REGISTRY`)**:
+  - Added actionable CLI/API hooks, prompt grammars, camera command tokens, and post-production interchange rules for all **22 tools**:
+    - **3D & Motion Graphics (`4`)**: `Blender` (`bpy` headless CLI, AgX/ACEScg, Geometry Nodes), `Cinema 4D` (`c4d` Python SDK, MoGraph Fields Spring, Redshift Cryptomatte AOVs, Cineware), `Adobe After Effects` (`aerender`, JS Expressions `sourceRectAtTime` RTL pills, `.mogrt`), `Apple Motion` (`.motn` Behaviors, FCP Rig publishing).
+    - **Professional NLEs (`4`)**: `DaVinci Resolve Studio` (`DaVinciResolveScript`, 7-Node DaVinci Wide Gamut CST pipeline, Magic Mask skin protection, Fairlight `-14.0 LUFS`), `Adobe Premiere Pro` (`FCPXML`/`EDL` beat markers, Essential Sound ducking), `CapCut` (`draft_content.json` microsecond generator), `Wondershare Filmora` (`.wfp`, Silence Detection `-32dB`, AI Audio Stretch).
+    - **AI Avatar, Long-Form Storyboard & Cloud Repurposing (`5`)**: `HeyGen` (`Avatar IV` API v2 + vocalized Arabic visemes), `Synthesia` (`Express-2 Avatars`), `MagicLight.AI` (5-stage Character Bible Asset Store + Nano Storyboard 30–50m long-form workflow), `Veed.io` (`Eye Contact` + `Clean Audio`), `OpusClip` (`ClipAnything` virality scoring + `9:16` active-speaker face-tracking).
+    - **Frontier Generative Video Models (`9`)**: `Google Veo 3.1`, `Google Flow` (`Omni 1.1 Flash` + `Nano Banana Pro`), `Runway Gen-4` (`Act-One`), `Kling AI 2.1/3.0` (`Elements` + 6-axis Camera Control), `Hailuo AI / MiniMax` (`I2V-01-Director` bracketed camera commands `[Push in, Pan right]` + `S2V-01`), `Wan 2.1/3.0` (`VACE` + `FLF2V`), `Dreamina` (`Seedream 3.0`), `Seedance 2.0` (`@Image1`/`@Video1`/`@Audio1` multi-shot syntax), and `Higgsfield AI Studio` (`Soul ID` + `DoP` presets `SnorriCam`, `Crash Zoom`, `Bullet Time`).
+- **Human-Level Arabic Dialectology, Cultural Etiquette & Media Psychology (`references/12-human-cultural-dialects-and-media-psychology.md`)**:
+  - Documented the **12-Dialect Sociolinguistic Matrix**, **6 Cultural & Majlis Etiquette Laws** (`Dallah` in left hand, `Finjan` offered with right hand filled one-third, regional `Thobe/Kandura/Dishdasha/Shemagh/Ghutra/Kuma` precision, intergenerational respect), and **Behavioral Media/Advertising Psychology** (Schwartz's 5 awareness stages, Kahneman System 1/2 cognitive ease, Cialdini's triggers, Binet & Field dual-engine law, and 2026 short-form retention gates).
+- **Programmable Compilers & CLI Subcommands (`scripts/arabic_helpers.py` & `scripts/lint_package.py`)**:
+  - Added `compile_multi_platform_tool_payload` (`lint_package.py tool-payload`) and `audit_cultural_and_dialect_authenticity` (`lint_package.py cultural-audit`), and unified model registry verification dates (`2026-11-03`) across `studio_config.py`, `references/model-registry.md`, and `references/08-model-registry-and-benchmarks.md`.
+
 ## [6.5.1] — 2026-11-03
 ### Added
 - **`scripts/lint_package.py`**: CLI for the governance functions that had no entry point (`audit_sfx_governor`, `validate_window_schedule_and_face_guard`, `lint_flow_continuity_and_platform_profile`, `sanitize_flow_video_prompt`, `generate_contract_storyboard_prompt`) with `check` / `sanitize` / `storyboard` sub-commands; wired into SKILL.md Section 4, README and CI.

@@ -139,7 +139,7 @@ Use [sequencing](sequencing.md) to choose the timing boundary and
 
 ## Maps
 
-See [Remotion Maps](./remotion-maps/SKILL.md) if wanting to include maps in the video.
+See [Remotion Maps](../remotion-maps/SKILL.md) if wanting to include maps in the video.
 
 ## Text highlights and annotations
 
@@ -242,7 +242,7 @@ When needing to visualize audio (spectrum bars, waveforms, bass-reactive effects
 
 ## Maps
 
-For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](./remotion-maps/SKILL.md).
+For static maps, animated routes and markers, geographic explainers, Mapbox, MapLibre, MapTiler, GeoJSON, or 3D geographic flyovers, load [Remotion Maps](../remotion-maps/SKILL.md).
 
 ## Captions
 

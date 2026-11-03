@@ -11,11 +11,12 @@ import math
 import os
 import re
 import sys
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from studio_config import (  # noqa: E402
     DIALECT_LEXICON,
+    ECOSYSTEM_22_TOOLS_REGISTRY,
     KASHIDA_PROTECTED_WORDS,
     MACRO_DICTIONARY,
     MAX_WORDS_PER_SECOND_AR,
@@ -520,4 +521,157 @@ def format_omni_flash_dialect_dialogue(
         "had_msa_tanween_stripped": has_tanween,
         "phonetic_notes": phonetic_notes,
         "omni_flash_prompt_segment": prompt_segment,
+    }
+
+
+_HAILUO_CAMERA_MAP: Dict[str, str] = {
+    "push_in": "[Push in]",
+    "dolly_in": "[Push in]",
+    "pull_out": "[Pull out]",
+    "dolly_out": "[Pull out]",
+    "truck_left": "[Truck left]",
+    "truck_right": "[Truck right]",
+    "pan_left": "[Pan left]",
+    "pan_right": "[Pan right]",
+    "tilt_up": "[Tilt up]",
+    "tilt_down": "[Tilt down]",
+    "pedestal_up": "[Pedestal up]",
+    "pedestal_down": "[Pedestal down]",
+    "tracking": "[Tracking shot]",
+    "orbit_arc": "[Truck left, Pan right]",
+}
+
+_HIGGSFIELD_DOP_PRESETS: Dict[str, str] = {
+    "crash_zoom": "Crash Zoom In",
+    "bullet_time": "Bullet Time",
+    "snorricam": "SnorriCam",
+    "roboarm": "RoboArm",
+    "fpv_drone": "FPV Drone",
+    "whip_pan": "Whip Pan",
+    "dutch_angle": "Dutch Angle",
+    "push_in": "Super Dolly",
+    "dolly_in": "Super Dolly",
+    "orbit_arc": "Arc Left",
+}
+
+
+def audit_cultural_and_dialect_authenticity(
+    script_text: str,
+    visual_prompt: str,
+    target_dialect: str = "AUTO",
+) -> Dict[str, Any]:
+    """
+    Human-level Cultural Anthropology, Social Etiquette & Dialect Cross-Contamination Auditor
+    (`references/12-human-cultural-dialects-and-media-psychology.md`):
+    1. Flags Arabic coffee / Majlis hand-etiquette errors (offering Finjan with left hand, holding Dallah
+       in right hand while pouring, or filling Finjan to the brim).
+    2. Flags cross-dialect lexical contamination (e.g., Egyptian `دلوقتي/كده` or Levantine `هلأ/كتير`
+       inside a declared Gulf/Saudi/Bahraini/Kuwaiti/Emirati script).
+    3. Flags inappropriate toast/clinking-glasses gestures in GCC/family visual prompts.
+    """
+    violations: List[str] = []
+    recommendations: List[str] = []
+    vis_low = str(visual_prompt or "").lower()
+    clean_script = re.sub(r"[\u064B-\u0652\u0670]", "", str(script_text or ""))
+
+    _left_finjan_re = (
+        r"(?:finjan|coffee\s+cup)\s+(?:with|in)\s+(?:his\s+|her\s+|the\s+)?left\s+hand"
+        r"|(?:offer|hand|give|present)\w*\s+(?:the\s+|a\s+)?(?:finjan|coffee(?:\s+cup)?|cup)\s+"
+        r"(?:with|in)\s+(?:his\s+|her\s+|the\s+)?left\s+hand"
+        r"|dallah\s+(?:with|in)\s+(?:his\s+|her\s+|the\s+)?right\s+hand"
+    )
+    if re.search(_left_finjan_re, vis_low):
+        violations.append(
+            "CulturalEtiquette_MajlisHand: Finjan/coffee must be offered with the RIGHT hand and Dallah held in the LEFT hand."
+        )
+    if re.search(r"(?:finjan|arabic\s+coffee\s+cup)[^.]*(?:full\s+to\s+the\s+brim|filled\s+to\s+the\s+top|overflowing)", vis_low):
+        violations.append(
+            "CulturalEtiquette_FinjanFill: Authentic Arabic coffee finjan is poured to the bottom third, never filled to the brim."
+        )
+    if re.search(r"\b(?:clink(?:ing)?\s+glasses|champagne\s+toast|toast(?:ing)?\s+glasses)\b", vis_low):
+        violations.append(
+            "CulturalEtiquette_Modesty: Avoid clinking-glasses toast gestures in GCC/Arab family contexts."
+        )
+    if ("coffee" in vis_low or "finjan" in vis_low or "dallah" in vis_low) and "right hand" not in vis_low:
+        recommendations.append(
+            "Specify 'holding the brass Dallah in the left hand and offering the Finjan with the right hand (filled one-third)'."
+        )
+
+    detected_info = detect_arabic_dialect_with_confidence(clean_script)
+    effective_dialect = (
+        str(detected_info.get("dialect_code", detected_info.get("dialect", "UNKNOWN")))
+        if target_dialect == "AUTO"
+        else target_dialect.upper()
+    )
+    gulf_dialects = {"SAUDI_NAJDI", "SAUDI_HIJAZI", "SAUDI_SHARQAWI", "BAHRAIN_URBAN", "KUWAITI", "QATARI", "EMIRATI", "OMANI"}
+    if any(g in effective_dialect for g in gulf_dialects):
+        non_gulf_markers = [w for w in ("دلوقتي", "ازيك", "إزيك", "كده", "هلأ", "هلق", "كتير", "كرمال", "دابا", "بزاف") if w in clean_script]
+        if non_gulf_markers:
+            violations.append(
+                f"DialectContamination: Non-Gulf lexical markers {non_gulf_markers} found inside '{effective_dialect}' script."
+            )
+
+    return {
+        "valid": len(violations) == 0,
+        "effective_dialect": effective_dialect,
+        "violations": violations,
+        "recommendations": recommendations,
+    }
+
+
+def compile_multi_platform_tool_payload(
+    prompt: str,
+    tool_id: str,
+    camera_preset: str = "push_in",
+    duration_s: int = 8,
+    handles: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    Compiles a zero-error, tool-specific prompt and automation payload for any of the 22 creative
+    and generative video tools (`references/11-22-tool-video-ecosystem-and-nle-mastery.md`).
+    """
+    norm_tool = str(tool_id or "").strip().lower().replace("-", "_").replace(" ", "_").replace(".", "_")
+    if norm_tool not in ECOSYSTEM_22_TOOLS_REGISTRY:
+        raise ValueError(
+            f"Unknown tool_id '{tool_id}'. Supported tools ({len(ECOSYSTEM_22_TOOLS_REGISTRY)}): "
+            f"{sorted(ECOSYSTEM_22_TOOLS_REGISTRY.keys())}"
+        )
+    meta = ECOSYSTEM_22_TOOLS_REGISTRY[norm_tool]
+    clean_prompt = re.sub(r"\s{2,}", " ", str(prompt or "").replace("\r", " ").replace("\n", " ")).strip()
+    h_list = list(handles or ["@LeadSubject", "@HeroProduct"])
+
+    if norm_tool == "hailuo_minimax":
+        cam_bracket = _HAILUO_CAMERA_MAP.get(camera_preset.lower(), "[Push in]")
+        formatted = f"{cam_bracket} {clean_prompt}"
+    elif norm_tool in ("seedance", "dreamina"):
+        b1 = h_list[0] if h_list else "@Image1"
+        formatted = (
+            f"Use @Image1 ({b1}) for character appearance and @Audio1 for beat rhythm. "
+            f"Shot 1 (0s-{duration_s // 2}s): {clean_prompt} "
+            f"Shot 2 ({duration_s // 2}s-{duration_s}s): Hard cut to close-up payoff synchronized with @Audio1."
+        )
+    elif norm_tool == "higgsfield":
+        dop = _HIGGSFIELD_DOP_PRESETS.get(camera_preset.lower(), "Super Dolly")
+        hashtag = f"#{camera_preset.lower()}"
+        formatted = f"[Soul ID Locked | DoP Preset: {dop} | {hashtag}] {clean_prompt}"
+    elif norm_tool == "magiclight":
+        b1 = h_list[0] if h_list else "@LeadSubject"
+        formatted = f"[MagicLight Nano Storyboard | Character Lock: {b1}] {clean_prompt}"
+    elif norm_tool == "wan_vace":
+        b1 = h_list[0] if h_list else "@LeadSubject"
+        formatted = f"[Wan VACE VCU | Ref: {b1} | Motion: {camera_preset}] {clean_prompt}"
+    elif norm_tool == "runway":
+        no_neg = re.sub(r"--no\s+.*$", "", clean_prompt, flags=re.I).strip()
+        formatted = f"Smooth {camera_preset.replace('_', ' ')} camera movement: {no_neg}"
+    else:
+        formatted = clean_prompt
+
+    return {
+        "tool_id": norm_tool,
+        "tool_name": meta["name"],
+        "category": meta["category"],
+        "automation_hook": meta["automation"],
+        "duration_s": int(duration_s),
+        "camera_preset": camera_preset,
+        "compiled_prompt": formatted,
     }

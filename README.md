@@ -1,8 +1,8 @@
 # استوديو سينما فلو الذكي — CineFlow AI Studio 🎬
 
-**الإصدار `6.5.1`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0`)، وكتابة السكربت الإذاعي المشكول، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي بسرعة 60 إطاراً/ثانية (`Remotion v4.0.539 • B Studio v1.0.10 • Three.js WebGL • HyperFrames • FFmpeg • Whisper`).
+**الإصدار `6.6.0`** — الاستوديو الشامل للتوليد السينمائي بالذكاء الاصطناعي (`Google Flow • Veo 3.1 • gemini-omni-flash-preview • Nano Banana Pro • Seedance 2.0 • Runway Gen-4 • Kling 3.0 • Hailuo Director • Wan VACE • Higgsfield DoP • MagicLight.AI`)، وكتابة السكربت الإذاعي المشكول بـ 12 لهجة عربية مع مراعاة الأعراف المجتمعية وعلم نفس الإعلان، والمونتاج الإيقاعي المقفول على النبض (`beat_grid.py`)، والمونتاج البرمجي والاحترافي (`Remotion v4.0.539 • B Studio v1.0.10 • Blender • Cinema 4D • After Effects • Apple Motion • Premiere Pro • DaVinci Resolve Studio • CapCut • Filmora • HeyGen • Synthesia • Veed.io • OpusClip`).
 
-> 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) و[`references/09-google-flow-agent-scenes-and-tools-mastery.md`](references/09-google-flow-agent-scenes-and-tools-mastery.md) و[`references/10-google-flow-cli-scripting-and-automation-mastery.md`](references/10-google-flow-cli-scripting-and-automation-mastery.md).
+> 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) و[`references/09-google-flow-agent-scenes-and-tools-mastery.md`](references/09-google-flow-agent-scenes-and-tools-mastery.md) و[`references/10-google-flow-cli-scripting-and-automation-mastery.md`](references/10-google-flow-cli-scripting-and-automation-mastery.md) و[`references/11-22-tool-video-ecosystem-and-nle-mastery.md`](references/11-22-tool-video-ecosystem-and-nle-mastery.md) و[`references/12-human-cultural-dialects-and-media-psychology.md`](references/12-human-cultural-dialects-and-media-psychology.md).
 
 ---
 
@@ -113,7 +113,7 @@ cineflow-ai-studio/
 │   ├── validate_package.py                      # مدقق الحزم القياسي ومخرجات الـ Showrunner
 │   ├── estimate_cost.py                         # حاسبة الأرصدة ثلاثية السيناريوهات قبل GATE 2
 │   ├── make_srt.py                              # مولد ملفات الترجمة العربية (.srt)
-│   ├── lint_package.py                          # واجهة سطر أوامر لقواعد الحوكمة: check / sanitize / storyboard
+│   ├── lint_package.py                          # واجهة سطر أوامر لقواعد الحوكمة: check / sanitize / storyboard / tool-payload / cultural-audit
 │   ├── verify_skill_references.py               # مدقق الروابط والمراجع الديناميكي للـ CI
 │   ├── sync_remotion_skills.py                  # أداة تحديث وتوثيق مراجع Remotion الرسمية
 │   └── Compile-CineFlowBlueprint.ps1            # غلاف PowerShell يستدعي cineflow_compiler.py
@@ -128,10 +128,14 @@ cineflow-ai-studio/
 │   ├── b-studio-and-video-edit-mastery.md       # إتقان B Studio v1.0.10 و Video-Edit v1.1 (حفظ الصوت واللون، النوافذ الأربع، كولاج Vox، وحاكم المؤثرات)
 │   ├── gemini-interactions-api.md               # دليل واجهة التفاعلات الحفظية لـ Gemini Omni Flash
 │   ├── 09-google-flow-agent-scenes-and-tools-mastery.md # إتقان Google Flow Agent وVoices/Characters/Scenes وMondo Sónico
+│   ├── 10-google-flow-cli-scripting-and-automation-mastery.md # إتقان Google Flow CLI وScripting v1.6.0 وUGC
+│   ├── 11-22-tool-video-ecosystem-and-nle-mastery.md # الموسوعة العملية لـ 22 أداة مونتاج و3D وتوليد فيديو بالذكاء الاصطناعي
+│   ├── 12-human-cultural-dialects-and-media-psychology.md # فقه اللهجات الـ 12 والأعراف المجتمعية وعلم نفس الإعلام والإعلان
 │   ├── 01-team-and-roles.md .. 08-model-registry-and-benchmarks.md
 │   └── remotion_skills_official/                # مكتبة قواعد Remotion v4.0.539 المرجعية الرسمية (مع UPSTREAM_ATTRIBUTION.md)
 ├── resources/
 │   ├── blueprint_schema.json                    # عقد الـ JSON Schema الموحد
+│   ├── flow_pipeline_schema.json                # عقد خطوط إنتاج المشاهد لـ Google Flow (flow.json)
 │   └── evals.json                               # حالات التقييم القياسية (متزامنة مع evals/evals.json)
 ├── evals/
 │   └── evals.json                               # حالات تقييم التفعيل والقبول
@@ -147,7 +151,8 @@ cineflow-ai-studio/
 └── tests/
     ├── test_cineflow_compiler.py                # اختبارات المترجم واللغة العربية والحوكمة
     ├── test_montage.py                          # اختبارات المونتاج الإيقاعي وRemotion v4 وOmni API
-    └── test_omni_agent.py                       # اختبارات خادم FastMCP بالمحاكاة (Mocked GenAI)
+    ├── test_omni_agent.py                       # اختبارات خادم FastMCP بالمحاكاة (Mocked GenAI)
+    └── test_lint_package.py                     # اختبارات lint_package.py والـ 22 أداة وفحص اللهجات والأعراف
 ```
 
 ---
