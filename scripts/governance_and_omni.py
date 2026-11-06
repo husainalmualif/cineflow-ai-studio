@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=too-many-lines
 """
 Production Governance, Slideshow Risk Scorer, Scene Variation Auditor,
 7-Dimension Provider Selector, Runtime Partitioner & Omni Flash Stateful Payload Builder.
@@ -578,16 +579,7 @@ def audit_sfx_governor(
     word_timestamps: Optional[List[float]] = None,
     duration_s: float = 60.0,
 ) -> Dict[str, Any]:
-    """
-    Implements B Studio `05b_sfx_audit.py` + Rules 1, 29, 54, 55, 70, 86:
-    1. Every SFX event must be within <= 120 ms of a spoken word timestamp (when provided).
-    2. Actual acoustic onset after subtracting `lead_s` must be within <= 60 ms of target time.
-    3. Minimum >= 1.0 s spacing between any two SFX events.
-    4. Spectral budget: at most 2.0/min synthetic SFX with spectral centroid > 4000 Hz
-       (creator-owned library sounds `is_creator_lib=True` are exempt).
-    5. Density & repeats: transition SFX <= 10.0/min, total SFX <= 20.0/min,
-       and any single semantic SFX name used at most 3 times per video.
-    """
+    """Implements B Studio 05b_sfx_audit.py + Rules 1, 29, 54, 55, 70, 86."""
     violations: List[str] = []
     mins = max(1.0, float(duration_s) / 60.0)
     sorted_ev = sorted(sfx_events, key=lambda item: float(item.get("time_s", 0.0)))
@@ -674,13 +666,7 @@ def validate_window_schedule_and_face_guard(
     face_top_y: int = 578,
     graphics_boxes: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
-    """
-    Implements B Studio `18_stage_from_scenes.py` + `19_scene_audit.py` + Rules 77-82:
-    - Computes hair-safe ceiling `full_floor = face_top_y - 158` (default 420px in 9:16).
-    - Enforces minimum window state hold >= 2.0s and speaker `FULL` return >= 2.5s between graphics.
-    - Enforces `NONE` (speaker hidden, after initial 3.0s hook) <= 2 times per 120s.
-    - Rejects any `FULL` graphic descending below `full_floor + 5`.
-    """
+    """Implements B Studio 18_stage_from_scenes.py + 19_scene_audit.py + Rules 77-82."""
     violations: List[str] = []
     full_floor = int(face_top_y) - 158
     none_count_after_hook = 0
@@ -876,14 +862,7 @@ def lint_flow_continuity_and_platform_profile(
     duration_s: int = 8,
     declared_handles: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """
-    Mechanical continuity & platform profile linter (`google-flow-scripting v1.6.0`):
-    1. Verifies `(surface, model, mode, duration_s)` against `FLOW_SURFACE_MODE_DURATIONS`.
-    2. Detects `BACKWARD_REFS` (`"from segment 1"`, `"the same trader"`, `"as before"`, `"still wet"`).
-    3. Detects `TOKEN_LEAKS` (`3500K`, `#FFAA00`, `(Market Lane)`).
-    4. Validates `@PascalCase` handle syntax (`^@[A-Za-z][A-Za-z0-9]*$`) and detects bare uses of
-       declared handles (`Kwame` instead of `@Kwame`) or em dashes (`\u2014`).
-    """
+    """Mechanical continuity & platform profile linter (google-flow-director v3.0.0)."""
     errors: List[Dict[str, str]] = []
     warnings: List[Dict[str, str]] = []
     text = str(prompt_text or "")
@@ -954,13 +933,7 @@ def lint_flow_continuity_and_platform_profile(
 
 
 def generate_contract_storyboard_prompt(spec: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Contract-compliant Storyboard Contact-Sheet Prompt Generator (`google-flow-scripting v1.6.0`):
-    - Maps segment duration to default panel layout (`4s -> 2x1`, `6s/8s -> 3x1`, `10s -> 2x2`).
-    - Rewrites bare occurrences of declared `@PascalCase` handles to `@Handle` and strips em dashes.
-    - Guarantees the copy-paste prompt opens with `GENERATE THE STORYBOARD IMAGE NOW.` and keeps
-      Internal Operator Notes and Approval Checklist outside the copy-paste prompt block.
-    """
+    """Contract-compliant Storyboard Contact-Sheet Prompt Generator (google-flow-director v3.0.0)."""
     duration_s = int(spec.get("duration_s", 8))
     if duration_s <= 4:
         panel_count, grid_layout = 2, "2x1 horizontal strip (2 panels)"
