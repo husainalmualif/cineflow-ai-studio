@@ -21,7 +21,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILL_SRC="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-DEFAULT_MODEL="$(PYTHONPATH="$SKILL_SRC/scripts" python3 -c "from studio_config import OMNI_FLASH_MODEL_DEFAULT; print(OMNI_FLASH_MODEL_DEFAULT)" 2>/dev/null || echo "gemini-omni-flash-preview")"
+DEFAULT_MODEL="$(PYTHONPATH="$SKILL_SRC/scripts" python3 -c "from studio_config import OMNI_FLASH_MODEL_DEFAULT; print(OMNI_FLASH_MODEL_DEFAULT)" 2>/dev/null || echo "gemini-omni-1.2-flash")"
 
 SKILL_NAME="cineflow-ai-studio"
 SERVER_NAME="cineflow-omni-agent"

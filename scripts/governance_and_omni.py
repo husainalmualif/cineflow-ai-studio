@@ -148,36 +148,24 @@ def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[in
     """
     Partitions `total_runtime_seconds` into a list of block durations strictly from `{4, 6, 8, 10}`.
     """
-    if (
-        not isinstance(total_runtime_seconds, (int, float))
-        or isinstance(total_runtime_seconds, bool)
-        or total_runtime_seconds < MIN_TOTAL_RUNTIME_SECONDS
-        or total_runtime_seconds > MAX_TOTAL_RUNTIME_SECONDS
+    if not (
+        isinstance(total_runtime_seconds, (int, float))
+        and not isinstance(total_runtime_seconds, bool)
+        and MIN_TOTAL_RUNTIME_SECONDS <= total_runtime_seconds <= MAX_TOTAL_RUNTIME_SECONDS
     ):
         raise ValueError(
             f"total_runtime_seconds must be between {MIN_TOTAL_RUNTIME_SECONDS} and "
             f"{MAX_TOTAL_RUNTIME_SECONDS}, got {total_runtime_seconds!r}"
         )
 
-    target = int(round(total_runtime_seconds))
-    if target % 2 == 1:
-        target += 1
+    target = int(round(total_runtime_seconds)) + (1 if int(round(total_runtime_seconds)) % 2 == 1 else 0)
+    short_map = {4: [4], 6: [6], 8: [4, 4], 10: [6, 4]}
+    if target in short_map:
+        return short_map[target]
 
-    if target == 4:
-        return [4]
-    if target == 6:
-        return [6]
-    if target == 8:
-        return [4, 4]
-    if target == 10:
-        return [6, 4]
-
-    min_blocks = max(3, math.ceil(target / 10))
-    max_blocks = target // 4
-    n_blocks = max(min_blocks, min(max_blocks, max(3, round(target / 8))))
+    n_blocks = max(max(3, math.ceil(target / 10)), min(target // 4, max(3, round(target / 8))))
     blocks = [4] * n_blocks
     rem = target - sum(blocks)
-
     idx = 1 if n_blocks >= 3 else 0
     while rem >= 2:
         if blocks[idx] < 10:
@@ -188,7 +176,6 @@ def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[in
             blocks.append(4)
             n_blocks += 1
             rem -= 4
-
     return blocks
 
 
@@ -538,7 +525,7 @@ def score_providers(
         },
         {
             "provider": "gemini_omni_flash_1_1",
-            "label": "Gemini Omni Flash 1.1 (360p Fast Draft -> 0-Credit 720p Upscale)",
+            "label": "Gemini Omni 1.2 Flash (3-15s 360p/720p Draft -> 0-Credit Conversational Edit -> 1080p/4K Upscale)",
             "metrics": {
                 "task_fit": 9.8 if is_draft else 8.0,
                 "output_quality": 8.6,
@@ -733,9 +720,14 @@ def validate_window_schedule_and_face_guard(
 
 def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
     """
-    Enforces the 4 field-tested Google Flow / `Omni 1.1 Flash` Anti-Hallucination & Slate.js Laws:
-    strips numeric lens/aperture HUD tokens, replaces negative text tokens with positive optical framing,
-    replaces handwritten paper note props, and flattens newlines into a single line for Slate.js.
+    Enforces the 5 field-tested Google Flow / `Omni 1.1 Flash` Anti-Hallucination & Slate.js Laws:
+    1. Strips numeric lens/aperture HUD tokens (`50mm`, `f/1.4`, `anamorphic`).
+    2. Strips film-stock names/codes (`Kodak Vision3 500T`, `5219`, `35mm film grain`, `Arri Alexa`,
+       `9:16 Reels framing`) that cause Google Flow to render black film-strip rebate borders (`KODAK VISION3 500T`)
+       around the frame instead of a 100% full-bleed video.
+    3. Replaces negative text tokens (`no text`) with positive optical framing.
+    4. Replaces handwritten paper note props.
+    5. Flattens newlines into a single line for Slate.js.
     """
     text = str(prompt or "")
     applied_fixes: List[str] = []
@@ -755,6 +747,25 @@ def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
             flags=re.I,
         )
         applied_fixes.append("replaced_numeric_lens_hud_tokens")
+
+    _film_rebate_re = (
+        r"\b(?:Kodak(?:\s+Vision\d?)?(?:\s+\d{3,4}[A-Z]?)?(?:\s+5219)?(?:\s+film(?:\s+grain|\s+stock)?)?"
+        r"|Vision3(?:\s+500T)?|500T|5219|2383"
+        r"|Fujifilm(?:\s+Eterna)?(?:\s+\d{3}[A-Z]?)?|Kodachrome"
+        r"|(?:Super\s+)?(?:35|16|8)mm\s+film(?:\s+stock|\s+grain)?"
+        r"|film\s+(?:grain|stock|strip|border)"
+        r"|ISO\s*\d+"
+        r"|Arri\s+Alexa(?:\s+LF|\s+35)?|RED\s+V-Raptor|Sony\s+Venice(?:\s+2)?"
+        r"|(?:Vertical\s+)?(?:9:16|16:9)\s+(?:Reels\s+)?framing)\b"
+    )
+    if re.search(_film_rebate_re, text, flags=re.I):
+        text = re.sub(
+            _film_rebate_re,
+            "full-bleed borderless frame filling 100% of the canvas edge-to-edge",
+            text,
+            flags=re.I,
+        )
+        applied_fixes.append("replaced_film_stock_rebate_border_tokens")
 
     if re.search(r"\bno\s+(?:text|subtitles|watermark|captions|letters)\b", text, flags=re.I):
         text = re.sub(
@@ -787,6 +798,9 @@ def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
     }
 
 
+_OMNI_1_2_FULL_RANGE: Tuple[int, ...] = tuple(range(3, 16))
+_OMNI_1_2_INTERP_EXTEND_RANGE: Tuple[int, ...] = tuple(range(3, 11))
+
 FLOW_SURFACE_MODE_DURATIONS: Dict[Tuple[str, str, str], Tuple[int, ...]] = {
     **{("flow", "veo-3.1-lite", m): (4, 6, 8) for m in ("text-to-video", "first-frame", "first-last-frame")},
     ("flow", "veo-3.1-lite", "references-to-video"): (8,),
@@ -795,8 +809,18 @@ FLOW_SURFACE_MODE_DURATIONS: Dict[Tuple[str, str, str], Tuple[int, ...]] = {
     ("flow", "veo-3.1-fast", "references-to-video"): (8,),
     **{("flow", "veo-3.1-quality", m): (8,) for m in ("text-to-video", "first-frame", "first-last-frame")},
     **{
-        ("flow", "omni-flash", m): (4, 6, 8, 10)
+        ("flow", "omni-flash", m): _OMNI_1_2_FULL_RANGE
         for m in ("text-to-video", "first-frame", "first-last-frame", "references-to-video", "video-edit")
+    },
+    **{
+        ("flow", mdl, m): _OMNI_1_2_FULL_RANGE
+        for mdl in ("omni-1.2-flash", "gemini-omni-1.2-flash")
+        for m in ("text-to-video", "first-frame", "references-to-video", "video-edit")
+    },
+    **{
+        ("flow", mdl, m): _OMNI_1_2_INTERP_EXTEND_RANGE
+        for mdl in ("omni-1.2-flash", "gemini-omni-1.2-flash")
+        for m in ("first-last-frame", "extend")
     },
     **{("gemini-api", "veo-3.1-lite", m): (4, 6, 8) for m in ("text-to-video", "first-frame", "first-last-frame")},
     ("gemini-api", "veo-3.1-lite", "extend"): (7,),
@@ -804,18 +828,16 @@ FLOW_SURFACE_MODE_DURATIONS: Dict[Tuple[str, str, str], Tuple[int, ...]] = {
     ("gemini-api", "veo-3.1-fast", "references-to-video"): (8,),
     ("gemini-api", "veo-3.1-fast", "extend"): (7,),
     **{
-        ("gemini-api", "omni-flash", m): (3, 4, 5, 6, 7, 8, 9, 10)
-        for m in ("text-to-video", "first-frame", "references-to-video", "video-edit")
+        ("gemini-api", mdl, m): _OMNI_1_2_FULL_RANGE
+        for mdl in ("omni-flash", "omni-1.2-flash", "gemini-omni-1.2-flash")
+        for m in ("text-to-video", "first-frame", "first-last-frame", "references-to-video", "video-edit", "extend")
     },
 }
 
 _BACKWARD_REF_PATTERNS: Tuple[Tuple[str, str], ...] = (
     (r"\bfrom\s+segment\s+\d+\b", "backward reference 'from segment N'"),
     (r"\bas\s+in\s+(?:segment|scene|shot)\s+\d+\b", "backward reference 'as in scene/segment N'"),
-    (
-        r"\bthe\s+same\s+(?:trader|man|woman|person|character|room|set|prop|outfit)\b",
-        "backward reference 'the same <noun>'",
-    ),
+    (r"\bthe\s+same\s+(?:trader|man|woman|person|character|room|set|prop|outfit)\b", "backward reference 'the same <noun>'"),
     (r"\bas\s+(?:before|previously|earlier)\b", "backward reference 'as before/previously'"),
     (r"\bcontinuing\s+from\s+before\b", "backward reference 'continuing from before'"),
     (r"\bstill\s+(?:wet|dirty|holding|wearing|standing|sitting)\b", "backward state 'still <adj>'"),
@@ -824,10 +846,8 @@ _BACKWARD_REF_PATTERNS: Tuple[Tuple[str, str], ...] = (
 _TOKEN_LEAK_PATTERNS: Tuple[Tuple[str, str], ...] = (
     (r"\b\d{4}\s*K\b", "colour-temperature number (e.g. 3500K) that risks rendering as text"),
     (r"#[0-9A-Fa-f]{6}\b", "hex colour code (e.g. #FFAA00) that risks rendering as text"),
-    (
-        r"\([A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+)+\)",
-        "parenthesized Title-Case set label (e.g. (Market Lane)) that risks token bleed",
-    ),
+    (r"\([A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+)+\)", "parenthesized Title-Case set label that risks token bleed"),
+    (r"\b(?:Kodak|Vision3|500T|5219|2383|Eterna|250D|Kodachrome)\b", "film-stock brand/code that triggers black rebate borders"),
 )
 
 
@@ -839,14 +859,7 @@ def lint_flow_continuity_and_platform_profile(
     duration_s: int = 8,
     declared_handles: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """
-    Mechanical continuity & platform profile linter (`google-flow-scripting v1.6.0`):
-    1. Verifies `(surface, model, mode, duration_s)` against `FLOW_SURFACE_MODE_DURATIONS`.
-    2. Detects `BACKWARD_REFS` (`"from segment 1"`, `"the same trader"`, `"as before"`, `"still wet"`).
-    3. Detects `TOKEN_LEAKS` (`3500K`, `#FFAA00`, `(Market Lane)`).
-    4. Validates `@PascalCase` handle syntax (`^@[A-Za-z][A-Za-z0-9]*$`) and detects bare uses of
-       declared handles (`Kwame` instead of `@Kwame`) or em dashes (`\u2014`).
-    """
+    """Mechanical continuity & platform profile linter (`google-flow-director v3.0.0` / `Omni 1.2 Flash`)."""
     errors: List[Dict[str, str]] = []
     warnings: List[Dict[str, str]] = []
     text = str(prompt_text or "")
@@ -854,56 +867,26 @@ def lint_flow_continuity_and_platform_profile(
     key = (str(surface).lower(), str(model).lower(), str(mode).lower())
     allowed_durations = FLOW_SURFACE_MODE_DURATIONS.get(key)
     if allowed_durations is None:
-        errors.append(
-            {
-                "code": "UNSUPPORTED_MODE_COMBO",
-                "message": f"Unsupported (surface={surface}, model={model}, mode={mode}) combination.",
-            }
-        )
+        errors.append({"code": "UNSUPPORTED_MODE_COMBO", "message": f"Unsupported (surface={surface}, model={model}, mode={mode}) combination."})
     elif int(duration_s) not in allowed_durations:
-        errors.append(
-            {
-                "code": "INVALID_DURATION_FOR_MODE",
-                "message": (
-                    f"Duration {duration_s}s is not supported for {key}; "
-                    f"allowed: {list(allowed_durations)}."
-                ),
-            }
-        )
+        errors.append({"code": "INVALID_DURATION_FOR_MODE", "message": f"Duration {duration_s}s is not supported for {key}; allowed: {list(allowed_durations)}."})
 
     for pattern, label in _BACKWARD_REF_PATTERNS:
         if re.search(pattern, text, flags=re.I):
             errors.append({"code": "BACKWARD_REF", "message": f"Forbidden {label} found in prompt."})
-
     for pattern, label in _TOKEN_LEAK_PATTERNS:
         if re.search(pattern, text):
             errors.append({"code": "TOKEN_LEAK", "message": f"Forbidden {label} found in prompt."})
-
     if "\u2014" in text:
-        warnings.append(
-            {
-                "code": "EM_DASH_PUNCTUATION",
-                "message": "Prompt contains em dash ('\u2014'); replace with comma or colon for parser safety.",
-            }
-        )
+        warnings.append({"code": "EM_DASH_PUNCTUATION", "message": "Prompt contains em dash ('\u2014'); replace with comma or colon for parser safety."})
 
     for handle in declared_handles or []:
         if not re.match(r"^@[A-Za-z][A-Za-z0-9]*$", str(handle)):
-            errors.append(
-                {
-                    "code": "INVALID_HANDLE_SYNTAX",
-                    "message": f"Handle '{handle}' must be canonical @PascalCase without spaces or hyphens.",
-                }
-            )
+            errors.append({"code": "INVALID_HANDLE_SYNTAX", "message": f"Handle '{handle}' must be canonical @PascalCase without spaces or hyphens."})
             continue
         bare_name = str(handle)[1:]
         if re.search(rf"(?<!@)\b{re.escape(bare_name)}\b", text):
-            errors.append(
-                {
-                    "code": "BARE_HANDLE",
-                    "message": f"Bare handle name '{bare_name}' used without '@' prefix (expected '{handle}').",
-                }
-            )
+            errors.append({"code": "BARE_HANDLE", "message": f"Bare handle name '{bare_name}' used without '@' prefix (expected '{handle}')."})
 
     return {
         "valid": len(errors) == 0,
@@ -917,21 +900,14 @@ def lint_flow_continuity_and_platform_profile(
 
 
 def generate_contract_storyboard_prompt(spec: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Contract-compliant Storyboard Contact-Sheet Prompt Generator (`google-flow-scripting v1.6.0`):
-    - Maps segment duration to default panel layout (`4s -> 2x1`, `6s/8s -> 3x1`, `10s -> 2x2`).
-    - Rewrites bare occurrences of declared `@PascalCase` handles to `@Handle` and strips em dashes.
-    - Guarantees the copy-paste prompt opens with `GENERATE THE STORYBOARD IMAGE NOW.` and keeps
-      Internal Operator Notes and Approval Checklist outside the copy-paste prompt block.
-    """
+    """Contract-compliant Storyboard Contact-Sheet Prompt Generator (`google-flow-director v3.0.0`, 3-15s)."""
     duration_s = int(spec.get("duration_s", 8))
-    grid_map = {
-        4: (2, "2x1 horizontal strip (2 panels)"),
-        6: (3, "3x1 horizontal strip (3 panels)"),
-        8: (3, "3x1 horizontal strip (3 panels)"),
-        10: (4, "2x2 contact sheet grid (4 panels)"),
-    }
-    panel_count, grid_layout = grid_map.get(duration_s, (3, "3x1 horizontal strip (3 panels)"))
+    if duration_s <= 4:
+        panel_count, grid_layout = 2, "2x1 horizontal strip (2 panels)"
+    elif duration_s <= 8:
+        panel_count, grid_layout = 3, "3x1 horizontal strip (3 panels)"
+    else:
+        panel_count, grid_layout = 4, "2x2 contact sheet grid (4 panels)"
     handles: List[str] = [str(h) for h in spec.get("handles", []) if str(h).startswith("@")]
 
     def _clean(val: str) -> str:

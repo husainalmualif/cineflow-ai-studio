@@ -25,9 +25,11 @@ from beat_grid import (  # noqa: E402
     validate_montage_section,
 )
 from cineflow_compiler import (  # noqa: E402
+    OMNI_1_2_FLASH_DIRECTOR_SPEC,
     audit_sfx_governor,
     build_omni_interaction_payload,
     compile_blueprint,
+    compile_omni_1_2_native_prompt,
     format_omni_flash_dialect_dialogue,
     generate_contract_storyboard_prompt,
     is_rtl_text,
@@ -357,18 +359,22 @@ def test_google_flow_omni_dialect_and_prompt_sanitizer() -> None:
     assert "ٌ" not in dialect_res["clean_dialect_ar"]
     assert "Baa-gir" in dialect_res["omni_flash_prompt_segment"]
     assert "hard Gulf G" in dialect_res["omni_flash_prompt_segment"]
+    assert "يتحدث باللهجة البحرينية:" in dialect_res["omni_flash_prompt_segment"]
 
     raw_prompt = (
-        "ARRI Alexa 85mm f/1.8 Anamorphic hero table shot with a handwritten paper note.\n"
+        "ARRI Alexa Kodak Vision3 500T 85mm f/1.8 Anamorphic hero table shot with a handwritten paper note.\n"
         "Warm lighting, no text, no watermark, no subtitles"
     )
     sanitized = sanitize_flow_video_prompt(raw_prompt)
     assert sanitized["is_single_line"] is True
     assert "85mm" not in sanitized["sanitized_prompt"]
+    assert "Kodak" not in sanitized["sanitized_prompt"]
+    assert "500T" not in sanitized["sanitized_prompt"]
+    assert "full-bleed borderless frame" in sanitized["sanitized_prompt"]
     assert "no text" not in sanitized["sanitized_prompt"].lower()
     assert "handwritten paper note" not in sanitized["sanitized_prompt"].lower()
     assert "Clean unblemished cinema frame" in sanitized["sanitized_prompt"]
-    assert len(sanitized["applied_fixes"]) == 4
+    assert len(sanitized["applied_fixes"]) == 5
 
 
 def test_flow_continuity_linter_and_storyboard_generator() -> None:
@@ -421,6 +427,44 @@ def test_flow_continuity_linter_and_storyboard_generator() -> None:
     assert "@Kwame holds @AmberFlacon" in sb["copy_paste_prompt"]
     assert "\u2014" not in sb["copy_paste_prompt"]
     assert len(sb["approval_checklist"]) == 3
+
+
+def test_omni_1_2_flash_director_v3_and_native_15s_templates() -> None:
+    """Tests Pure Gemini Omni 1.2 Flash Native Edition (google-flow-director v3.0.0):
+    1. Verifies OMNI_1_2_FLASH_DIRECTOR_SPEC (3 purged legacy rules, 6 core pillars, 3..15s range, $0.07/s, 0-credit edit).
+    2. Verifies 15s native duration on FLOW_SURFACE_MODE_DURATIONS for omni-1.2-flash and omni-flash.
+    3. Verifies compile_omni_1_2_native_prompt across all 3 v3 prompt templates.
+    """
+    assert OMNI_1_2_FLASH_DIRECTOR_SPEC["gemini_api_model_id"] == "gemini-omni-1.2-flash"
+    assert OMNI_1_2_FLASH_DIRECTOR_SPEC["flow_internal_codename"] == "macaron_cookie"
+    assert OMNI_1_2_FLASH_DIRECTOR_SPEC["pricing_720p_usd_per_sec"] == 0.07
+    assert OMNI_1_2_FLASH_DIRECTOR_SPEC["native_duration_range_s"] == (3, 15)
+    assert OMNI_1_2_FLASH_DIRECTOR_SPEC["flow_credits"]["conversational_edit_credits"] == 0
+    assert len(OMNI_1_2_FLASH_DIRECTOR_SPEC["purged_legacy_rules"]) == 3
+    assert len(OMNI_1_2_FLASH_DIRECTOR_SPEC["core_pillars_v3"]) == 6
+
+    lint_15s = lint_flow_continuity_and_platform_profile(
+        prompt_text="@Yousef and @Noura coordinate inside the futuristic Manama command center.",
+        surface="flow",
+        model="omni-1.2-flash",
+        mode="references-to-video",
+        duration_s=15,
+        declared_handles=["@Yousef", "@Noura"],
+    )
+    assert lint_15s["valid"] is True
+    assert not lint_15s["errors"]
+
+    tpl1 = compile_omni_1_2_native_prompt("1_multi_speaker_15s_scene_360p_draft", duration_s=15)
+    assert tpl1["speaker_count"] == 2
+    assert "[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: 360p Draft | DURATION: 15s" in tpl1["compiled_prompt"]
+    assert 'يتحدث باللهجة البحرينية: "شوفي الإشارة وين تطلع.. عند باب البحرين بالضبط!"' in tpl1["compiled_prompt"]
+
+    tpl2 = compile_omni_1_2_native_prompt("2_multi_turn_conversational_edit", turn_number=2)
+    assert tpl2["flow_credits"] == 0
+    assert "[MULTI-TURN CONVERSATIONAL EDIT — TURN 2]" in tpl2["compiled_prompt"]
+
+    tpl3 = compile_omni_1_2_native_prompt("3_product_or_virtual_try_on_15s_with_references", duration_s=15)
+    assert "Attach Front & Back Product Packaging Photos" in tpl3["compiled_prompt"]
 
 
 if __name__ == "__main__":

@@ -1,6 +1,72 @@
-# 09 — Google Flow Complete Ecosystem Mastery: Flow Agent JSON Init, Native Dialect Engine, Voices/Characters/Avatars, Scene Builder (`Add to Scene` / `Extend`), and Flow Tools (`Mondo Sónico` & `+ Create tool`)
+# 09 — Google Flow Complete Ecosystem Mastery (`google-flow-director v3.0.0 — Pure Gemini Omni 1.2 Flash Native Edition`): Flow Agent JSON Init, 6 Core Pillars, 3 Purged Legacy Rules, Multi-Speaker Dialect Engine, Voices/Characters/Avatars, Scene Builder (`Add to Scene` / `Extend`), and Flow Tools (`Mondo Sónico` & `+ Create tool`)
 
-This reference manual codifies the complete architecture and operational workflows of **Google Flow (`https://flow.google.com/`)** across its browser workspace, **Flow Agent**, **Asset Picker (`Voices / Characters / Avatars`)**, **Scene Builder (`Scenes`)**, **Flow Tools (`Explore tools / Create tool`)**, and our **11-mode `flow-connector` MCP bridge**.
+This reference manual codifies the complete architecture and operational workflows of **Google Flow (`https://flow.google.com/`)** powered natively by **Gemini Omni 1.2 Flash** (`macaron_cookie`, `gemini-omni-1.2-flash`, released `2026-11-05`) and **Nano Banana Pro** across its browser workspace, **Flow Agent**, **Asset Picker (`Voices / Characters / Avatars`)**, **Scene Builder (`Scenes` / `Scenebuilder`)**, **Flow Tools (`Explore tools / Create tool`)**, and our **11-mode `flow-connector` MCP bridge**.
+
+---
+
+## 0. Pure Gemini Omni 1.2 Flash Native Edition (`google-flow-director v3.0.0`)
+
+### 0.1 Official Release Specifications (`2026-11-05` — Google DeepMind)
+- **Source**: `https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash/`
+- **Model Identifiers**:
+  - **Google Flow UI (`flow.google.com`)**: `Omni 1.2 Flash` (internal RPC prefix: `macaron_cookie`)
+  - **Gemini API & Google AI Studio**: `gemini-omni-1.2-flash`
+  - **Vertex AI Model Garden**: `omni-1-2-flash`
+  - **Image & Reference Engine**: `Nano Banana Pro`
+- **Pricing & Live Flow Credit Schedule (`status: verify_live`)**:
+  - **API Price**: **`$0.07/second`** for `720p` video (**30% reduction** compared to Gemini Omni 1.1).
+  - **Flow `360p` Draft (`macaron_cookie_*_360p`)**: **`1 credit/s`** for `3s..10s` (`3s=3c`, `8s=8c`, `10s=10c`) and **`+2 credits/s`** for `11s..15s` (`15s=20c`).
+  - **Flow `720p` (`macaron_cookie_*`)**: **`3 credits/s`** for `3s..10s` (`10s=30c`) and **`+6 credits/s`** for `11s..15s` (`15s=60c`).
+  - **Multi-Turn Conversational Edit (`macaron_cookie_edit` & `macaron_cookie_edit_360p`)**: **`0 credits`** (free turn-by-turn edits!).
+  - **Upscaling**: `360p -> 720p` (`omni_upsampler_360p`) = **`0 credits`**; `1080p` (`veo_3_1_upsampler_1080p`) = **`0 credits`**; `4K` (`veo_3_1_upsampler_4k`) = **`50 credits`**.
+- **Native Duration Slider (`role="slider" aria-label="Length"`)**:
+  - Selecting `Omni 1.2 Flash` in Flow replaces the legacy `4s/6s/8s/10s` buttons with a continuous **`3 Sec` to `15 Sec` slider in `1-second` increments** (`aria-valuemin="0" aria-valuemax="12"`) for `t2v`, `i2v`, and `r2v` (`Ingredients`), and **`3 Sec` to `10 Sec` in `1-second` increments** for `i2v_fl` (`Frames` First-to-Last Keyframe Interpolation) and `extend` (`Video Extension`).
+
+### 0.2 The 3 Purged Legacy Rules (`purged_legacy_rules`)
+| Purged Legacy Rule | Why It Is Obsolete & Purged in Gemini Omni 1.2 Flash |
+| :--- | :--- |
+| **1. `Single-Speaker Shot Lock` (`قانون منع تحول الولد إلى بنت وفصل المتحدثين`)** | **Purged:** Gemini Omni 1.2 Flash eliminates visual drift/morphing from first to last frame and introduces native **Multi-Speaker Conditioning**, routing distinct `1-second` voice references to multiple characters (e.g., `4+` characters in one scene) with expressive lip-sync and natural timing across a single `15-second` clip. |
+| **2. `تجنب إرفاق مراجع متعددة الزوايا (الأمام والخلف) في لقطة واحدة`** | **Purged:** Gemini Omni 1.2 Flash natively combines model photos with **front-and-back shots** of multiple outfits/products, **`3-second` motion clips**, and **`1-second` audio cues**, keeping faces, garment drape, back details, and packaging typography locked across `360-degree` turns and match cuts. |
+| **3. `إعادة توليد اللقطة بالكامل عند الرغبة في تغيير الخلفية أو الإضاءة أو المقاس`** | **Purged:** Replaced by **`0-credit` Multi-Turn Conversational Editing & Motion Transfer** across full `15-second` clips, allowing turn-by-turn background swaps (`pavilion tent -> oak forest -> stable -> market fair -> stone castle`), lighting/weather shifts, product/prop replacements, aspect ratio switches (`16:9 <-> 9:16`), and Turn-1-to-Turn-2 motion transfer while preserving character performance and armor/garment reflections. |
+
+### 0.3 The 6 Core Pillars of `google-flow-director v3.0.0` (`core_pillars_v3`)
+1. **Pillar 1 — بروتوكول التوفير الذكي للنقاط (`360p/720p Draft -> Conversational Edit -> 1080p/4K Upscale`)**:
+   - Start every generation at `360p` or `720p` in `Gemini Omni 1.2 Flash`. Use `0-credit` multi-turn conversational editing to refine backgrounds, lighting, weather, props, or aspect ratio without re-generating. Upscale only the final approved take to `1080p` (`0 credits`) or `4K` (`50 credits`).
+2. **Pillar 2 — التوليد الأصلي المرِن (`3 إلى 15 ثانية`) وتمديد المشاهد الطويلة (`Video Extension`)**:
+   - Specify exact duration in `1-second` increments from `3s` to `15s` for complete multi-beat scenes, `4-shot` `15s` macro science/product explainers with accurately spelled motion-tracked callouts from a single style frame, or full vertical `15s` social ad spots. Use **First-to-Last Keyframe Interpolation** for continuous exterior-to-interior pushes or `5-layer` sequential poster builds, and **Video Extension** to elongate clips into long continuous sequences with locked consistency.
+3. **Pillar 3 — الالتزام الفائق بالمراجع المتعددة (`صور أمامية/خلفية + مقاطع حركة 3 ثوانٍ + عينات صوتية`)**:
+   - Combine character sheets, front-and-back product/garment photos, `3-second` motion reference clips, and `1-second` voice cues. Rely on `Omni 1.2 Flash` to lock faces, fabric drape, back details, coiled/3D packaging typography, and brand colors across `360-degree` spins and match cuts.
+4. **Pillar 4 — الحوار الجماعي الأصلي (`Multi-Speaker Conditioning`) وقفل اللهجة البحرينية**:
+   - Direct multi-character conversations natively inside a single `15-second` clip using character, mouth, and `1-second` voice references. Always pass verbatim Bahraini Arabic dialogue inside quotes with an explicit Bahraini dialect instruction (`يتحدث باللهجة البحرينية: "..."`) so each speaker delivers authentic local inflection and crisp lip-sync.
+5. **Pillar 5 — حركات الكاميرا السينمائية المتصلة بدون تقطيع (`Unbroken Camera Control`)**:
+   - Direct unbroken **FPV drone flythroughs** (e.g., sweeping across a piazza, through bronze doors, and up through a coffered dome to the oculus with zero jump cuts, guided by two architectural reference photos), **continuous crash zoom-outs** (from a tight shoreline close-up to an aerial island vista in one continuous shot), and smooth **`360-degree` orbits** and match cuts.
+6. **Pillar 6 — تنظيم الخط الزمني في `Scenebuilder`**:
+   - Keep static reference plates and unapproved `360p` drafts out of `Scenebuilder`. Assemble only the final, conversationally refined, `1080p/4K` upscaled clips in chronological order (`Shot 1 -> Shot N`) and verify full playback from `00:00` to the end.
+
+### 0.4 Canonical Prompt Templates (`prompt_templates_v3` — `compile_omni_1_2_native_prompt`)
+
+#### Template 1: `1_multi_speaker_15s_scene_360p_draft`
+```text
+[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: 360p Draft | DURATION: 15s | ASPECT RATIO: 16:9]
+[REFERENCES: Scene Image + Character A & B Portraits + 1s Voice Reference A + 1s Voice Reference B]
+Continuous 15-second cinematic two-shot inside a futuristic Manama command center. Yousef stands on the left in a dark tactical jacket; Noura stands on the right beside a glowing holographic map. Camera executes a slow, unbroken orbital push-in.
+MULTI-SPEAKER BAHRAINI DIALECT LOCK (حوار ثنائي باللهجة البحرينية العامية الأصيلة بتزامن شفاه دقيق): Route Voice Reference A to Yousef and Voice Reference B to Noura with expressive lip-sync and natural timing.
+- At 01s, Yousef speaks in authentic Bahraini dialect (يتحدث باللهجة البحرينية: "شوفي الإشارة وين تطلع.. عند باب البحرين بالضبط!"): "شوفي الإشارة وين تطلع.. عند باب البحرين بالضبط!"
+- At 07s, Noura turns to him and replies in authentic Bahraini dialect (يتحدث باللهجة البحرينية: "عيل لازم نتحرك الحين قبل لا تقفل البوابة، ما عندنا وقت!"): "عيل لازم نتحرك الحين قبل لا تقفل البوابة، ما عندنا وقت!"
+```
+
+#### Template 2: `2_multi_turn_conversational_edit`
+```text
+[MULTI-TURN CONVERSATIONAL EDIT — TURN 2]
+Keep both Yousef and Noura's exact performances, multi-speaker Bahraini dialogue, lip-sync, garment reflections, and camera framing completely intact across all 15 seconds. Swap the interior command center background to a rainy rooftop overlooking the illuminated Manama skyline at night, and switch the aspect ratio to 9:16 vertical.
+```
+
+#### Template 3: `3_product_or_virtual_try_on_15s_with_references`
+```text
+[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: 360p Draft -> 4K Upscale | DURATION: 15s | ASPECT RATIO: 9:16]
+[REFERENCES: Attach Front & Back Product Packaging Photos + Brand Logo Lock + 3s Motion Reference Clip]
+15-second commercial showcase with match cuts and a smooth 360-degree product spin on a sleek dark marble counter. Lock all Arabic and English packaging typography, brand colors, and surface textures from the first frame to the final frame with zero distortion, adding motion-tracked callouts.
+```
 
 ---
 
@@ -17,9 +83,9 @@ This reference manual codifies the complete architecture and operational workflo
 - **`Agent settings` (`button[aria-label="Settings"]`, icon `tune`)**:
   - **`Confirm before generating`**: `Always` (*"Agent will ask for confirmation before generating media"*) vs. `Never` (*"Agent will generate media and spend credits automatically"*).
   - **`Image generation default`**: Aspect ratio (`16:9 | 4:3 | 1:1 | 3:4 | 9:16`), batch count (`x1 | x2 | x3 | x4`), and model (`🍌 Nano Banana Pro | 🍌 Nano Banana 2 Lite | 🍌 Nano Banana 2.1`).
-  - **`Video generation default`**: Aspect ratio (`16:9 | 9:16`), batch count (`x1 | x2 | x3 | x4`), and model (`Omni 1.1 Flash | Veo 3.1 - Lite | Veo 3.1 - Fast | Veo 3.1 - Quality`).
+  - **`Video generation default`**: Aspect ratio (`16:9 | 9:16`), batch count (`x1 | x2 | x3 | x4`), and model (`Omni 1.2 Flash | Omni 1.1 Flash | Veo 3.1 - Lite | Veo 3.1 - Fast | Veo 3.1 - Quality`).
 - **Direct Mode Switcher (`Settings trigger` on the prompt bar)**:
-  - Switches between **`Frames`** (`First/Last frame`) and **`Ingredients`**, aspect ratio (`16:9 | 9:16`), resolution (`360p` draft vs. `720p+`), and duration (`4s | 6s | 8s | 10s`, displaying exact credit usage e.g. `Generating will use 15 credits`).
+  - Switches between **`Frames`** (`First/Last frame`) and **`Ingredients`**, aspect ratio (`16:9 | 9:16`), resolution (`360p` draft vs. `720p+`), and duration (`3s..15s` in `1s` steps via the `Length` slider on `Omni 1.2 Flash`, displaying exact credit usage e.g. `10 credits` for `10s 360p` or `20 credits` for `15s 360p`).
 
 ### 1.2 Mandatory Pre-Production Step: JSON Project Initialization Brief
 Before generating any image or video in a new project, initialize the **Flow Agent** (or compile the project state) by pasting a structured **Project Initialization JSON** into the Agent chat. This locks character identities, dialect rules, voice profiles, and visual guardrails across the entire session:
@@ -27,18 +93,20 @@ Before generating any image or video in a new project, initialize the **Flow Age
 ```json
 {
   "flow_agent_init": {
-    "version": "2.0",
+    "version": "3.0",
+    "edition": "Pure Gemini Omni 1.2 Flash Native Edition",
     "project_meta": {
       "title": "Project Title",
       "aspect_ratio": "9:16",
-      "image_engine": "nano-banana-2.1",
-      "video_engine": "omni-flash",
-      "extension_engine": "veo-3.1-lite",
+      "image_engine": "nano-banana-pro",
+      "video_engine": "gemini-omni-1.2-flash",
+      "extension_engine": "gemini-omni-1.2-flash",
+      "native_duration_range_s": "3-15s (1s increments)",
       "confirm_before_generating": true
     },
     "dialect_and_voice_engine": {
       "primary_dialect": "Bahraini Gulf Arabic (Muharraq/Manama conversational)",
-      "omni_flash_dialect_law": "Write Arabic dialogue in natural conversational dialect spelling WITHOUT heavy MSA harakat/tanween so Omni 1.1 Flash uses its native dialect prosody instead of stiff textbook Fusha recitation.",
+      "omni_flash_dialect_law": "Write Arabic dialogue in natural conversational dialect spelling WITHOUT heavy MSA harakat/tanween and prepend 'يتحدث باللهجة البحرينية:' directly before the quote so Gemini Omni 1.2 Flash uses its native dialect prosody and Multi-Speaker Conditioning.",
       "phonetic_lexicon": {
         "باجر": "Pronounced 'Baa-gir' (الباء والألف با + الجيم بصوت G مثل Good + الراء مخففة في النهاية)",
         "تقول / أقول / عقب / قبل / دقايق": "Pronounced with hard Gulf G (گ as in Good)",
@@ -103,18 +171,23 @@ Once initialized, you can command the Flow Agent using compact JSON shot directi
 
 ---
 
-## 2. Why `Omni 1.1 Flash` Understands Dialects Natively (`قانون اللهجة الطبيعية في Omni 1.1 Flash`)
+## 2. Why `Gemini Omni 1.2 Flash` Understands Dialects & Multi-Speaker Routing Natively (`قانون اللهجة الطبيعية والحوار الجماعي في Omni 1.2 Flash`)
 
-### 2.1 The Root Cause of Dialect Stiffness (`لماذا يربك التشكيل المدرسي الثقيل محرك Omni 1.1 Flash؟`)
+### 2.1 The Root Cause of Dialect Stiffness (`لماذا يربك التشكيل المدرسي الثقيل محرك Omni 1.2 Flash؟`)
 - **Crucial Distinction**:
   1. **Traditional External TTS (`edge-tts`, `ElevenLabs`)**: Are text-to-phoneme readers trained primarily on Modern Standard Arabic (`الفصحى`). They require heavy diacritics (`التشكيل الكامل`) to avoid misreading vowels.
-  2. **`Gemini Omni 1.1 Flash` inside Google Flow**: Is a **native multimodal LLM** that understands spoken Arabic dialects (`لهجة بحرينية، كويتية، إماراتية، سعودية، عمانية، عراقية، مصرية، شامية`) directly from context and natural dialect orthography!
-- **What Happens When You Over-Diacritize (`التشكيل الكامل لكل حرف`) in `Omni 1.1 Flash`**:
+  2. **`Gemini Omni 1.2 Flash` inside Google Flow**: Is a **native multimodal LLM** that understands spoken Arabic dialects (`لهجة بحرينية، كويتية، إماراتية، سعودية، عمانية، عراقية، مصرية، شامية`) directly from context and natural dialect orthography, and natively routes distinct `1-second` voice references across `4+` characters in a single `15-second` clip!
+- **What Happens When You Over-Diacritize (`التشكيل الكامل لكل حرف`) in `Omni 1.2 Flash`**:
   - In Arabic training corpora, 100% diacritized text (`فَتْحَة، ضَمَّة، كَسْرَة، سُكُون على كل حرف`) appears almost exclusively in classical Fusha, poetry, and school textbooks.
-  - Therefore, feeding `"الدُّنْيَا گَصِيْرَهْ وَالْعُمُرْ يِرْكُضْ فِيْنَا"` with heavy Harakat on every letter causes `Omni 1.1 Flash` to slow down and pronounce the words with a stiff, syllable-by-syllable Fusha/schoolbook cadence instead of natural Bahraini connected speech (`وصل الكلام والنبر العفوي`)!
+  - Therefore, feeding `"الدُّنْيَا گَصِيْرَهْ وَالْعُمُرْ يِرْكُضْ فِيْنَا"` with heavy Harakat on every letter causes `Omni 1.2 Flash` to slow down and pronounce the words with a stiff, syllable-by-syllable Fusha/schoolbook cadence instead of natural Bahraini connected speech (`وصل الكلام والنبر العفوي`)!
 
-### 2.2 The Locked 4-Point Rule for 100% Authentic Dialect in `Omni 1.1 Flash`
-1. **Write Dialogue in Clean, Natural Dialect Orthography (`بدون تشكيل مدرسي ثقيل`)**:
+### 2.2 The Locked 5-Point Rule for 100% Authentic Dialect & Borderless Frame in `Gemini Omni 1.2 Flash`
+1. **Write the Explicit Arabic Dialect Prefix Immediately Before the Spoken Text (`يتحدث باللهجة البحرينية: "..."`)**:
+   - For `flow.google.com` to lock onto the Bahraini dialect with maximum clarity, always write **`يتحدث باللهجة البحرينية:`** (in Arabic) directly before the quoted speech:
+     - ✅ `يتحدث باللهجة البحرينية: "يا ولدي جاسم.. شحالك يبه؟ سويت لك القهوة اللي تحبها، متى بتجي تقعد وياي شوي؟"`
+2. **Never Write Film-Stock Codes (`Kodak Vision3 500T`, `35mm film grain`, `Arri Alexa`, `9:16 framing`)**:
+   - Writing `"Kodak Vision3 500T"` or `"35mm film"` causes Google Flow to render black analog film-strip borders with `"KODAK VISION3 500T"` edge text around the video instead of a full-screen frame. Always use **`full-bleed borderless frame filling 100% of the canvas edge-to-edge`**.
+3. **Write Dialogue in Clean, Natural Dialect Orthography (`بدون تشكيل مدرسي ثقيل`)**:
    - Write the sentence exactly as a native Bahraini writes it in dialect:
      - ✅ `"يا خويي لا تقول باجر.. ترى باجر يمكن ما يجي، بوس راس أمك وأبوك اليوم واقعد وياهم لو خمس دقايق"`
      - ❌ Avoid putting `ـْ / ـَ / ـُ / ـِ` on every single letter when prompting `Omni 1.1 Flash`.

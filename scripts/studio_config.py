@@ -18,10 +18,11 @@ MIN_DIACRITIC_RATIO: float = 0.75
 MIN_DIACRITIC_RATIO_AI_TTS: float = 1.0
 
 # CR1: Allowed per-clip generative durations (seconds) vs. Short-Form total video duration
-ALLOWED_CLIP_DURATIONS: Tuple[int, ...] = (4, 6, 8, 10)
-ALLOWED_CLIP_SECONDS: List[int] = [4, 6, 8, 10]
-HARD_ALLOWED_CLIP_DURATIONS: Set[int] = {4, 6, 8, 10}
-MAX_SINGLE_SHOT_SECONDS: int = 10
+# Updated for Gemini Omni 1.2 Flash (macaron_cookie): native 3s to 15s in 1-second increments
+ALLOWED_CLIP_DURATIONS: Tuple[int, ...] = (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+ALLOWED_CLIP_SECONDS: List[int] = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+HARD_ALLOWED_CLIP_DURATIONS: Set[int] = {3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+MAX_SINGLE_SHOT_SECONDS: int = 15
 SHORT_FORM_TOTAL_SECONDS: Tuple[int, int] = (10, 15)
 LONG_FORM_CHAPTER_THRESHOLD_SECONDS: int = 60
 LONG_FORM_CHAPTER_RANGE_SECONDS: Tuple[int, int] = (60, 90)
@@ -59,15 +60,84 @@ VIDEO_LAYOUT_SAFE_MARGIN_X_PX: int = 80
 VIDEO_LAYOUT_SAFE_MARGIN_Y_PX: int = 100
 VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
 
-# Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
+# Gemini Omni 1.2 Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
 # Single Source of Truth for Model IDs and Verification Metadata
-MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-03"
-OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-flash-preview"
-OMNI_FLASH_STABLE_MODEL: str = "gemini-omni-1.1-flash"
+MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-06"
+OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-1.2-flash"
+OMNI_FLASH_STABLE_MODEL: str = "gemini-omni-1.2-flash"
+OMNI_FLASH_LEGACY_MODEL: str = "gemini-omni-1.1-flash"
 VEO_PRIMARY_MODEL: str = "veo-3.1-quality"
 SEEDANCE_PRIMARY_MODEL: str = "seedance-2.0"
 KEYFRAME_REFERENCE_MODEL: str = "nano-banana-pro"
 TEXT_REASONING_MODEL: str = "gemini-2.5-pro"
+
+OMNI_1_2_FLASH_DIRECTOR_SPEC: Dict[str, Any] = {
+    "edition": "Pure Gemini Omni 1.2 Flash Native Edition (google-flow-director v3.0.0)",
+    "release_date": "2026-11-05",
+    "source_url": "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash/",
+    "target_platform": "https://flow.google.com/",
+    "flow_ui_name": "Omni 1.2 Flash",
+    "flow_internal_codename": "macaron_cookie",
+    "gemini_api_model_id": "gemini-omni-1.2-flash",
+    "vertex_ai_model_id": "omni-1-2-flash",
+    "image_and_reference_engine": "Nano Banana Pro",
+    "pricing_720p_usd_per_sec": 0.07,
+    "price_reduction_vs_1_1": "30% lower than Gemini Omni 1.1 ($0.07/s for 720p video)",
+    "native_duration_range_s": (3, 15),
+    "first_last_and_extend_range_s": (3, 10),
+    "flow_credits": {
+        "360p_per_sec_3_to_10s": 1,
+        "360p_per_sec_11_to_15s": 2,
+        "720p_per_sec_3_to_10s": 3,
+        "720p_per_sec_11_to_15s": 6,
+        "conversational_edit_credits": 0,
+        "upscale_720p_from_360p_credits": 0,
+        "upscale_1080p_credits": 0,
+        "upscale_4k_credits": 50,
+    },
+    "purged_legacy_rules": [
+        "Single-Speaker Shot Lock (purged: Omni 1.2 Flash supports native Multi-Speaker Conditioning with 1s voice references routed to 4+ characters in one 15s clip with zero gender/identity morphing)",
+        "Avoid Multi-Angle Front-and-Back References (purged: Omni 1.2 Flash natively locks faces, garment drape, back details, and packaging typography across front-and-back photos, 3s motion clips, and 360-degree turns)",
+        "Full Clip Re-Generation on Background/Lighting/Aspect Changes (purged: replaced by 0-credit Multi-Turn Conversational Editing & Motion Transfer across full 15s clips)",
+    ],
+    "core_pillars_v3": [
+        "Pillar 1: 360p/720p Draft -> Conversational Edit (0 credits) -> 1080p/4K Upscale",
+        "Pillar 2: Native 3s-to-15s (1s increments) Generation, First-to-Last Frame Interpolation & Video Extension",
+        "Pillar 3: Multi-Modal Reference Adherence (Front/Back Images + 3s Motion Clips + 1s Voice Cues)",
+        "Pillar 4: Native Multi-Speaker Conditioning & Bahraini/Arabic Dialect Routing",
+        "Pillar 5: Unbroken Cinematic Camera Control (FPV Flythroughs, Continuous Crash Zoom-Outs, 360 Orbits)",
+        "Pillar 6: Clean Scenebuilder Timeline Assembly (Approved 1080p/4K Masters Only)",
+    ],
+    "prompt_templates_v3": {
+        "1_multi_speaker_15s_scene_360p_draft": (
+            "[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: 360p Draft | DURATION: 15s | ASPECT RATIO: 16:9]\n"
+            "[REFERENCES: Scene Image + Character A & B Portraits + 1s Voice Reference A + 1s Voice Reference B]\n"
+            "Continuous 15-second cinematic two-shot inside a futuristic Manama command center. Yousef stands on the "
+            "left in a dark tactical jacket; Noura stands on the right beside a glowing holographic map. Camera "
+            "executes a slow, unbroken orbital push-in.\n"
+            "MULTI-SPEAKER BAHRAINI DIALECT LOCK (حوار ثنائي باللهجة البحرينية العامية الأصيلة بتزامن شفاه دقيق): "
+            "Route Voice Reference A to Yousef and Voice Reference B to Noura with expressive lip-sync and natural "
+            "timing.\n"
+            '- At 01s, Yousef speaks in authentic Bahraini dialect: "شوفي الإشارة وين تطلع.. عند باب البحرين بالضبط!"\n'
+            '- At 07s, Noura turns to him and replies in authentic Bahraini dialect: '
+            '"عيل لازم نتحرك الحين قبل لا تقفل البوابة، ما عندنا وقت!"'
+        ),
+        "2_multi_turn_conversational_edit": (
+            "[MULTI-TURN CONVERSATIONAL EDIT — TURN 2]\n"
+            "Keep both Yousef and Noura's exact performances, multi-speaker Bahraini dialogue, lip-sync, garment "
+            "reflections, and camera framing completely intact across all 15 seconds. Swap the interior command "
+            "center background to a rainy rooftop overlooking the illuminated Manama skyline at night, and switch "
+            "the aspect ratio to 9:16 vertical."
+        ),
+        "3_product_or_virtual_try_on_15s_with_references": (
+            "[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: 360p Draft -> 4K Upscale | DURATION: 15s | ASPECT RATIO: 9:16]\n"
+            "[REFERENCES: Attach Front & Back Product Packaging Photos + Brand Logo Lock + 3s Motion Reference Clip]\n"
+            "15-second commercial showcase with match cuts and a smooth 360-degree product spin on a sleek dark "
+            "marble counter. Lock all Arabic and English packaging typography, brand colors, and surface textures "
+            "from the first frame to the final frame with zero distortion, adding motion-tracked callouts."
+        ),
+    },
+}
 
 ECOSYSTEM_22_TOOLS_REGISTRY: Dict[str, Dict[str, Any]] = {
     "blender": {"category": "3d_motion", "name": "Blender", "automation": "bpy headless CLI + Cycles/AgX"},
@@ -84,7 +154,11 @@ ECOSYSTEM_22_TOOLS_REGISTRY: Dict[str, Dict[str, Any]] = {
     "veed_io": {"category": "avatar_repurpose", "name": "Veed.io", "automation": "Eye Contact + Clean Audio (80%) + Magic Cut"},
     "opusclip": {"category": "avatar_repurpose", "name": "OpusClip", "automation": "ClipAnything virality score + 9:16 active-speaker face tracking"},
     "google_veo": {"category": "generative_video", "name": "Google Veo 3.1", "automation": "Lite/Fast (4/6/8s), Quality (8s), Extend (+8s Lite)"},
-    "google_flow": {"category": "generative_video", "name": "Google Flow", "automation": "Omni 1.1 Flash (4/6/8/10s, 7 refs, 5 voices) + 0-credit 1080p upscale"},
+    "google_flow": {
+        "category": "generative_video",
+        "name": "Google Flow (Gemini Omni 1.2 Flash + Nano Banana Pro)",
+        "automation": "Omni 1.2 Flash (3-15s 1s steps, 360p/720p draft -> conversational edit -> 1080p/4K upscale, multi-speaker 1s voice cues, 3s motion + front/back refs)",
+    },
     "runway": {"category": "generative_video", "name": "Runway Gen-4", "automation": "Affirmative motion prompt + Act-One facial performance transfer"},
     "kling_ai": {"category": "generative_video", "name": "Kling AI 2.1/3.0", "automation": "Elements (up to 4 cutouts) + 6-axis Camera Control + Motion Brush"},
     "hailuo_minimax": {"category": "generative_video", "name": "Hailuo AI / MiniMax", "automation": "I2V-01-Director bracketed camera commands [Push in, Pan right] + S2V-01"},
@@ -514,16 +588,16 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/dappled": "organic dappled sunlight filtering through wind-blown tree leaves",
     "/cyberlight": "holographic RGB screen-glow illuminating subject face",
     "/firelight": "dynamic dancing amber hearth firelight glow",
-    # Film Stocks, Cameras & Color Grades
-    "/arri": "shot on ARRI Alexa 65 large-format sensor with wide dynamic range",
-    "/red": "shot on RED V-Raptor 8K VV with crisp micro-contrast",
-    "/venice": "shot on Sony Venice 2 8.6K dual-base ISO cinema camera",
-    "/c500": "shot on Canon EOS C500 Mark II full-frame cinema system",
-    "/kodak2383": "Kodak Vision3 500T 5219 film print emulation with Kodak 2383 LUT",
-    "/fuji": "Fujifilm Eterna 250D soft pastel highlight roll-off",
-    "/35mmfilm": "authentic 35mm photochemical film stock ISO 800 organic grain and halation",
-    "/16mmfilm": "textured Super 16mm documentary film grain with gate weave",
-    "/8mmfilm": "nostalgic Super 8mm home-movie Kodachrome texture",
+    # Film Stocks, Cameras & Color Grades (Borderless Full-Bleed Optical Descriptions — Zero Stock Rebate Text)
+    "/arri": "large-format cinema sensor optics with wide dynamic range and full-bleed borderless frame",
+    "/red": "ultra-crisp large-format cinema optics with deep micro-contrast and full-bleed borderless frame",
+    "/venice": "dual-base low-light cinema sensor with smooth highlight roll-off and full-bleed borderless frame",
+    "/c500": "full-frame natural color science cinema capture with full-bleed borderless frame",
+    "/kodak2383": "warm tungsten cinema color grade with rich shadow density, soft highlight halation, and full-bleed borderless frame",
+    "/fuji": "soft pastel highlight roll-off with gentle natural skin tones and full-bleed borderless frame",
+    "/35mmfilm": "subtle organic cinema texture and warm highlight halation in a full-bleed borderless frame",
+    "/16mmfilm": "textured documentary cinema warmth in a full-bleed borderless frame",
+    "/8mmfilm": "nostalgic warm vintage home-cinema color palette in a full-bleed borderless frame",
     "/tealorange": "blockbuster complementary teal shadows and warm amber skin tones",
     "/bleachbypass": "gritty silver-retention bleach-bypass desaturated high-contrast grade",
     "/monochrome": "high-contrast Leica Monochrom silver-gelatin black and white",
@@ -590,8 +664,8 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/8k": "8K large-format master resolution with zero compression artifacts",
     "/60fps": "butter-smooth 60fps progressive motion cadence",
     "/24fps": "classic 24fps cinema shutter (180-degree shutter angle)",
-    "/9x16": "vertical 9:16 (1080x1920) mobile-first social composition",
-    "/16x9": "widescreen 16:9 (1920x1080) horizontal cinema composition",
+    "/9x16": "full-bleed borderless vertical portrait composition filling 100% of the canvas edge-to-edge",
+    "/16x9": "full-bleed borderless widescreen horizontal composition filling 100% of the canvas edge-to-edge",
     "/21x9": "ultra-wide 2.39:1 anamorphic theatrical widescreen",
     "/1x1": "square 1:1 (1080x1080) social feed composition",
     "/4x5": "portrait 4:5 (1080x1350) editorial feed composition",

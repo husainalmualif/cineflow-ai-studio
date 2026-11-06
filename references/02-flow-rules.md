@@ -2,26 +2,29 @@
 
 Verify every number below in **Phase 1 (`01_research.md`)** because platform limits evolve. Store confirmed values in `06_package.json > project.verified_capabilities`.
 
-## 1. Duration & Block Chunking
-- **Native unit**: up to `~10 s` per clip; use `4 / 6 / 8 s` for single-action shots (`Veo 3.1 Lite / Fast / Quality` and `Omni 1.1 Flash`).
-- **Longer sequences**: chain `Extend` in `~10 s` steps up to the verified cumulative cap (was `~40 s`). Plan each extension from the last seconds of the previous clip (`ffmpeg -sseof -0.04` `Scene Handshake`) + a continuity note.
-- **Beyond cap**: start a new sequence linked by the **Identity Bible** (`03_identity_bible.md`) + short reference clip or first/last frame (`Frames` mode).
-- **Shot density**: Max `2–3 shots` per block. Never waste one block per micro-shot.
+## 1. Duration & Block Chunking (`Gemini Omni 1.2 Flash` & `Veo 3.1`)
+- **Native unit (`Gemini Omni 1.2 Flash` / `macaron_cookie`)**: **`3s` to `15s` in `1-second` increments** (`3..15s` slider on `flow.google.com` for `Text-to-Video`, `Image-to-Video`, and `Ingredients`; `3..10s` for `Frames` First-to-Last Interpolation and `Extend`; `4 / 6 / 8 s` on `Veo 3.1 Lite / Fast / Quality`).
+- **Longer sequences**: use native `15s` multi-beat generations or chain `Extend` in `3–10 s` steps up to the verified cumulative cap (`~40 s`). Plan each extension from the last seconds of the previous clip (`ffmpeg -sseof -0.04` `Scene Handshake`) + a continuity note.
+- **Beyond cap**: start a new sequence linked by the **Identity Bible** (`03_identity_bible.md`) + short `3s` motion reference clip or first/last frame (`Frames` mode).
+- **Shot density**: Up to `4` shots in a `15s` macro/product explainer or `2–3` shots per standard block.
 
-## 2. Generation Modes
-- **Text-to-Video**: initial exploration.
-- **Frames-to-Video / First-Last Frame**: exact transitions and `Scene Handshake` continuity.
-- **Ingredients / Image-to-Video**: attach up to `~7 reference images` (`identity`, `product`, `environment` generated at `0 credits` in Stage 1 via `Nano Banana 2 Lite` / `Labs`). Prefer reference-driven modes for characters and products to minimize re-rolls.
-- **Extend**: seamless temporal continuation from a previous block (`extend_from_block`).
+## 2. Generation Modes & Multi-Modal Reference Adherence
+- **Text-to-Video**: initial exploration at `360p` (`1 credit/s` for `3..10s`) or `720p` (`$0.07/s`, `30%` cheaper than Omni 1.1).
+- **Frames-to-Video / First-Last Frame (`3..10s`)**: exact exterior-to-interior continuous camera pushes, sequential `5-layer` studio poster builds, and `Scene Handshake` continuity.
+- **Ingredients / Multi-Modal Reference Conditioning (`3..15s`)**: combine up to `~7` references — **front-and-back garment/product photos + architectural photos + `3s` motion clips + `1s` voice cues** (generated at `0 credits` in Stage 1 via `Nano Banana Pro` / `Labs`) to lock faces, fabric drape, back details, packaging typography, and brand colors across `360°` turns and match cuts.
+- **Multi-Turn Conversational Edit & Motion Transfer (`0 credits`)**: refine `15s` clips turn-by-turn (swap backgrounds, props, lighting/weather, or aspect ratio `16:9 <-> 9:16`, or transfer Turn 1 fluid motion onto a new subject in Turn 2) without re-generating from scratch.
+- **Extend (`3..10s`)**: seamless temporal continuation from a previous block (`extend_from_block`).
 
 ## 3. Prompt Anatomy (Fixed Order, `<= 120 words` per block)
 `[Format & style] + [Subject + ID] + [Action beat-by-beat with timestamps] + [Environment/time] + [Camera: lens, framing, movement] + [Lighting & grade] + [Audio: ambience, SFX, music, dialogue in quotes] + [Negatives]`
 
-## 4. Dialogue, Lip-Sync, Dialect Phonetics & Anti-Uncanny-Valley Law
-- **Generative Lip-Sync**: Short phrases (`<= 8 words` and `<= 2.5 words/s`), natural pauses (`..`), one speaker at a time, face to camera, mouth unobstructed. Provide an English gloss (`dialogue_gloss_en`) for QC. Keep dialect consistent (`Gulf / Bahraini / Saudi / Kuwaiti / Emirati / Iraqi / Egyptian / Levantine` vs. `MSA` as requested).
-- **Explicit Voice & Native Accent Lock (Anti-Foreign/Indian Accent Rule)**:
-  - Always include an explicit vocal timbre and native accent lock before the quoted Arabic line: `speaking in a warm, authentic native Bahraini Khaleeji male voice with natural Gulf Arab cadence (zero South-Asian/Indian or foreign accent): "..."`.
-  - **Visual-Audio Conditioning Guardrail**: In joint audio-visual models (`Omni 1.1 Flash` / `Veo 3.1`), character wardrobe directly biases voice accent! Never omit the character's exact wardrobe descriptor in any block (e.g., omitting a suit or Gulf thobe can cause the model to generate a South-Asian tunic/kurta, which immediately shifts the voice to an Indian accent). Repeat the **full verbatim character + wardrobe + headwear/bareheaded descriptor** in every single block.
+## 4. Dialogue, Multi-Speaker Conditioning, Dialect Phonetics & Anti-Uncanny-Valley Law
+- **Native Multi-Speaker Conditioning (`Gemini Omni 1.2 Flash` — Single-Speaker Lock Purged)**:
+  - `Gemini Omni 1.2 Flash` eliminates visual drift/gender morphing from first to last frame and natively routes distinct **`1-second` voice references** to **`4+` characters** inside a single `15-second` clip with expressive lip-sync and natural timing.
+  - Keep individual spoken phrases concise (`<= 8 words` and `<= 2.5 words/s`), with natural pauses (`..`) and explicit timestamped speaker turns (`- At 01s, Yousef speaks... - At 07s, Noura replies...`).
+- **Explicit Voice & Native Accent Lock (`يتحدث باللهجة البحرينية:`)**:
+  - Always place **`يتحدث باللهجة البحرينية:`** directly before the quoted Arabic dialogue (`speaking in a warm, authentic native Bahraini Khaleeji voice (zero South-Asian/Indian or foreign accent)، يتحدث باللهجة البحرينية: "..."`).
+  - **Visual-Audio Conditioning Guardrail**: In joint audio-visual models (`Gemini Omni 1.2 Flash` / `Veo 3.1`), character wardrobe directly biases voice accent! Repeat the **full verbatim character + wardrobe + headwear/bareheaded descriptor** in every single block.
 - **Dialect Sukun Law vs. MSA Case-Ending Trap (`قانون التسكين اللهجي ومنع التنوين الفصيح`)**:
   - **NEVER put MSA grammatical case endings (`ضمة ـُ / كسرة ـِ`) or Tanween (`ـٌ / ـٍ / ـً`) on colloquial/Gulf/Bahraini words** (e.g., never write `مَشْغُوْلٌ وَاجِدْ`, `لَيْلَةِ مَطَرٍ`, `أَقُوْلُ`, `كَانَ`). Seeing Tanween or word-final damma causes `Veo 3.1 / Omni 1.1 Flash` to switch mid-sentence into formal textbook Fusha!
   - **Rule for Colloquial/Gulf Dialects**: Place **`سُكُون (ْ)` on the final letter of every word** (`أَگُولْ، يِگُولْ، مَشْغُولْ وَاجِدْ، لَيْلَةْ مَطَرْ، چَانْ، مَضْمُونْ`), convert pause-final `تاء مربوطة` (`ة`) to `هْ` (`مُكَالَمَهْ، هَالْحَزَّهْ، الطَّاوْلَهْ`), and write dialectal phonemes explicitly so the TTS never guesses:

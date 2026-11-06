@@ -22,7 +22,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
 try:
     from studio_config import OMNI_FLASH_MODEL_DEFAULT
 except ImportError:
-    OMNI_FLASH_MODEL_DEFAULT = "gemini-omni-flash-preview"
+    OMNI_FLASH_MODEL_DEFAULT = "gemini-omni-1.2-flash"
 
 # Initialize FastMCP Server
 mcp = FastMCP("CineFlow Gemini Omni Flash Video Agent")
@@ -75,7 +75,7 @@ def _get_image_data(image_path: str) -> Dict[str, str]:
     mime_type = "image/png"
     if image_path.lower().endswith((".jpg", ".jpeg")):
         mime_type = "image/jpeg"
-    elif image_path.lower().endswith(".webp"):
+    elif image_path.lower().endswith(".webp")):
         mime_type = "image/webp"
 
     with open(image_path, "rb") as f:

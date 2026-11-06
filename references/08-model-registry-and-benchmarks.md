@@ -1,18 +1,18 @@
 # 08 — Model Registry, Tuned Empirical Defaults, Compliance & Analytics Loop
 
-> **Last Verified:** `2026-11-03`  
+> **Last Verified:** `2026-11-06`  
 > **Status:** `verify_live` (Always inspect live platform UI via `A0_Probe` before locking durations or spending credits; see also [`references/model-registry.md`](model-registry.md) and [`references/11-22-tool-video-ecosystem-and-nle-mastery.md`](11-22-tool-video-ecosystem-and-nle-mastery.md)).
 
 ---
 
 ## 1. Dated Model & Pricing Registry (`status: verify_live`)
 
-Model identifiers, clip duration options (`allowed_clip_seconds`), and credit multipliers evolve rapidly. Treat the table below as the **baseline assumption as of `2026-11-03`** and override with live UI inspection when browser access is available.
+Model identifiers, clip duration options (`allowed_clip_seconds`), and credit multipliers evolve rapidly. Treat the table below as the **baseline assumption as of `2026-11-06`** and override with live UI inspection when browser access is available.
 
-| Platform / Engine | Current Model IDs (`2026-11-03`) | Allowed Clip Seconds (`allowed_clip_seconds`) | Extend Chain Cap (s) | Relative Cost Tier | Primary Strength |
+| Platform / Engine | Current Model IDs (`2026-11-06`) | Allowed Clip Seconds (`allowed_clip_seconds`) | Extend Chain Cap (s) | Relative Cost Tier | Primary Strength |
 |---|---|---|---|---|---|
+| **Google Flow (Omni 1.2 Flash)** | `Omni 1.2 Flash` (`gemini-omni-1.2-flash`, `macaron_cookie`) / `Omni 1.1 Flash` | `3..15` (`1s` steps for `t2v/i2v/r2v/edit`; `3..10` for `Frames/Extend`) | `40` | `$0.07/s` (`30%` cheaper than 1.1; `360p` `1–2c/s`, `0-credit` conversational edit & `1080p` upscale) | Native `3–15s`, Multi-Speaker Conditioning (`4+` chars with `1s` voice cues), front/back + `3s` motion refs, `0-credit` conversational edit & motion transfer, unbroken FPV/crash-zoom/360 camera |
 | **Google Flow (Veo Cinema)** | `Veo 3.1 Lite` / `Fast` / `Quality` | `4, 6, 8` (`8` only on Quality) | `40` (`+8s` Lite on Flow, `+7s` on API) | `1.0x` (Standard) / `0.5x` (Lite/Ultra Fast) | Photorealistic cinema, native lip-sync, Ingredients `[ID]` lock |
-| **Google Flow (Omni Flash)** | `Omni 1.1 Flash` (`gemini-omni-flash-preview`) | `4, 6, 8, 10` (`3..10` on Gemini API) | `40` | `0.25x–0.5x` (`4–15 credits`, `0-credit` `1080p` upscale) | Up to 7 references, 5 voices, natural-language video editing |
 | **Google Labs (Image Lock)** | `Nano Banana Pro` / `Nano Banana 2 Lite` | Static `0s` | N/A | `0.0x` (`0 credits` Reference & `1K/2K/4K` Upscale) | Character turnarounds (`@Char`), environment plates (`@Env`) |
 | **Seedance / Dreamina** | `Seedance 2.0` + `Seedream 3.0` | `4, 6, 8, 10` | `30` | `0.85x` | `@Image1`/`@Video1`/`@Audio1` multi-shot cuts & choreography |
 | **Runway / Kling / Hailuo / Wan / Higgsfield** | `Gen-4`, `Kling 2.1/3.0`, `I2V-01-Director`, `Wan VACE`, `Higgsfield DoP` | `4, 5, 6, 8, 10` | `30–40` | `0.5x–1.0x` | Bracketed camera moves, `Elements`, `VACE` inpainting, `DoP` cinema rigs |

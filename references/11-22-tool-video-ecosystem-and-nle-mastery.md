@@ -140,10 +140,10 @@ This reference provides exact, zero-error operational workflows, CLI/API automat
   - `veo-3.1-quality`: `8s` (`text-to-video`, `first-frame`, `first-last-frame`) — highest photorealistic texture and physics.
   - `Extend`: Routes through `veo-3.1-lite` (`+8s` on Flow, `+7s` on Gemini API).
 
-### 15. Google Flow (`labs.google/fx/tools/flow` + `Omni 1.1 Flash` + `Nano Banana Pro`)
-- **Multimodal Production Rules**:
-  - `Omni 1.1 Flash`: `4s, 6s, 8s, 10s` on Flow (`3..10s` on Gemini API), up to **7 reference ingredients** (`1–3` sweet spot) and **5 speaker voices** (`referenceAudio_N` must always pair with a visible character face).
-  - **Credit Optimization**: Generate character/product sheets in `Nano Banana` (`0 credits`), block motion at `360p`/`720p` (`4–15 credits`), and run the **`1080p` upscale for `0 credits`**.
+### 15. Google Flow (`flow.google.com` + `Gemini Omni 1.2 Flash` + `Nano Banana Pro`)
+- **Multimodal Production Rules (`google-flow-director v3.0.0 — Pure Gemini Omni 1.2 Flash Native Edition`)**:
+  - `Gemini Omni 1.2 Flash` (`macaron_cookie` / `gemini-omni-1.2-flash`): **`3s` to `15s` in `1-second` increments** on Flow (`3..15s` slider for `t2v/i2v/r2v`, `3..10s` for `Frames` First-to-Last Interpolation & `Extend`), combining **front-and-back garment/product photos + `3s` motion reference clips + `1s` voice cues** and routing distinct voices across **`4+` speakers** in a single `15s` clip with `يتحدث باللهجة البحرينية: "<النص>"`.
+  - **Credit Optimization (Pillar 1)**: Generate character/product sheets in `Nano Banana Pro` (`0 credits`), draft motion at `360p` (`1 credit/s` for `3..10s`) or `720p` (`$0.07/s` on API, `30%` cheaper than Omni 1.1), refine turn-by-turn via **`0-credit` Multi-Turn Conversational Editing & Motion Transfer**, and run the **`1080p` upscale for `0 credits`** (`4K` upscale = `50 credits`).
 
 ### 16. Runway (`Gen-4` / `Gen-4 Turbo` / `Act-One` / `Frames`)
 - **Gen-4 Prompt Grammar (Motion-Delta Only & No Negative Prompts)**:

@@ -44,8 +44,8 @@ def estimate_package_cost(
     extend_blocks = sum(1 for b in blocks if isinstance(b, dict) and b.get("mode") == "Extend")
     base_blocks = n - extend_blocks
 
-    stage1_refs_cost = 0.0  # Nano Banana 2 Lite / Google Labs 0-credit reference plates
-    stage2_draft_cost = round(n * (credits_per_generation * 0.25), 2)  # Omni 1.1 Flash 360p->720p draft
+    stage1_refs_cost = 0.0  # Nano Banana Pro / Google Labs 0-credit reference plates
+    stage2_draft_cost = round(n * (credits_per_generation * 0.25), 2)  # Omni 1.2 Flash 360p/720p draft -> 0-credit edit -> 1080p/4K upscale
 
     lo = round(n * credits_per_generation, 2)
     exp = round(n * (1.0 + expected_rerolls_per_block) * credits_per_generation, 2)

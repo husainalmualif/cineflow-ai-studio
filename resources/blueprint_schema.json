@@ -4,9 +4,9 @@
   "type": "object",
   "$defs": {
     "allowed_clip_seconds": {
-      "description": "Single generated clip duration in seconds (referenced from studio_config.ALLOWED_CLIP_SECONDS, status: verify_live)",
+      "description": "Single generated clip duration in seconds (referenced from studio_config.ALLOWED_CLIP_SECONDS, 3-15s in 1s increments for Gemini Omni 1.2 Flash, status: verify_live)",
       "type": "integer",
-      "enum": [4, 6, 8, 10]
+      "enum": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     },
     "montage_style_enum": {
       "type": "string",

@@ -1,18 +1,20 @@
 {
   "flow_agent_init": {
-    "version": "2.0",
+    "version": "3.0",
+    "edition": "Pure Gemini Omni 1.2 Flash Native Edition (google-flow-director v3.0.0)",
     "project_meta": {
       "title": "{{PROJECT_TITLE}}",
       "slug": "{{PROJECT_SLUG}}",
       "aspect_ratio": "9:16",
-      "image_engine": "nano-banana-2.1",
-      "video_engine": "omni-flash",
-      "extension_engine": "veo-3.1-lite",
+      "image_engine": "nano-banana-pro",
+      "video_engine": "gemini-omni-1.2-flash",
+      "extension_engine": "gemini-omni-1.2-flash",
+      "native_duration_range_s": "3-15s (1s increments)",
       "confirm_before_generating": true
     },
     "dialect_and_voice_engine": {
       "primary_dialect": "{{DIALECT_NAME}} (e.g., Natural conversational Bahraini Gulf Arabic - لهجة بحرينية محرقية عفوية)",
-      "omni_flash_dialect_law": "Write Arabic dialogue in natural conversational dialect spelling WITHOUT heavy MSA harakat/tanween so Omni 1.1 Flash uses its native LLM dialect prosody and natural word elision instead of stiff textbook Fusha recitation.",
+      "omni_flash_dialect_law": "Write Arabic dialogue in natural conversational dialect spelling WITHOUT heavy MSA harakat/tanween and prepend 'يتحدث باللهجة البحرينية:' directly before the quote so Gemini Omni 1.2 Flash uses its native LLM dialect prosody, word elision, and native Multi-Speaker Conditioning (routing 1s voice references to 4+ characters in a single 15s clip).",
       "phonetic_lexicon": {
         "باجر": "Baa-gir (الباء والألف با + الجيم بصوت G مثل Good + الراء مخففة في النهاية)",
         "تقول / أقول / عقب / قبل / دقايق": "Pronounced with hard Gulf G (گ as in Good)",

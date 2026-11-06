@@ -271,6 +271,19 @@
           "DialectContamination"
         ]
       }
+    },
+    {
+      "id": "EVAL_POS_15",
+      "category": "positive",
+      "prompt": "صمم لي مشهد حوار ثنائي مدته 15 ثانية باللهجة البحرينية على Google Flow باستخدام Gemini Omni 1.2 Flash بدقة 360p Draft مع عينتين صوتيتين (1s Voice Reference) ثم عدل الخلفية حوارياً بدون إعادة التوليد وارفع الدقة إلى 1080p/4K",
+      "should_trigger": true,
+      "expected": {
+        "model": "gemini-omni-1.2-flash",
+        "flow_ui_name": "Omni 1.2 Flash",
+        "native_duration_s": 15,
+        "conversational_edit_credits": 0,
+        "direct_dialect_prefix": "يتحدث باللهجة البحرينية:"
+      }
     }
   ]
 }

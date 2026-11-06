@@ -483,23 +483,60 @@ def split_caption_cards_balanced(
     return cards
 
 
+_ARABIC_DIALECT_LABELS: Dict[str, str] = {
+    "bahrain": "باللهجة البحرينية",
+    "muharraq": "باللهجة البحرينية المحرقية",
+    "najd": "باللهجة السعودية النجدية",
+    "hijaz": "باللهجة السعودية الحجازية",
+    "sharq": "باللهجة السعودية الشرقاوية",
+    "saudi": "باللهجة السعودية",
+    "kuwait": "باللهجة الكويتية",
+    "qatar": "باللهجة القطرية",
+    "emirat": "باللهجة الإماراتية",
+    "uae": "باللهجة الإماراتية",
+    "oman": "باللهجة العمانية",
+    "iraq": "باللهجة العراقية",
+    "levant": "باللهجة الشامية",
+    "syria": "باللهجة السورية",
+    "leban": "باللهجة اللبنانية",
+    "jordan": "باللهجة الأردنية",
+    "egypt": "باللهجة المصرية",
+    "maghreb": "باللهجة المغاربية",
+    "morocc": "باللهجة المغربية",
+    "gulf": "باللهجة الخليجية",
+}
+
+
 def format_omni_flash_dialect_dialogue(
     dialogue_ar: str,
     dialect: str = "Bahraini Gulf Arabic",
     voice_gender: str = "male",
 ) -> Dict[str, Any]:
     """
-    Implements the Google Flow `Omni 1.1 Flash` Native Dialect Law (`09-google-flow-agent-scenes-and-tools-mastery.md`):
+    Implements the Google Flow `Gemini Omni 1.2 Flash` Native Dialect & Multi-Speaker Conditioning Law
+    (`09-google-flow-agent-scenes-and-tools-mastery.md` & `google-flow-director v3.0.0`):
     - Strips textbook MSA tanween (`\\u064b`, `\\u064c`, `\\u064d`) and excessive schoolbook harakat so
-      `Omni 1.1 Flash` (a native multimodal LLM) uses authentic regional prosody and connected speech.
-    - Generates the English phonetic bracket prefix locking native Gulf/Bahraini pronunciation
-      (e.g., hard `G` as in Good for `باجر / تقول / دقايق / عقب / قبل`, zero South-Asian/foreign accent).
+      `Gemini Omni 1.2 Flash` (a native multimodal LLM) uses authentic regional prosody and connected speech.
+    - Places the explicit Arabic dialect label (`يتحدث باللهجة البحرينية: "<النص>"`) directly before the spoken
+      dialogue quote so `flow.google.com` locks onto the target dialect in the Arabic token context, paired with
+      English phonetic guidance (`Baa-gir` with hard `G`, zero South-Asian/foreign accent).
     """
     raw = str(dialogue_ar or "").strip()
     has_tanween = bool(re.search(r"[\u064B-\u064D]", raw))
-    # Strip MSA tanween and heavy harakat for Omni 1.1 Flash native dialect orthography
+    # Strip MSA tanween and heavy harakat for Omni 1.2 Flash native dialect orthography
     clean_dialect_ar = re.sub(r"[\u064B-\u0652\u0670]", "", raw)
     clean_dialect_ar = re.sub(r"\s+", " ", clean_dialect_ar).strip()
+
+    d_low = str(dialect or "").lower()
+    dialect_label_ar = "باللهجة البحرينية"
+    for key_sub, ar_label in _ARABIC_DIALECT_LABELS.items():
+        if key_sub in d_low:
+            dialect_label_ar = ar_label
+            break
+    if re.search(r"[\u0600-\u06FF]", str(dialect or "")):
+        dialect_label_ar = str(dialect).strip()
+        if not dialect_label_ar.startswith("ب"):
+            dialect_label_ar = f"ب{dialect_label_ar}"
 
     phonetic_notes: List[str] = [
         "zero South-Asian or foreign accent",
@@ -512,12 +549,15 @@ def format_omni_flash_dialect_dialogue(
         phonetic_notes.append(f'pronouncing "{" / ".join(g_words)}" with hard Gulf G')
 
     bracket_str = ", ".join(phonetic_notes)
+    direct_ar_clause = f'يتحدث {dialect_label_ar}: "{clean_dialect_ar}"'
     prompt_segment = (
         f"speaking in a warm, deep, natural conversational {dialect} {voice_gender} voice "
-        f'({bracket_str}): "{clean_dialect_ar}"'
+        f"({bracket_str})، {direct_ar_clause}"
     )
     return {
         "clean_dialect_ar": clean_dialect_ar,
+        "dialect_label_ar": dialect_label_ar,
+        "flow_direct_dialect_clause": direct_ar_clause,
         "had_msa_tanween_stripped": has_tanween,
         "phonetic_notes": phonetic_notes,
         "omni_flash_prompt_segment": prompt_segment,
@@ -598,11 +638,7 @@ def audit_cultural_and_dialect_authenticity(
         )
 
     detected_info = detect_arabic_dialect_with_confidence(clean_script)
-    effective_dialect = (
-        str(detected_info.get("dialect_code", detected_info.get("dialect", "UNKNOWN")))
-        if target_dialect == "AUTO"
-        else target_dialect.upper()
-    )
+    effective_dialect = detected_info["dialect_code"] if target_dialect == "AUTO" else target_dialect.upper()
     gulf_dialects = {"SAUDI_NAJDI", "SAUDI_HIJAZI", "SAUDI_SHARQAWI", "BAHRAIN_URBAN", "KUWAITI", "QATARI", "EMIRATI", "OMANI"}
     if any(g in effective_dialect for g in gulf_dialects):
         non_gulf_markers = [w for w in ("دلوقتي", "ازيك", "إزيك", "كده", "هلأ", "هلق", "كتير", "كرمال", "دابا", "بزاف") if w in clean_script]
@@ -663,6 +699,8 @@ def compile_multi_platform_tool_payload(
     elif norm_tool == "runway":
         no_neg = re.sub(r"--no\s+.*$", "", clean_prompt, flags=re.I).strip()
         formatted = f"Smooth {camera_preset.replace('_', ' ')} camera movement: {no_neg}"
+    elif norm_tool == "google_flow":
+        formatted = f"[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: 360p Draft | DURATION: {int(duration_s)}s] {clean_prompt}"
     else:
         formatted = clean_prompt
 
@@ -674,4 +712,128 @@ def compile_multi_platform_tool_payload(
         "duration_s": int(duration_s),
         "camera_preset": camera_preset,
         "compiled_prompt": formatted,
+    }
+
+
+def compile_omni_1_2_native_prompt(
+    template_type: str = "1_multi_speaker_15s_scene_360p_draft",
+    duration_s: int = 15,
+    aspect_ratio: str = "16:9",
+    resolution: str = "360p Draft",
+    scene_description: str = "",
+    speakers: Optional[List[Dict[str, Any]]] = None,
+    edit_instruction: str = "",
+    turn_number: int = 2,
+    references: str = "",
+) -> Dict[str, Any]:
+    """
+    Compiles native `Gemini Omni 1.2 Flash` prompts following `google-flow-director v3.0.0` (`prompt_templates_v3`):
+    - Supports `1_multi_speaker_15s_scene_360p_draft` (or `multi_speaker`), `2_multi_turn_conversational_edit`
+      (or `conversational_edit`), and `3_product_or_virtual_try_on_15s_with_references` (or `product_try_on`).
+    - Enforces native 3s-to-15s duration (1s steps), Multi-Speaker Conditioning with 1s voice references,
+      0-credit Multi-Turn Conversational Editing, and Front/Back + 3s Motion Reference adherence.
+    """
+    dur = int(duration_s)
+    if dur < 3 or dur > 15:
+        raise ValueError(f"Gemini Omni 1.2 Flash native duration must be 3..15s (1s steps); got {duration_s!r}.")
+
+    t_norm = str(template_type or "").strip().lower()
+    if t_norm in ("2_multi_turn_conversational_edit", "conversational_edit", "edit"):
+        body = str(edit_instruction or scene_description or "").strip() or (
+            "Keep both Yousef and Noura's exact performances, multi-speaker Bahraini dialogue, lip-sync, garment "
+            "reflections, and camera framing completely intact across all 15 seconds. Swap the interior command "
+            "center background to a rainy rooftop overlooking the illuminated Manama skyline at night, and switch "
+            "the aspect ratio to 9:16 vertical."
+        )
+        compiled = f"[MULTI-TURN CONVERSATIONAL EDIT — TURN {int(turn_number)}]\n{body}"
+        return {
+            "template_type": "2_multi_turn_conversational_edit",
+            "model": "Gemini Omni 1.2 Flash",
+            "flow_credits": 0,
+            "turn_number": int(turn_number),
+            "compiled_prompt": compiled,
+        }
+
+    if t_norm in ("3_product_or_virtual_try_on_15s_with_references", "product_try_on", "product"):
+        refs = str(references or "").strip() or (
+            "Attach Front & Back Product Packaging Photos + Brand Logo Lock + 3s Motion Reference Clip"
+        )
+        body = str(scene_description or "").strip() or (
+            f"{dur}-second commercial showcase with match cuts and a smooth 360-degree product spin on a sleek dark "
+            "marble counter. Lock all Arabic and English packaging typography, brand colors, and surface textures "
+            "from the first frame to the final frame with zero distortion, adding motion-tracked callouts."
+        )
+        res_label = resolution if "->" in resolution else f"{resolution} -> 4K Upscale"
+        compiled = (
+            f"[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: {res_label} | DURATION: {dur}s | ASPECT RATIO: {aspect_ratio}]\n"
+            f"[REFERENCES: {refs}]\n"
+            f"{body}"
+        )
+        return {
+            "template_type": "3_product_or_virtual_try_on_15s_with_references",
+            "model": "Gemini Omni 1.2 Flash",
+            "duration_s": dur,
+            "aspect_ratio": aspect_ratio,
+            "compiled_prompt": compiled,
+        }
+
+    speaker_list = list(
+        speakers
+        or [
+            {
+                "name": "Yousef",
+                "voice_ref": "Voice Reference A",
+                "timestamp_s": 1,
+                "dialect": "Bahraini",
+                "line_ar": "شوفي الإشارة وين تطلع.. عند باب البحرين بالضبط!",
+            },
+            {
+                "name": "Noura",
+                "voice_ref": "Voice Reference B",
+                "timestamp_s": 7,
+                "dialect": "Bahraini",
+                "line_ar": "عيل لازم نتحرك الحين قبل لا تقفل البوابة، ما عندنا وقت!",
+            },
+        ]
+    )
+    refs = str(references or "").strip() or (
+        "Scene Image + Character A & B Portraits + 1s Voice Reference A + 1s Voice Reference B"
+    )
+    scene_desc = str(scene_description or "").strip() or (
+        f"Continuous {dur}-second cinematic two-shot inside a futuristic Manama command center. Yousef stands on the "
+        "left in a dark tactical jacket; Noura stands on the right beside a glowing holographic map. Camera executes "
+        "a slow, unbroken orbital push-in."
+    )
+    routing_pairs = " and ".join(
+        f"{sp.get('voice_ref', f'Voice Reference {idx + 1}')} to {sp.get('name', f'Speaker {idx + 1}')}"
+        for idx, sp in enumerate(speaker_list)
+    )
+    bullet_lines: List[str] = []
+    for sp in speaker_list:
+        ts = int(sp.get("timestamp_s", 1))
+        name = str(sp.get("name", "Speaker"))
+        dialect_info = format_omni_flash_dialect_dialogue(
+            str(sp.get("line_ar", "")),
+            dialect=str(sp.get("dialect", "Bahraini Gulf Arabic")),
+        )
+        bullet_lines.append(
+            f'- At {ts:02d}s, {name} speaks in authentic Bahraini dialect ({dialect_info["flow_direct_dialect_clause"]}): '
+            f'"{dialect_info["clean_dialect_ar"]}"'
+        )
+
+    compiled = (
+        f"[MODEL: Gemini Omni 1.2 Flash | RESOLUTION: {resolution} | DURATION: {dur}s | ASPECT RATIO: {aspect_ratio}]\n"
+        f"[REFERENCES: {refs}]\n"
+        f"{scene_desc}\n"
+        "MULTI-SPEAKER BAHRAINI DIALECT LOCK (حوار ثنائي باللهجة البحرينية العامية الأصيلة بتزامن شفاه دقيق): "
+        f"Route {routing_pairs} with expressive lip-sync and natural timing.\n"
+        + "\n".join(bullet_lines)
+    )
+    return {
+        "template_type": "1_multi_speaker_15s_scene_360p_draft",
+        "model": "Gemini Omni 1.2 Flash",
+        "duration_s": dur,
+        "aspect_ratio": aspect_ratio,
+        "speaker_count": len(speaker_list),
+        "compiled_prompt": compiled,
     }

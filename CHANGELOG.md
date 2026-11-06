@@ -2,6 +2,24 @@
 
 All notable changes to `cineflow-ai-studio` are documented in this file.
 
+## [7.0.0] — 2026-11-06
+### Added & Upgraded (Pure Gemini Omni 1.2 Flash Native Edition — `google-flow-director v3.0.0`)
+- **Gemini Omni 1.2 Flash Native Architecture (`scripts/studio_config.py`, `scripts/governance_and_omni.py`, `scripts/arabic_helpers.py`, `SKILL.md`, `references/09-google-flow-agent-scenes-and-tools-mastery.md`)**:
+  - Upgraded default Google Flow and Interactions API model to **`Gemini Omni 1.2 Flash`** (`flow.google.com` UI: `Omni 1.2 Flash`, internal RPC codename: `macaron_cookie`, Gemini API ID: `gemini-omni-1.2-flash`, Vertex AI slug: `omni-1-2-flash`, released `2026-11-05` at **`$0.07/second` for `720p`** — **30% lower** than Omni 1.1).
+  - **Purged 3 Obsolete Legacy Rules (`purged_legacy_rules`)**:
+    1. Purged *Single-Speaker Shot Lock / Gender-Morphing Workaround* — replaced by native **Multi-Speaker Conditioning** routing distinct `1-second` voice references to `4+` characters in a single `15s` clip with expressive lip-sync and zero identity/gender drift.
+    2. Purged *Avoid Multi-Angle Front-and-Back References in One Shot* — replaced by native **Multi-Modal Reference Adherence** combining model photos, front-and-back garment/product shots, `3-second` motion reference clips, and `1-second` voice cues across `360°` turns and match cuts.
+    3. Purged *Mandatory Full Clip Re-Generation on Background/Lighting/Aspect Changes* — replaced by **`0-credit` Multi-Turn Conversational Editing & Motion Transfer** (`macaron_cookie_edit` / `macaron_cookie_edit_360p`) across full `15s` clips.
+  - **Integrated the 6 Core Pillars (`core_pillars_v3`) & 3 Native Prompt Templates (`prompt_templates_v3` / `compile_omni_1_2_native_prompt`)**:
+    - **Pillar 1**: `360p/720p` Fast Draft (`1 credit/s` at `360p` for `3..10s`, `3 credits/s` at `720p`) ➔ `0-credit` Multi-Turn Conversational Edit & Motion Transfer ➔ `0-credit` `1080p` / `50-credit` `4K` Master Upscale.
+    - **Pillar 2**: Native **`3s` to `15s` in `1-second` increments** (`ALLOWED_CLIP_DURATIONS = (3..15)`, `MAX_SINGLE_SHOT_SECONDS = 15`, `Length` slider on `flow.google.com` for `t2v/i2v/r2v`, `3..10s` for `Frames` First-to-Last Keyframe Interpolation & `Extend`).
+    - **Pillar 3**: Multi-Modal Reference Adherence (Front/Back Images + `3s` Motion Clips + `1s` Voice Cues).
+    - **Pillar 4**: Native Multi-Speaker Conditioning & Direct Arabic Dialect Prefix Law (`يتحدث باللهجة البحرينية: "<النص>"` directly before quoted dialogue).
+    - **Pillar 5**: Unbroken Cinematic Camera Control (continuous FPV drone flythroughs guided by architectural reference photos, unbroken crash zoom-outs, and `360°` orbits).
+    - **Pillar 6**: Clean `Scenebuilder` Timeline Assembly (approved `1080p/4K` upscaled masters only, `Shot 1 -> Shot N`) + Full-Bleed Borderless Frame Sanitizer (stripping `Kodak Vision3 500T` / film-stock rebate tokens).
+- **Updated Schemas & Templates (`resources/blueprint_schema.json`, `resources/flow_pipeline_schema.json`, `templates/flow_agent_project_init.template.json`)**:
+  - Expanded `allowed_clip_seconds` to `[3..15]` and `flow_pipeline_schema.json` `duration` enum to `["3s".."15s"]` with `"Omni 1.2 Flash"` as default model.
+
 ## [6.6.0] — 2026-11-03
 ### Added (22-Tool Creative & Generative Video Ecosystem + Human-Level Cultural, Dialect & Media Psychology Mastery)
 - **Complete 22-Tool Creative & AI Video Ecosystem (`references/11-22-tool-video-ecosystem-and-nle-mastery.md` & `ECOSYSTEM_22_TOOLS_REGISTRY`)**:

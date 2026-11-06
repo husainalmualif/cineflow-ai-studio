@@ -77,7 +77,7 @@ SEVEN_AGENT_REGISTRY: List[Dict[str, Any]] = [
         "name_ar": "وكيل جوجل فلو للإخراج السينمائي",
         "name_en": "Google Flow DoP & Video Producer Agent",
         "endpoint": "https://flow.google.com/",
-        "phase": "Phase 4 & 7: 06_package.json & Veo 3.1 / Omni 1.1 Generation",
+        "phase": "Phase 4 & 7: 06_package.json & Gemini Omni 1.2 Flash / Veo 3.1 Generation",
         "deliverables": ["06_package.json", "08_flow_runlog.md", "assets/scene_01..06.mp4"],
     },
     {

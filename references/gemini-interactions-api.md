@@ -1,6 +1,6 @@
 # واجهة التفاعلات الحفظية وخادم MCP لتوليد وتعديل الفيديو — Gemini Stateful Interactions API & FastMCP Video Agent (`references/gemini-interactions-api.md`)
 
-يُوثّق هذا المرجع المعمارية الكاملة لواجهة **`Gemini Interactions API`** الحفظية (`Stateful Video Generation & Multi-Turn Editing`) لنماذج **`gemini-omni-flash-preview` / `gemini-omni-1.1-flash`**، بالإضافة إلى خادم البروتوكول الموحد **`FastMCP` (`mcp/server.py` — `omni-video-agent`)** وأدواته الثماني للتوليد والتعديل والتحريك والنشر على يوتيوب.
+يُوثّق هذا المرجع المعمارية الكاملة لواجهة **`Gemini Interactions API`** الحفظية (`Stateful Video Generation & Multi-Turn Conversational Editing`) لنموذج **`gemini-omni-1.2-flash`** (`Omni 1.2 Flash` — وللإصدار السابق `gemini-omni-1.1-flash`)، بالإضافة إلى خادم البروتوكول الموحد **`FastMCP` (`mcp/server.py` — `omni-video-agent`)** وأدواته الثماني للتوليد (`3–15s` بزيادة ثانية واحدة، `$0.07/s` عند `720p`) والتعديل الحواري المجاني (`0 credits` على Flow) ونقل الحركة (`Motion Transfer`) والتحريك والنشر على يوتيوب.
 
 ---
 

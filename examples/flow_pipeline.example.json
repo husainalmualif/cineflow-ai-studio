@@ -6,7 +6,7 @@
     "mode": "Ingredients",
     "aspect": "9:16",
     "duration": "8s",
-    "model": "Omni 1.1 Flash"
+    "model": "Omni 1.2 Flash"
   },
   "declared_handles": ["@Kwame", "@MarketLane"],
   "scenes": [

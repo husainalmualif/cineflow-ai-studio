@@ -18,9 +18,10 @@ Every video segment must declare a valid `(surface, model, mode, duration_s)` tu
 | **`flow`** | **`veo-3.1-lite`** | `text-to-video`: `{4, 6, 8}`<br>`first-frame`: `{4, 6, 8}`<br>`first-last-frame`: `{4, 6, 8}`<br>`references-to-video`: `{8}`<br>`extend`: `{8}` | Cheapest Veo tier; Flow routes **Extend** operations through Veo 3.1 Lite (`+8s`). |
 | **`flow`** | **`veo-3.1-fast`** | `text-to-video`: `{4, 6, 8}`<br>`first-frame`: `{4, 6, 8}`<br>`first-last-frame`: `{4, 6, 8}`<br>`references-to-video`: `{8}` | Best balance of speed and motion quality on Veo (`10 credits` on Ultra, `20 credits` on Pro). |
 | **`flow`** | **`veo-3.1-quality`** | `text-to-video`: `{8}`<br>`first-frame`: `{8}`<br>`first-last-frame`: `{8}` | Highest realism; `8s` only (`references-to-video` is **not** supported on Quality). |
-| **`flow`** | **`omni-flash`** | `text-to-video`: `{4, 6, 8, 10}`<br>`first-frame`: `{4, 6, 8, 10}`<br>`first-last-frame`: `{4, 6, 8, 10}`<br>`references-to-video`: `{4, 6, 8, 10}`<br>`video-edit`: `{4, 6, 8, 10}` | Supports up to `10s` native generation, up to `7` reference ingredients (`1–3` sweet spot), up to `5` distinct voices, and natural-language video editing. |
+| **`flow`** | **`omni-1.2-flash` / `gemini-omni-1.2-flash`** | `text-to-video`: `{3..15}` (`1s` increments)<br>`first-frame`: `{3..15}`<br>`references-to-video`: `{3..15}`<br>`video-edit`: `{3..15}` (`0 credits`)<br>`first-last-frame`: `{3..10}`<br>`extend`: `{3..10}` | **Default Google Flow Engine (`macaron_cookie`, `$0.07/s` at `720p`, `30%` cheaper than Omni 1.1)**. Native `3–15s` slider, Multi-Speaker Conditioning (`4+` characters with `1s` voice references), front/back + `3s` motion clips, `0-credit` Multi-Turn Conversational Editing & Motion Transfer, unbroken FPV/crash-zoom/360-orbit camera paths. |
+| **`flow`** | **`omni-flash`** | `text-to-video`: `{3..15}`<br>`first-frame`: `{3..15}`<br>`first-last-frame`: `{3..15}`<br>`references-to-video`: `{3..15}`<br>`video-edit`: `{3..15}` | Generic alias mapping to `Omni 1.2 Flash` (`3–15s`) for standard modes (`Omni 1.1 Flash` / `abra` remains selectable for legacy `4/6/8/10s` workflows). |
 | **`gemini-api`** | **`veo-3.1-lite`** / **`fast`** | `text-to-video`, `first-frame`, `first-last-frame`: `{4, 6, 8}`<br>`references-to-video` (`fast` only): `{8}`<br>`extend`: `{7}` | API Extend adds `7s` (up to `20` hops, `148s` ceiling) at `720p`. |
-| **`gemini-api`** | **`omni-flash`** | `text-to-video`, `first-frame`, `references-to-video`, `video-edit`: `{3, 4, 5, 6, 7, 8, 9, 10}` | Continuous `3–10s` integer durations on the Gemini API surface. |
+| **`gemini-api`** | **`omni-1.2-flash` / `omni-flash`** | `text-to-video`, `first-frame`, `first-last-frame`, `references-to-video`, `video-edit`, `extend`: `{3..15}` | Continuous `3–15s` integer durations (`1s` increments) on the Gemini API / Interactions API surface (`gemini-omni-1.2-flash`). |
 
 ### 1.2 The 8-Point Continuity Audit (`flow-continuity-auditor`)
 Each generation call is stateless unless anchored by `@PascalCase` reference handles or an incoming frame. Prompts **fail mechanical validation** if they violate any of these rules:
@@ -49,17 +50,17 @@ Each generation call is stateless unless anchored by `@PascalCase` reference han
 ### 1.3 Contract-Compliant Storyboard Contact-Sheet Generator (`generate_contract_storyboard_prompt`)
 Follow the three-phase visual approval workflow: **Panels First -> Approval Second -> Video Third**.
 - **Default Contact-Sheet Grid by Segment Duration**:
-  - `4s` segment -> **`2` panels (`2x1` horizontal strip)**
-  - `6s` segment -> **`3` panels (`3x1` horizontal strip)**
-  - `8s` segment -> **`3` panels (`3x1` horizontal strip)**
-  - `10s` segment -> **`4` panels (`2x2` grid)**
-  - *(A `3x3` 9-panel grid is only emitted when `allow_nine_panel=True` and all 9 distinct panels are explicitly authored).*
+   - `4s` segment -> **`2` panels (`2x1` horizontal strip)**
+   - `6s` segment -> **`3` panels (`3x1` horizontal strip)**
+   - `8s` segment -> **`3` panels (`3x1` horizontal strip)**
+   - `10s` segment -> **`4` panels (`2x2` grid)**
+   - *(A `3x3` 9-panel grid is only emitted when `allow_nine_panel=True` and all 9 distinct panels are explicitly authored).*
 - **Mandatory Prompt Contract**:
-  - Section 1 (`Internal Operator Notes — Do Not Paste Into Image Generator`) lists surface, model, mode, duration, aspect ratio, grid layout, and `@PascalCase` asset bindings.
-  - Section 2 (`Copy-Paste Prompt`) **must open with the exact directive**:
-    `GENERATE THE STORYBOARD IMAGE NOW.`
-  - Every panel description must state static framing at a specific timestamp (`PANEL B FRAMING: the static composition visible at 3 seconds`) and avoid motion-verb chains or em dashes.
-  - Section 3 (`Approval Checklist`) stays outside the fenced prompt block.
+   - Section 1 (`Internal Operator Notes — Do Not Paste Into Image Generator`) lists surface, model, mode, duration, aspect ratio, grid layout, and `@PascalCase` asset bindings.
+   - Section 2 (`Copy-Paste Prompt`) **must open with the exact directive**:
+     `GENERATE THE STORYBOARD IMAGE NOW.`
+   - Every panel description must state static framing at a specific timestamp (`PANEL B FRAMING: the static composition visible at 3 seconds`) and avoid motion-verb chains or em dashes.
+   - Section 3 (`Approval Checklist`) stays outside the fenced prompt block.
 
 ---
 
@@ -90,28 +91,34 @@ Standard Playwright/Puppeteer launches inject `--enable-automation` and `navigat
 
 ---
 
-## Part 3 — Credit Economics, Omni 1.1 Flash Rules & 6-Step UGC Product Video Pipeline (`google-flow-api`)
+## Part 3 — Credit Economics, Gemini Omni 1.2 Flash Rules & 6-Step UGC Product Video Pipeline (`google-flow-api` & `google-flow-director v3.0.0`)
 
-### 3.1 Exact Google Flow Credit & Pricing Table (`Omni 1.1 Flash` vs `Veo 3.1`)
+### 3.1 Exact Google Flow Credit & Pricing Table (`Omni 1.2 Flash` vs `Omni 1.1 Flash` vs `Veo 3.1`)
 - **Account Tiers**:
   - **Free Google Account**: `50` daily Flow credits (`$0`).
   - **Google AI Pro (`$19.99/mo`)**: `1,000` monthly Flow credits.
   - **Google AI Ultra (`$199.99/mo`)**: `25,000` monthly Flow credits (plus discounted `Veo 3.1 Fast` at `10` credits instead of `20`).
 - **Per-Generation Credit Costs**:
   - **Still Images (`Nano Banana` / `Nano Banana Pro` / `Nano Banana 2`)**: **`0 credits`** (`1K`, `2K`, `4K` image upscales are also **`0 credits`**).
-  - **`Omni 1.1 Flash` Video (`720p` / `360p` half-cost draft)**:
+  - **`Omni 1.2 Flash` (`macaron_cookie`) Video (`$0.07/s` at `720p` on API — `30%` cheaper than Omni 1.1)**:
+    - **`360p` Draft (`macaron_cookie_*_360p`)**: **`1 credit/second`** for `3s..10s` (`3s=3c`, `4s=4c`, `6s=6c`, `8s=8c`, `10s=10c`) and **`+2 credits/second`** for `11s..15s` (`11s=12c`, `12s=14c`, `13s=16c`, `14s=18c`, `15s=20c`).
+    - **`720p` Standard (`macaron_cookie_*`)**: **`3 credits/second`** for `3s..10s` (`3s=9c`, `8s=24c`, `10s=30c`) and **`+6 credits/second`** for `11s..15s` (`15s=60c`).
+    - **Multi-Turn Conversational Edit (`macaron_cookie_edit` & `macaron_cookie_edit_360p`)**: **`0 credits` (FREE)** across full `15s` clips!
+  - **`Omni 1.1 Flash` (`abra`) Legacy Video (`720p` / `360p` half-cost draft)**:
     - `4s`: **`7 credits`** (`720p`) / **`4 credits`** (`360p`)
     - `6s`: **`10 credits`** (`720p`) / **`5 credits`** (`360p`)
     - `8s`: **`12 credits`** (`720p`) / **`6 credits`** (`360p`)
     - `10s`: **`15 credits`** (`720p`) / **`7 credits`** (`360p`)
     - `Video-to-Video Edit`: **`20 credits`** (`720p`) / **`10 credits`** (`360p`)
   - **Post-Generation Video Upscale**:
-    - **`1080p` Upscale**: **`0 credits` (FREE)** on all tiers -> **Golden Cost Rule**: Never pay extra during generation for resolution; generate at `720p` (or `360p` during rapid blocking tests) and run the free `1080p` upscale on approved takes!
+    - **`360p -> 720p` (`omni_upsampler_360p`)**: **`0 credits` (FREE)**
+    - **`1080p` Upscale (`veo_3_1_upsampler_1080p`)**: **`0 credits` (FREE)** on all tiers -> **Golden Cost Rule (Pillar 1)**: Draft at `360p` or `720p` in `Omni 1.2 Flash`, refine via **`0-credit` conversational edits**, and run the **`0-credit` `1080p` upscale** (or `50-credit` `4K` upscale) only on approved takes!
 
-### 3.2 High-Reliability Prompting Rules for `Omni 1.1 Flash`
+### 3.2 High-Reliability Prompting Rules for `Gemini Omni 1.2 Flash`
 1. **Physical Action First**: Put the subject's concrete physical action in the first sentence (`"@Aria lifts the @AmberFlacon to eye level and turns it toward the key light..."`). Video models drop or weaken clauses buried at the end of long paragraphs.
-2. **A Voice Needs a Face**: `referenceAudio_N` only binds reliably when paired with a visible speaking character (`referenceImage_N`, `character_N`, or a source video in `video-edit` mode).
-   - **Reference Limits**: Up to **`7` total image references** (`1–3` is the reliability sweet spot) and up to **`5` distinct speaker voices** on `Omni 1.1 Flash` (vs. `3` references and `1` voice on `Veo 3.1`).
+2. **Multi-Speaker Conditioning & Multi-Modal Reference Adherence**:
+   - Combine front-and-back garment/product photos, `3-second` motion reference clips, and `1-second` voice cues.
+   - Route distinct `1-second` voice references to `4+` characters inside a single `15s` clip with `يتحدث باللهجة البحرينية: "<النص>"` directly before quoted dialogue.
 
 ### 3.3 The 6-Step Checkpointed UGC Product Video Pipeline (`ugc_state.json`)
 To produce multi-product UGC reels with **zero jump cuts** and **60 credits total for 40 seconds (`4 × 10s` at `1080p`)**:

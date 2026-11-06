@@ -7,7 +7,7 @@ so the deterministic pipeline in SKILL.md can actually enforce them.
 
 Sub-commands:
     check      Lint a package JSON: Flow prompt continuity, SFX governor, window/face guard.
-    sanitize   Apply the Google Flow / Omni 1.1 Flash prompt sanitizer to a prompt string.
+    sanitize   Apply the Google Flow / Gemini Omni 1.2 Flash prompt sanitizer to a prompt string.
     storyboard Build the contract-compliant storyboard contact-sheet prompt from a spec JSON.
 
 Examples:
