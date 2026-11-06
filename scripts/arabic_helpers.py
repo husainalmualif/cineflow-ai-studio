@@ -638,7 +638,11 @@ def audit_cultural_and_dialect_authenticity(
         )
 
     detected_info = detect_arabic_dialect_with_confidence(clean_script)
-    effective_dialect = detected_info["dialect_code"] if target_dialect == "AUTO" else target_dialect.upper()
+    effective_dialect = (
+        str(detected_info.get("dialect_code", detected_info.get("dialect", "UNKNOWN")))
+        if target_dialect == "AUTO"
+        else target_dialect.upper()
+    )
     gulf_dialects = {"SAUDI_NAJDI", "SAUDI_HIJAZI", "SAUDI_SHARQAWI", "BAHRAIN_URBAN", "KUWAITI", "QATARI", "EMIRATI", "OMANI"}
     if any(g in effective_dialect for g in gulf_dialects):
         non_gulf_markers = [w for w in ("دلوقتي", "ازيك", "إزيك", "كده", "هلأ", "هلق", "كتير", "كرمال", "دابا", "بزاف") if w in clean_script]
@@ -713,7 +717,6 @@ def compile_multi_platform_tool_payload(
         "camera_preset": camera_preset,
         "compiled_prompt": formatted,
     }
-
 
 def compile_omni_1_2_native_prompt(
     template_type: str = "1_multi_speaker_15s_scene_360p_draft",

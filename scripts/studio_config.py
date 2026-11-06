@@ -60,7 +60,7 @@ VIDEO_LAYOUT_SAFE_MARGIN_X_PX: int = 80
 VIDEO_LAYOUT_SAFE_MARGIN_Y_PX: int = 100
 VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
 
-# Gemini Omni 1.2 Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
+# Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
 # Single Source of Truth for Model IDs and Verification Metadata
 MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-06"
 OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-1.2-flash"
@@ -119,7 +119,7 @@ OMNI_1_2_FLASH_DIRECTOR_SPEC: Dict[str, Any] = {
             "Route Voice Reference A to Yousef and Voice Reference B to Noura with expressive lip-sync and natural "
             "timing.\n"
             '- At 01s, Yousef speaks in authentic Bahraini dialect: "شوفي الإشارة وين تطلع.. عند باب البحرين بالضبط!"\n'
-            '- At 07s, Noura turns to him and replies in authentic Bahraini dialect: '
+            "- At 07s, Noura turns to him and replies in authentic Bahraini dialect: "
             '"عيل لازم نتحرك الحين قبل لا تقفل البوابة، ما عندنا وقت!"'
         ),
         "2_multi_turn_conversational_edit": (
@@ -588,16 +588,16 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/dappled": "organic dappled sunlight filtering through wind-blown tree leaves",
     "/cyberlight": "holographic RGB screen-glow illuminating subject face",
     "/firelight": "dynamic dancing amber hearth firelight glow",
-    # Film Stocks, Cameras & Color Grades (Borderless Full-Bleed Optical Descriptions — Zero Stock Rebate Text)
-    "/arri": "large-format cinema sensor optics with wide dynamic range and full-bleed borderless frame",
-    "/red": "ultra-crisp large-format cinema optics with deep micro-contrast and full-bleed borderless frame",
-    "/venice": "dual-base low-light cinema sensor with smooth highlight roll-off and full-bleed borderless frame",
-    "/c500": "full-frame natural color science cinema capture with full-bleed borderless frame",
-    "/kodak2383": "warm tungsten cinema color grade with rich shadow density, soft highlight halation, and full-bleed borderless frame",
-    "/fuji": "soft pastel highlight roll-off with gentle natural skin tones and full-bleed borderless frame",
-    "/35mmfilm": "subtle organic cinema texture and warm highlight halation in a full-bleed borderless frame",
-    "/16mmfilm": "textured documentary cinema warmth in a full-bleed borderless frame",
-    "/8mmfilm": "nostalgic warm vintage home-cinema color palette in a full-bleed borderless frame",
+    # Film Stocks, Cameras & Color Grades
+    "/arri": "shot on ARRI Alexa 65 large-format sensor with wide dynamic range",
+    "/red": "shot on RED V-Raptor 8K VV with crisp micro-contrast",
+    "/venice": "shot on Sony Venice 2 8.6K dual-base ISO cinema camera",
+    "/c500": "shot on Canon EOS C500 Mark II full-frame cinema system",
+    "/kodak2383": "Kodak Vision3 500T 5219 film print emulation with Kodak 2383 LUT",
+    "/fuji": "Fujifilm Eterna 250D soft pastel highlight roll-off",
+    "/35mmfilm": "authentic 35mm photochemical film stock ISO 800 organic grain and halation",
+    "/16mmfilm": "textured Super 16mm documentary film grain with gate weave",
+    "/8mmfilm": "nostalgic Super 8mm home-movie Kodachrome texture",
     "/tealorange": "blockbuster complementary teal shadows and warm amber skin tones",
     "/bleachbypass": "gritty silver-retention bleach-bypass desaturated high-contrast grade",
     "/monochrome": "high-contrast Leica Monochrom silver-gelatin black and white",
@@ -664,8 +664,8 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/8k": "8K large-format master resolution with zero compression artifacts",
     "/60fps": "butter-smooth 60fps progressive motion cadence",
     "/24fps": "classic 24fps cinema shutter (180-degree shutter angle)",
-    "/9x16": "full-bleed borderless vertical portrait composition filling 100% of the canvas edge-to-edge",
-    "/16x9": "full-bleed borderless widescreen horizontal composition filling 100% of the canvas edge-to-edge",
+    "/9x16": "vertical 9:16 (1080x1920) mobile-first social composition",
+    "/16x9": "widescreen 16:9 (1920x1080) horizontal cinema composition",
     "/21x9": "ultra-wide 2.39:1 anamorphic theatrical widescreen",
     "/1x1": "square 1:1 (1080x1080) social feed composition",
     "/4x5": "portrait 4:5 (1080x1350) editorial feed composition",

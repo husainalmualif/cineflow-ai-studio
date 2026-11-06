@@ -75,7 +75,7 @@ def _get_image_data(image_path: str) -> Dict[str, str]:
     mime_type = "image/png"
     if image_path.lower().endswith((".jpg", ".jpeg")):
         mime_type = "image/jpeg"
-    elif image_path.lower().endswith(".webp")):
+    elif image_path.lower().endswith(".webp"):
         mime_type = "image/webp"
 
     with open(image_path, "rb") as f:
