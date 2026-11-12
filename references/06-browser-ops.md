@@ -18,7 +18,7 @@
 ## 2. Google Flow Generation Procedure (`flow.google.com`, Only After `GATE 2`)
 1. Open or create a project on `flow.google.com`; name it with the project slug (`studio/<project>`).
 2. Upload reference images from the **Identity Bible (`03_identity_bible.md` / `assets/`)** for each block as `Ingredients` or `Frames` (`First/Last frame`).
-3. Select **Mode** (`Text`, `Ingredients`, `Frames`, or `Extend`), **Aspect Ratio** (`9:16` or `16:9`), **Duration** (`4 / 6 / 8 / 10 s`), and **Model** (`Omni 1.1 Flash` for Stage 2 draft or `Veo 3.1 Lite/Fast/Quality` for Stage 3 master) per `06_package.json`.
+3. Select **Mode** (`Text`, `Ingredients`, `Frames`, or `Extend`), **Aspect Ratio** (`9:16` or `16:9`), **Duration** (`4 / 6 / 8 / 10 s`), and **Model** (`Omni 1.2 Flash` for Stage 2 draft or `Veo 3.1 Lite/Fast/Quality` for Stage 3 master) per `06_package.json`.
 4. **Credit Check**: Confirm the credit cost displayed on screen matches `estimate_cost.py`. If the on-screen cost is higher than approved at `GATE 2`, **STOP and ask the user**.
 5. Paste the block prompt **verbatim** from `06_package.json` (no ad-hoc edits). Generate **ONE block at a time**.
 6. Wait for completion, take a verification screenshot, download/save the clip into `studio/<project>/assets/`, and log the run in **`08_flow_runlog.md`** (`block_id`, `mode`, `model`, `duration_s`, `credits_spent`, `verdict: KEEP | RE-ROLL | REDESIGN`).

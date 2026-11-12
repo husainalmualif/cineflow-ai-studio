@@ -41,7 +41,6 @@ GENERIC_SLOP_PHRASES: FrozenSet[str] = frozenset({
     "elegant solution",
 })
 
-
 def build_omni_interaction_payload(
     task: str,
     prompt: str,
@@ -112,7 +111,6 @@ def build_omni_interaction_payload(
 
     return payload
 
-
 def validate_taxonomy_inputs(purpose: str, video_format: str, style_variant: str) -> None:
     """Validates purpose, video_format, and style_variant against canonical sets (fixes H3)."""
     if purpose not in VALID_PURPOSES:
@@ -124,10 +122,19 @@ def validate_taxonomy_inputs(purpose: str, video_format: str, style_variant: str
             f"Unsupported style_variant {style_variant!r}. Must be one of {sorted(VALID_STYLE_VARIANTS)}"
         )
 
-
-def select_pipeline_route(purpose: str, video_format: str, style_variant: str) -> str:
+def select_pipeline_route(
+    purpose: str,
+    video_format: str,
+    style_variant: str,
+    specialized_intent: Optional[str] = None,
+) -> str:
     """Map validated production parameters to one of the 12 autonomous CineFlow execution pipelines."""
     validate_taxonomy_inputs(purpose, video_format, style_variant)
+    intent = str(specialized_intent or '').strip().lower()
+    if intent in ('product_review', 'review_reel', 'route_13'):
+        return 'route_13_product_review_reel'
+    if intent in ('machine_explainer', 'isometric_machine', 'route_14'):
+        return 'route_14_isometric_machine_explainer'
     if purpose == "Documentaries":
         return "route_7_documentary_montage"
     if video_format in ("Animation", "Animation (2D / 3D)"):
@@ -143,7 +150,6 @@ def select_pipeline_route(purpose: str, video_format: str, style_variant: str) -
     if style_variant in ("Sizzle Reel", "Sizzle Reel / Recap", "Montage Sequence"):
         return "route_4_silent_broll_montage"
     return "route_1_generative_cinema"
-
 
 def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[int]:
     """
@@ -192,7 +198,6 @@ def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[in
 
     return blocks
 
-
 def build_taste_profile(purpose: str, style_variant: str, color_palette: str) -> Dict[str, Any]:
     """Construct the Taste Direction Profile with 3 integer dials (1-10)."""
     validate_taxonomy_inputs(purpose, "Live-Action", style_variant)
@@ -231,7 +236,6 @@ def build_taste_profile(purpose: str, style_variant: str, color_palette: str) ->
             "Signature depth device appears in at most 1-2 climactic beats.",
         ],
     }
-
 
 def score_slideshow_risk(
     scenes: List[Dict[str, Any]],
@@ -334,7 +338,6 @@ def score_slideshow_risk(
         "render_runtime": render_runtime,
     }
 
-
 def check_scene_variation(scenes: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Run the 8-point scene variation and anti-slop check before asset generation."""
     if not scenes or not isinstance(scenes, list):
@@ -417,7 +420,6 @@ def check_scene_variation(scenes: List[Dict[str, Any]]) -> Dict[str, Any]:
         "suggestions": suggestions,
     }
 
-
 def validate_delivery_promise(
     scenes: List[Dict[str, Any]],
     promise_type: str = "motion_led",
@@ -446,7 +448,6 @@ def validate_delivery_promise(
         "valid": len(violations) == 0,
         "violations": violations,
     }
-
 
 def score_providers(
     purpose: str,
@@ -573,7 +574,6 @@ def score_providers(
         "budget_tier": budget_tier,
     }
 
-
 def audit_sfx_governor(
     sfx_events: List[Dict[str, Any]],
     word_timestamps: Optional[List[float]] = None,
@@ -659,7 +659,6 @@ def audit_sfx_governor(
         "violations": violations,
     }
 
-
 def validate_window_schedule_and_face_guard(
     stage_windows: List[Dict[str, Any]],
     duration_s: float = 60.0,
@@ -715,7 +714,6 @@ def validate_window_schedule_and_face_guard(
         "none_count_after_hook": none_count_after_hook,
         "violations": violations,
     }
-
 
 def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
     """
@@ -791,7 +789,6 @@ def sanitize_flow_video_prompt(prompt: str) -> Dict[str, Any]:
         "applied_fixes": applied_fixes,
     }
 
-
 _OMNI_1_2_FULL_RANGE: Tuple[int, ...] = tuple(range(3, 16))
 _OMNI_1_2_INTERP_EXTEND_RANGE: Tuple[int, ...] = tuple(range(3, 11))
 
@@ -853,7 +850,6 @@ _TOKEN_LEAK_PATTERNS: Tuple[Tuple[str, str], ...] = (
     ),
 )
 
-
 def lint_flow_continuity_and_platform_profile(
     prompt_text: str,
     surface: str = "flow",
@@ -870,22 +866,9 @@ def lint_flow_continuity_and_platform_profile(
     key = (str(surface).lower(), str(model).lower(), str(mode).lower())
     allowed_durations = FLOW_SURFACE_MODE_DURATIONS.get(key)
     if allowed_durations is None:
-        errors.append(
-            {
-                "code": "UNSUPPORTED_MODE_COMBO",
-                "message": f"Unsupported (surface={surface}, model={model}, mode={mode}) combination.",
-            }
-        )
+        errors.append({"code": "UNSUPPORTED_MODE_COMBO", "message": f"Unsupported (surface={surface}, model={model}, mode={mode}) combination."})
     elif int(duration_s) not in allowed_durations:
-        errors.append(
-            {
-                "code": "INVALID_DURATION_FOR_MODE",
-                "message": (
-                    f"Duration {duration_s}s is not supported for {key}; "
-                    f"allowed: {list(allowed_durations)}."
-                ),
-            }
-        )
+        errors.append({"code": "INVALID_DURATION_FOR_MODE", "message": f"Duration {duration_s}s is not supported for {key}; allowed: {list(allowed_durations)}."})
 
     for pattern, label in _BACKWARD_REF_PATTERNS:
         if re.search(pattern, text, flags=re.I):
@@ -896,30 +879,15 @@ def lint_flow_continuity_and_platform_profile(
             errors.append({"code": "TOKEN_LEAK", "message": f"Forbidden {label} found in prompt."})
 
     if "\u2014" in text:
-        warnings.append(
-            {
-                "code": "EM_DASH_PUNCTUATION",
-                "message": "Prompt contains em dash ('\u2014'); replace with comma or colon for parser safety.",
-            }
-        )
+        warnings.append({"code": "EM_DASH_PUNCTUATION", "message": "Prompt contains em dash ('\u2014'); replace with comma or colon for parser safety."})
 
     for handle in declared_handles or []:
         if not re.match(r"^@[A-Za-z][A-Za-z0-9]*$", str(handle)):
-            errors.append(
-                {
-                    "code": "INVALID_HANDLE_SYNTAX",
-                    "message": f"Handle '{handle}' must be canonical @PascalCase without spaces or hyphens.",
-                }
-            )
+            errors.append({"code": "INVALID_HANDLE_SYNTAX", "message": f"Handle '{handle}' must be canonical @PascalCase without spaces or hyphens."})
             continue
         bare_name = str(handle)[1:]
         if re.search(rf"(?<!@)\b{re.escape(bare_name)}\b", text):
-            errors.append(
-                {
-                    "code": "BARE_HANDLE",
-                    "message": f"Bare handle name '{bare_name}' used without '@' prefix (expected '{handle}').",
-                }
-            )
+            errors.append({"code": "BARE_HANDLE", "message": f"Bare handle name '{bare_name}' used without '@' prefix (expected '{handle}')."})
 
     return {
         "valid": len(errors) == 0,
@@ -930,7 +898,6 @@ def lint_flow_continuity_and_platform_profile(
         "errors": errors,
         "warnings": warnings,
     }
-
 
 def generate_contract_storyboard_prompt(spec: Dict[str, Any]) -> Dict[str, Any]:
     """Contract-compliant Storyboard Contact-Sheet Prompt Generator (google-flow-director v3.0.0)."""

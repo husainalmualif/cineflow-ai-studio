@@ -41,6 +41,8 @@ from governance_and_omni import (  # noqa: E402
     sanitize_flow_video_prompt,
     validate_window_schedule_and_face_guard,
 )
+from nle_project_exporters import export_all_nle_bundles  # noqa: E402
+from on_demand_tool_synthesizer import synthesize_missing_tool, validate_hyperframes_vector_seams  # noqa: E402
 from validate_package import convert_scene_breakdown_to_package  # noqa: E402
 
 # Package block modes (Google Flow UI names) -> machine mode names in FLOW_SURFACE_MODE_DURATIONS.
@@ -287,6 +289,29 @@ def _cmd_cultural_audit(args: argparse.Namespace) -> int:
     return 0 if res["valid"] else 1
 
 
+
+
+def _cmd_export_nle(args: argparse.Namespace) -> int:
+    pkg = _load_json(args.package)
+    res = export_all_nle_bundles(pkg, args.output_dir)
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0
+
+
+def _cmd_synthesize_tool(args: argparse.Namespace) -> int:
+    pkg = _load_json(args.package) if args.package else None
+    res = synthesize_missing_tool(args.kind, args.output_dir, pkg)
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0
+
+
+def _cmd_validate_seams(args: argparse.Namespace) -> int:
+    ledger = _load_json(args.ledger)
+    res = validate_hyperframes_vector_seams(ledger)
+    print(json.dumps(res, ensure_ascii=False, indent=2))
+    return 0 if res["valid"] else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
     parser = argparse.ArgumentParser(description="CineFlow governance linter (SFX governor, window guard, Flow continuity, 22-tool payloads & cultural audit).")
@@ -325,6 +350,20 @@ def build_parser() -> argparse.ArgumentParser:
     cult.add_argument("visual_prompt", help="English visual prompt")
     cult.add_argument("--dialect", default="AUTO", help="target dialect code (default: AUTO)")
     cult.set_defaults(func=_cmd_cultural_audit)
+    exp_nle = sub.add_parser("export-nle", help="export CapCut, FCPXML, EDL, Resolve, AE & Blender project bundles")
+    exp_nle.add_argument("package", help="path to 06_package.json")
+    exp_nle.add_argument("--output-dir", required=True, help="directory for exported NLE timelines")
+    exp_nle.set_defaults(func=_cmd_export_nle)
+
+    syn_t = sub.add_parser("synthesize-tool", help="build missing editing/montage tools on the spot")
+    syn_t.add_argument("kind", choices=["browser_nle_studio", "standalone_ffmpeg_cutter", "procedural_sfx_pack", "manim_scientific_scene", "hyperframes_atelier_bundle"])
+    syn_t.add_argument("--output-dir", required=True, help="output directory for synthesized tool")
+    syn_t.add_argument("--package", default=None, help="optional 06_package.json")
+    syn_t.set_defaults(func=_cmd_synthesize_tool)
+
+    seams = sub.add_parser("validate-seams", help="validate HyperFrames Motion Doctrine ledger.json")
+    seams.add_argument("ledger", help="path to ledger.json")
+    seams.set_defaults(func=_cmd_validate_seams)
     return parser
 
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cineflow-ai-studio"
-version = "7.0.0"
+version = "8.0.0"
 description = "End-to-end AI Video Production, Pure Gemini Omni 1.2 Flash Director (v3.0.0, 3-15s native, 0-credit conversational edit, multi-speaker dialect routing), Arabic Broadcast Scriptwriting, Rhythmic Beat-Locked Montage, and Remotion v4.0.539 60fps Engine."
 readme = "README.md"
 license = { text = "Apache-2.0" }

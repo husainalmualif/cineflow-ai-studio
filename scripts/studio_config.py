@@ -62,7 +62,7 @@ VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
 
 # Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
 # Single Source of Truth for Model IDs and Verification Metadata
-MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-06"
+MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-11"
 OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-1.2-flash"
 OMNI_FLASH_STABLE_MODEL: str = "gemini-omni-1.2-flash"
 OMNI_FLASH_LEGACY_MODEL: str = "gemini-omni-1.1-flash"
@@ -588,16 +588,16 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/dappled": "organic dappled sunlight filtering through wind-blown tree leaves",
     "/cyberlight": "holographic RGB screen-glow illuminating subject face",
     "/firelight": "dynamic dancing amber hearth firelight glow",
-    # Film Stocks, Cameras & Color Grades
-    "/arri": "shot on ARRI Alexa 65 large-format sensor with wide dynamic range",
-    "/red": "shot on RED V-Raptor 8K VV with crisp micro-contrast",
-    "/venice": "shot on Sony Venice 2 8.6K dual-base ISO cinema camera",
-    "/c500": "shot on Canon EOS C500 Mark II full-frame cinema system",
-    "/kodak2383": "Kodak Vision3 500T 5219 film print emulation with Kodak 2383 LUT",
-    "/fuji": "Fujifilm Eterna 250D soft pastel highlight roll-off",
-    "/35mmfilm": "authentic 35mm photochemical film stock ISO 800 organic grain and halation",
-    "/16mmfilm": "textured Super 16mm documentary film grain with gate weave",
-    "/8mmfilm": "nostalgic Super 8mm home-movie Kodachrome texture",
+    # Film Stocks, Cameras & Color Grades (Borderless Full-Bleed Optical Descriptions — Zero Stock Rebate Text)
+    "/arri": "full-bleed borderless large-format digital cinema sensor with wide dynamic range",
+    "/red": "full-bleed borderless large-format 8K cinema optics with crisp micro-contrast",
+    "/venice": "full-bleed borderless dual-base low-light cinema optics with natural skin roll-off",
+    "/c500": "full-bleed borderless full-frame natural color science cinema capture",
+    "/kodak2383": "full-bleed borderless warm theatrical print grade with rich shadow contrast and subtle halation",
+    "/fuji": "full-bleed borderless soft pastel cinema highlight roll-off",
+    "/35mmfilm": "full-bleed borderless cinema frame with subtle organic micro-texture and warm highlight halation",
+    "/16mmfilm": "textured documentary cinema warmth in a full-bleed borderless frame",
+    "/8mmfilm": "nostalgic warm vintage home-cinema color palette in a full-bleed borderless frame",
     "/tealorange": "blockbuster complementary teal shadows and warm amber skin tones",
     "/bleachbypass": "gritty silver-retention bleach-bypass desaturated high-contrast grade",
     "/monochrome": "high-contrast Leica Monochrom silver-gelatin black and white",
@@ -664,8 +664,8 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/8k": "8K large-format master resolution with zero compression artifacts",
     "/60fps": "butter-smooth 60fps progressive motion cadence",
     "/24fps": "classic 24fps cinema shutter (180-degree shutter angle)",
-    "/9x16": "vertical 9:16 (1080x1920) mobile-first social composition",
-    "/16x9": "widescreen 16:9 (1920x1080) horizontal cinema composition",
+    "/9x16": "full-bleed borderless vertical portrait composition filling 100% of the canvas edge-to-edge",
+    "/16x9": "full-bleed borderless widescreen horizontal composition filling 100% of the canvas edge-to-edge",
     "/21x9": "ultra-wide 2.39:1 anamorphic theatrical widescreen",
     "/1x1": "square 1:1 (1080x1080) social feed composition",
     "/4x5": "portrait 4:5 (1080x1350) editorial feed composition",
@@ -677,4 +677,54 @@ MACRO_DICTIONARY: Dict[str, str] = {
     "/ugc": "authentic creator-shot iPhone 16 Pro UGC natural daylight aesthetic",
     "/packshot": "hero commercial tabletop packshot with revolving specular rim light",
     "/knolling": "symmetrical 90-degree overhead knolling arrangement of components",
+}
+
+
+# v8.0.0 Extended Post-Production, Scientific & On-Demand Tool Registry (keeps ECOSYSTEM_22_TOOLS_REGISTRY == 22)
+DUAL_LOUDNESS_TARGETS: Dict[str, float] = {
+    "own_human_voice_lufs": -20.0,
+    "ai_tts_and_commercial_lufs": -14.0,
+    "human_true_peak_dbtp": -1.0,
+    "commercial_true_peak_dbtp": -1.5,
+}
+
+AUTONOMOUS_14_PIPELINES: Tuple[str, ...] = (
+    "route_1_generative_cinema",
+    "route_2_talking_head_reel",
+    "route_3_motion_stage_60fps",
+    "route_4_silent_broll_montage",
+    "route_5_multicam_podcast",
+    "route_6_3d_device_explainer",
+    "route_7_documentary_montage",
+    "route_8_character_animation_ink_theater",
+    "route_9_3d_world_generation",
+    "route_10_reference_video_cloner",
+    "route_11_avatar_spokesperson",
+    "route_12_localization_dub",
+    "route_13_product_review_reel",
+    "route_14_isometric_machine_explainer",
+)
+
+ECOSYSTEM_EXTENDED_TOOLS_REGISTRY: Dict[str, Dict[str, Any]] = {
+    **ECOSYSTEM_22_TOOLS_REGISTRY,
+    "manim_ce": {
+        "category": "3d_motion",
+        "name": "Manim Community Edition (AST-Verified)",
+        "automation": "manim -qh --transparent + scan_generated_code_ast security gate",
+    },
+    "hyperframes_cli": {
+        "category": "3d_motion",
+        "name": "HyperFrames HTML/CSS/GSAP Engine",
+        "automation": "npx hyperframes check --json --snapshots + Cut the Curve ledger.json + @hyperframes/shader-transitions",
+    },
+    "browser_nle_studio": {
+        "category": "nle_post",
+        "name": "CineFlow On-Demand Browser NLE Studio",
+        "automation": "on_demand_tool_synthesizer.py synthesize browser_nle_studio (non-destructive spine + WebAudio SFX)",
+    },
+    "ffmpeg_filtergraph": {
+        "category": "nle_post",
+        "name": "FFmpeg Zero-Loss Post Engine",
+        "automation": "post_production_engine.py (Scale-to-COVER + yuv444p bt709/tv + -20/-14 LUFS linear loudnorm)",
+    },
 }

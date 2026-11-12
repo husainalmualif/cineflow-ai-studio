@@ -10,7 +10,7 @@ Automatically route the user's input to the matching production pipeline without
 
 | Input / User Request | Active Pipeline (`pipeline_type`) | Core Execution Architecture |
 | :--- | :--- | :--- |
-| **1. Raw Idea, Topic, or Script for AI Cinema** | **`route_1_generative_cinema`** | 5-Batch Research ➔ `Nano Banana 2 Lite` (0-credit Keyframes) ➔ `Gemini Omni Flash 1.1` / `Veo 3.1` / `Seedance 2.0` with `@Character`/`@Product` Lock & Scene Handshake |
+| **1. Raw Idea, Topic, or Script for AI Cinema** | **`route_1_generative_cinema`** | 5-Batch Research ➔ `Nano Banana 2 Lite` (0-credit Keyframes) ➔ `Gemini Omni 1.2 Flash` / `Veo 3.1` / `Seedance 2.0` with `@Character`/`@Product` Lock & Scene Handshake |
 | **2. Talking-Head Camera Recording (`فيديو متحدث للكاميرا`)** | **`route_2_talking_head_reel`** | Dropped-frame & HDR check ➔ Dual-threshold silence cut (`120ms/150ms` breath pad) ➔ Whisper hallucination & dialect fix ➔ 4-state layout (`R_FULL/R_DOWN/R_LOWER/R_OFF`) + Depth Moments + RTL captions |
 | **3. Text/Script Only — 60fps Motion Film** | **`route_3_motion_stage_60fps`** | Voiceover ➔ 60fps `Remotion` or `HyperFrames` HTML/CSS/GSAP stage (`one-take`, `slideWall`, Action-Verb Stage actors anchored to spoken words) |
 | **4. Folder of Silent Clips (`مقاطع بلا كلام`)** | **`route_4_silent_broll_montage`** | Multi-clip quality scan (`Clarity × Motion × Exposure × Color`, trim first/last `0.33s`) ➔ Contact sheet review ➔ Beat/Onset grid cut (`[1.0, 0.82, 1.24, 0.94]` cadence) ➔ `-14 LUFS` master |
@@ -218,4 +218,4 @@ Lock `render_runtime` at the proposal stage and carry it through `edit_decisions
   ```
 - **Dense Keyframes (`-g 30 -keyint_min 30`) & `--workers 1`**: Prevents `video_heavy_parallel_timeout` and frame freezes in headless Chrome when rendering `> 5` video elements.
 - **Deterministic Font Whitelist**: In HyperFrames, use `Outfit`, `Montserrat`, `Inter`, `JetBrains Mono`, `Poppins`, `Playfair Display`, or local full-charset `@font-face` `.ttf` files (`Cairo`, `Tajawal`, `PatrickHand`) — never `Space Grotesk` or subsetted Google Fonts `woff2` URLs.
-- **Mandatory Pre-Render Gate**: Always run `npx hyperframes lint . && npx hyperframes validate . && npx hyperframes snapshot . --at <times>` before executing `npx hyperframes render`.
+- **Mandatory Pre-Render Gate**: Always run `npx hyperframes lint --json && npx hyperframes check --json --snapshots --caption-zone && npx hyperframes snapshot --review --json` before executing `npx hyperframes render`.

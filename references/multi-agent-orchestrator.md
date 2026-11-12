@@ -8,7 +8,7 @@
 1. **Separation of Planning & GPU Render (`فصل التخطيط المنطقي عن التوليد الفعلي`)**: All research, scriptwriting, CHAI 5-aspect prompt compilation, slideshow-risk scoring, and code verification happen in text/JSON before spending a single video generation credit.
 2. **3-Stage Credit Governance (`estimate ➔ reserve ➔ reconcile`)**:
    - **Stage 1 (`0 Credits` — `labs.google` / `Nano Banana 2 Lite` / `ImageFX` / `Whisk`)**: Character/product turnarounds (`@Character_01`, `@Product_01`) and scene-family keyframes.
-   - **Stage 2 (`Low/Half Credit` — `flow.google.com` / `Omni 1.1 Flash`)**: `360p` motion test drafts with `0-credit 720p` upscaling and `10–15s` sample-first verification.
+   - **Stage 2 (`Low/Half Credit` — `flow.google.com` / `Omni 1.2 Flash`)**: `360p` motion test drafts with `0-credit 720p` upscaling and `10–15s` sample-first verification.
    - **Stage 3 (`Master Render` — `Veo 3.1 - Quality / Fast / Lite` / `Seedance 2.0 Standard` + `60fps 3D/2D Motion Engine`)**: Consolidated `8s–10s` master cinema shots interleaved with 60fps programmatic 3D WebGL (`Three.js`) + 2D Canvas motion stages.
 3. **Deterministic State Handshake (`بروتوكول المصافحة البصرية والبيانية`)**: Agents never pass unstructured prose. Every handoff is validated against `blueprint_schema.json`, `facts.md` (Facts Ledger), `script.json` (100% vocalized broadcast phonetics), and frame-accurate `Scene Handshake` (`ffmpeg -sseof -0.04`).
 
@@ -29,11 +29,11 @@ flowchart TD
     subgraph Phase2 ["Phase 2: Cross-Model Audit & Zero-Credit Visual Lock"]
         A2 -->|Draft Blueprint + 60fps Stage Code| A7["7. Cross-Model Critique & Code Agent\n(https://chatgpt.com/ Think & https://claude.ai/ Sonnet 5.5)"]
         A7 -->|CHAI 3-Axis Audit + Slideshow Risk < 3.0| A3["3. Google Labs Creative Agent\n(https://labs.google/ — Whisk / Stitch / Nano Banana)"]
-        A3 -->|0-Credit @Character_01 / @Product_01 Anchors| A4["4. Google Flow Video Director Agent\n(https://flow.google.com/ — Veo 3.1 & Omni 1.1 Flash)"]
+        A3 -->|0-Credit @Character_01 / @Product_01 Anchors| A4["4. Google Flow Video Director Agent\n(https://flow.google.com/ — Veo 3.1 & Omni 1.2 Flash)"]
     end
 
     subgraph Phase3 ["Phase 3: Parallel Cinema, 60fps 3D Motion & Audio DSP"]
-        A4 -->|Veo 3.1 / Omni 1.1 Flash + Frames/Ingredients| MasterBus["60fps 3D WebGL + 2D Motion & Mastering Engine\n(Three.js + Remotion / HyperFrames + FFmpeg)"]
+        A4 -->|Veo 3.1 / Omni 1.2 Flash + Frames/Ingredients| MasterBus["60fps 3D WebGL + 2D Motion & Mastering Engine\n(Three.js + Remotion / HyperFrames + FFmpeg)"]
         A7 -->|Validated 60fps 3D Stage, SlideWall & RTL Kashida| MasterBus
         A2 -->|100% Vocalized Arabic Script (script.json)| A5["5. FlowMusic & Audio DSP Agent\n(https://www.flowmusic.app/session + 4-Bus DSP)"]
         A5 -->|BPM Stems + -14 LUFS Ducking + Whisper-Verified VO| MasterBus
@@ -58,7 +58,7 @@ flowchart TD
 ---
 
 ### Agent 2: Gemini Multimodal Agent (`وكيل جيميناي متعدد الوسائط`)
-- **Target Endpoint**: `https://gemini.google.com/app` (Google AI **Ultra** tier; Mode Picker: **Argon**; **Chat** & **Task** modes; **Notebooks**) + Gemini API (`gemini-3.1-pro` / `gemini-omni-1.1-flash`)
+- **Target Endpoint**: `https://gemini.google.com/app` (Google AI **Ultra** tier; Mode Picker: **Argon**; **Chat** & **Task** modes; **Notebooks**) + Gemini API (`gemini-3.1-pro` / `gemini-omni-1.2-flash`)
 - **Primary Role**: Chief Multimodal Analyst, Arabic Broadcast Scriptwriter, Phonetic Linguist, and CHAI 5-Aspect Prompt Architect.
 - **Core Responsibilities**:
   1. **Reference Video Deconstruction (`route_10`)**: Analyzes reference videos frame-by-frame to extract `motion_type` (`motion_clip / animated_still / static_image`), optical flow variance, pacing cadence, and hook mechanics.
@@ -92,11 +92,11 @@ flowchart TD
     - **Modality**: `Image` | `Video`
     - **Conditioning Mode**: `Frames` (First/Last keyframe interpolation) | `Ingredients` (Consistent character/object reference conditioning)
     - **Aspect Ratio**: `16:9` | `9:16`
-    - **Model Family**: `Omni 1.1 Flash`, `Veo 3.1 - Lite`, `Veo 3.1 - Fast`, `Veo 3.1 - Quality`
+    - **Model Family**: `Omni 1.2 Flash`, `Veo 3.1 - Lite`, `Veo 3.1 - Fast`, `Veo 3.1 - Quality`
     - **Resolution & Duration**: `360p` (fast preview) | `720p`; `4s`, `6s`, `8s`, `10s`; batch `x1..x4`.
 - **Core Responsibilities**:
   1. **Ingredients & Identity Lock**: Attaches Agent 3's reference plates via `Add ingredients` (`Lock [Character ID: @Character_01]`, `Lock [Product ID: @Product_01]`).
-  2. **Stage 2 Draft-First Motion Testing**: Tests camera vectors in `Omni 1.1 Flash` (`360p` -> `720p`) before master rendering.
+  2. **Stage 2 Draft-First Motion Testing**: Tests camera vectors in `Omni 1.2 Flash` (`360p` -> `720p`) before master rendering.
   3. **Stage 3 Master Cinema Rendering**: Executes `Veo 3.1 - Quality` (`8s–10s` consolidated clips in `9:16` or `16:9`).
   4. **Frame-Accurate Scene Handshake (`المصافحة البصرية`)**: Extracts the final frame of `Scene N` (`ffmpeg -sseof -0.04`) and feeds it into `Frames` mode as the start frame of `Scene N+1`.
 

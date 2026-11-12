@@ -7,14 +7,58 @@ Compatible with `pytest -v tests/test_lint_package.py`.
 
 from __future__ import annotations
 
+from contextlib import redirect_stderr, redirect_stdout
 import copy
+import io
 import json
 import sys
+import tempfile
+import unittest
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Type
 
 import jsonschema
-import pytest
+try:
+    import pytest  # type: ignore
+except ImportError:
+    class _ExcInfo:  # pylint: disable=too-few-public-methods
+        """Minimal exception wrapper mirroring `pytest.ExceptionInfo`."""
+
+        def __init__(self, value: BaseException) -> None:
+            self.value = value
+
+    class _FallbackRaises:  # pylint: disable=too-few-public-methods
+        """Context manager mirroring `pytest.raises` when pytest is absent."""
+
+        def __init__(self, expected_exc: Type[BaseException]) -> None:
+            self.expected_exc = expected_exc
+            self.value: Optional[BaseException] = None
+            self._info = _ExcInfo(Exception())
+
+        def __enter__(self) -> _ExcInfo:
+            self._info = _ExcInfo(Exception())
+            return self._info
+
+        def __exit__(self, exc_type: Any, exc_val: Any, _tb: Any) -> bool:
+            if exc_type is not None and issubclass(exc_type, self.expected_exc):
+                self._info.value = exc_val
+                return True
+            if exc_type is None:
+                raise AssertionError(f"Expected {self.expected_exc.__name__} was not raised")
+            return False
+
+    class _PytestFallback:  # pylint: disable=too-few-public-methods
+        """Lightweight stdlib fallback for `pytest` namespace."""
+
+        CaptureFixture = object
+
+        @staticmethod
+        def raises(expected_exc: Type[BaseException]) -> _FallbackRaises:
+            """Assert that `expected_exc` is raised within the `with` block."""
+            return _FallbackRaises(expected_exc)
+
+    pytest = _PytestFallback()  # type: ignore
+
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR / "scripts"))
@@ -247,3 +291,45 @@ def test_cultural_etiquette_and_dialect_authenticity_auditor() -> None:
     assert "CulturalEtiquette_FinjanFill" in joined
     assert "CulturalEtiquette_Modesty" in joined
     assert "DialectContamination" in joined
+
+
+class _SimpleCapsys:  # pylint: disable=too-few-public-methods
+    """Stdlib stdout/stderr capture helper compatible with `pytest.CaptureFixture`."""
+
+    def __init__(self) -> None:
+        self.out_buf = io.StringIO()
+        self.err_buf = io.StringIO()
+
+    def readouterr(self) -> Any:
+        """Read and reset captured stdout and stderr buffers."""
+        out_v, err_v = self.out_buf.getvalue(), self.err_buf.getvalue()
+        self.out_buf.seek(0)
+        self.out_buf.truncate(0)
+        self.err_buf.seek(0)
+        self.err_buf.truncate(0)
+        return type("CapResult", (), {"out": out_v, "err": err_v})()
+
+
+class TestLintPackageUnittestBridge(unittest.TestCase):
+    """Allows running all `test_lint_package.py` checks under standard `python3 -m unittest`."""
+
+    def test_all_lint_and_schema_functions(self) -> None:
+        """Execute every lint, schema, template, and CLI test under unittest."""
+        test_compiler_output_is_clean_without_platform_profile()
+        test_platform_profile_only_runs_when_model_is_given()
+        test_backward_reference_and_bare_handle_are_flagged()
+        test_sfx_events_are_extracted_from_both_layouts()
+        test_sfx_governor_flags_tight_spacing()
+        test_window_guard_flags_short_middle_window()
+        test_blueprint_schema_validates_compiler_output_and_examples()
+        test_flow_pipeline_schema_is_valid_and_example_conforms()
+        test_flow_pipeline_schema_rejects_missing_scenes_and_bad_handle()
+        test_templates_are_well_formed()
+        test_cultural_etiquette_and_dialect_authenticity_auditor()
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            test_cli_check_exit_codes(tmp)
+            cap = _SimpleCapsys()
+            with redirect_stdout(cap.out_buf), redirect_stderr(cap.err_buf):
+                test_cli_sanitize_and_storyboard(tmp, cap)
+                test_22_tool_ecosystem_payload_compiler_and_cli(cap)

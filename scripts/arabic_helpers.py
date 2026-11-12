@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Set
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from studio_config import (  # noqa: E402
     DIALECT_LEXICON,
-    ECOSYSTEM_22_TOOLS_REGISTRY,
+    ECOSYSTEM_EXTENDED_TOOLS_REGISTRY,
     KASHIDA_PROTECTED_WORDS,
     MACRO_DICTIONARY,
     MAX_WORDS_PER_SECOND_AR,
@@ -671,12 +671,12 @@ def compile_multi_platform_tool_payload(
     and generative video tools (`references/11-22-tool-video-ecosystem-and-nle-mastery.md`).
     """
     norm_tool = str(tool_id or "").strip().lower().replace("-", "_").replace(" ", "_").replace(".", "_")
-    if norm_tool not in ECOSYSTEM_22_TOOLS_REGISTRY:
+    if norm_tool not in ECOSYSTEM_EXTENDED_TOOLS_REGISTRY:
         raise ValueError(
-            f"Unknown tool_id '{tool_id}'. Supported tools ({len(ECOSYSTEM_22_TOOLS_REGISTRY)}): "
-            f"{sorted(ECOSYSTEM_22_TOOLS_REGISTRY.keys())}"
+            f"Unknown tool_id '{tool_id}'. Supported tools ({len(ECOSYSTEM_EXTENDED_TOOLS_REGISTRY)}): "
+            f"{sorted(ECOSYSTEM_EXTENDED_TOOLS_REGISTRY.keys())}"
         )
-    meta = ECOSYSTEM_22_TOOLS_REGISTRY[norm_tool]
+    meta = ECOSYSTEM_EXTENDED_TOOLS_REGISTRY[norm_tool]
     clean_prompt = re.sub(r"\s{2,}", " ", str(prompt or "").replace("\r", " ").replace("\n", " ")).strip()
     h_list = list(handles or ["@LeadSubject", "@HeroProduct"])
 
@@ -839,4 +839,56 @@ def compile_omni_1_2_native_prompt(
         "aspect_ratio": aspect_ratio,
         "speaker_count": len(speaker_list),
         "compiled_prompt": compiled,
+    }
+
+
+
+def patch_ruqaa_taa_marbuta_zwj(text: str) -> str:
+    """Inject U+200D ZWJ before isolated Taa-Marbuta after non-connecting letters for Aref Ruqaa."""
+    zwj = "\u200D"
+    return re.sub(r"([اأإآدذرزوؤءٱ])(ة)", lambda m: m.group(1) + zwj + m.group(2), str(text or ""))
+
+
+def compute_behind_head_kashida_gap(
+    word: str,
+    head_width_px: int = 240,
+    font_size_px: int = 180,
+) -> Dict[str, Any]:
+    """
+    Compute behind-the-head Kashida stretch (`headGap` v6.5.1 rule) so 100% of Arabic base letters and dots sit
+    clearly to the right and left of the speaker's head while ONLY the stretched Kashida (`ـ`) crosses behind.
+    """
+    clean = str(word or "").strip()
+    right_join_only = set("اأإآدذرزوؤةءىٱ")
+    base_indices = [i for i, ch in enumerate(clean) if "ء" <= ch <= "ي" and ch != "ـ"]
+    split_char_idx = -1
+    for pos in base_indices[:-1]:
+        ch = clean[pos]
+        if ch not in right_join_only:
+            if ch == "ل" and pos + 1 < len(clean) and clean[pos + 1] in "اأإآٱ":
+                continue
+            split_char_idx = pos
+            break
+
+    tatweel_unit_px = max(12.0, font_size_px * 0.28)
+    needed_tatweels = max(2, int(round((head_width_px + 36) / tatweel_unit_px)))
+    if split_char_idx == -1 or "الله" in clean or "لله" in clean:
+        return {
+            "supported": False,
+            "original_word": clean,
+            "stretched_word": clean,
+            "reason": "no_safe_connecting_joint_or_sacred_ligature",
+        }
+
+    insert_at = split_char_idx + 1
+    while insert_at < len(clean) and "ً" <= clean[insert_at] <= "ٟ":
+        insert_at += 1
+    stretched = clean[:insert_at] + ("ـ" * needed_tatweels) + clean[insert_at:]
+    return {
+        "supported": True,
+        "original_word": clean,
+        "stretched_word": stretched,
+        "head_width_px": int(head_width_px),
+        "tatweel_count": needed_tatweels,
+        "letters_occluded_by_head": 0,
     }
