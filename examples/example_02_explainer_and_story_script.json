@@ -52,7 +52,7 @@
         "options_considered": [
           "hyperframes_remotion_60fps",
           "seedance_2_0",
-          "gemini_omni_flash_1_1",
+          "gemini_omni_flash_1_2",
           "google_flow_veo_3_1",
           "ink_theater_cmu_mocap",
           "clip_archival_remotion_hybrid"
@@ -562,7 +562,7 @@
           }
         },
         {
-          "provider": "gemini_omni_flash_1_1",
+          "provider": "gemini_omni_flash_1_2",
           "label": "Gemini Omni Flash 1.1 (360p Fast Draft -> 0-Credit 720p Upscale)",
           "weighted_score": 8.8,
           "dimensions": {
@@ -630,7 +630,7 @@
         "options_considered": [
           "hyperframes_remotion_60fps",
           "seedance_2_0",
-          "gemini_omni_flash_1_1",
+          "gemini_omni_flash_1_2",
           "google_flow_veo_3_1",
           "ink_theater_cmu_mocap",
           "clip_archival_remotion_hybrid"

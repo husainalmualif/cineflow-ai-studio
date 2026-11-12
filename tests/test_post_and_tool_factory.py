@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Unit tests for v8.0.0 Post-Production Engine, Multi-NLE Exporters & On-Demand Tool Factory."""
+"""Unit tests for v8.1.0 Post-Production Engine, Precision QA Gates, Multi-NLE Exporters & Tool Factory."""
 
 from __future__ import annotations
 
@@ -16,11 +16,17 @@ sys.path.insert(0, str(ROOT_DIR / "scripts"))
 from arabic_helpers import (  # noqa: E402
     compile_multi_platform_tool_payload,
     compute_behind_head_kashida_gap,
+    isolate_bidi_number_ranges,
     patch_ruqaa_taa_marbuta_zwj,
     resolve_slash_macros,
 )
 from cineflow_compiler import compile_cineflow_blueprint  # noqa: E402
-from governance_and_omni import sanitize_flow_video_prompt, select_pipeline_route  # noqa: E402
+from governance_and_omni import (  # noqa: E402
+    DecisionLog,
+    partition_runtime_into_allowed_blocks,
+    sanitize_flow_video_prompt,
+    select_pipeline_route,
+)
 from lint_package import main as lint_main  # noqa: E402
 from nle_project_exporters import (  # noqa: E402
     export_all_nle_bundles,
@@ -36,6 +42,7 @@ from on_demand_tool_synthesizer import (  # noqa: E402
     validate_hyperframes_vector_seams,
 )
 from post_production_engine import (  # noqa: E402
+    analyze_pts_dropped_frame_gaps,
     build_beat_locked_ffmpeg_script,
     build_chained_atempo_filter,
     build_zero_loss_bt709_pipeline,
@@ -43,9 +50,17 @@ from post_production_engine import (  # noqa: E402
     detect_retakes_and_whisper_hallucinations,
     plan_adaptive_silence_cuts,
     probe_environment_and_media,
+    run_bstudio_preflight_and_post_audit,
     snap_word_timestamps_to_waveform,
     synthesize_procedural_sfx_wav,
+    validate_cover_thumbnail_and_delivery_size,
     verify_zero_loss_voice_correlation,
+)
+from studio_config import (  # noqa: E402
+    HYPERFRAMES_9_OFFICIAL_SKILLS,
+    HYPERFRAMES_SKILLS_UPDATE_COMMAND,
+    PROVIDER_REFRESH_2026_10_23,
+    STUDIO_VERSION,
 )
 
 
@@ -232,6 +247,110 @@ class TestCineFlowV8Engines(unittest.TestCase):
             with self.assertRaises(SystemExit) as cm:
                 lint_main(["synthesize-tool", "browser_nle_studio", "--output-dir", str(Path(td) / "cli_nle"), "--package", str(pkg_file)])
             self.assertEqual(cm.exception.code, 0)
+
+    def test_v8_1_precision_qa_gates_bidi_decision_log_and_omni_1_2_blocks(self) -> None:
+        """Verify v8.1.0 BiDi ranges, Omni 1.2 native partitioning, B Studio 21-25 gates, cover/<29MB, and DecisionLog."""
+        self.assertEqual(STUDIO_VERSION, "8.1.0")
+        self.assertEqual(len(HYPERFRAMES_9_OFFICIAL_SKILLS), 9)
+        self.assertEqual(HYPERFRAMES_SKILLS_UPDATE_COMMAND, "npx hyperframes skills update")
+        self.assertIn("elevenlabs_v4_dialogue", PROVIDER_REFRESH_2026_10_23)
+        self.assertIn("bmts_lite_local", PROVIDER_REFRESH_2026_10_23)
+
+        # 1. Omni 1.2 Native 3..15s 1s-increment partitioning
+        self.assertEqual(partition_runtime_into_allowed_blocks(3), [3])
+        self.assertEqual(partition_runtime_into_allowed_blocks(15, omni_1_2_native=True), [15])
+        self.assertEqual(partition_runtime_into_allowed_blocks(7, omni_1_2_native=True), [7])
+        blocks_25 = partition_runtime_into_allowed_blocks(25, omni_1_2_native=True)
+        self.assertEqual(sum(blocks_25), 25)
+        self.assertTrue(all(3 <= b <= 15 for b in blocks_25))
+
+        # 2. BiDi Arabic number-range isolator (idempotent)
+        isolated = isolate_bidi_number_ranges("خصم من 25–30% خلال 10-12 يوماً")
+        self.assertIn("\u206625–30%\u2069", isolated)
+        self.assertIn("\u206610-12\u2069", isolated)
+        self.assertEqual(isolate_bidi_number_ranges(isolated), isolated)
+
+        # 3. PTS dropped-frame analyzer & Whisper untranscribed speech island check
+        pts_gap = analyze_pts_dropped_frame_gaps([0.0, 0.033, 0.195, 0.228], input_path="clip.mov")
+        self.assertEqual(pts_gap["dropped_frame_gaps"], 1)
+        self.assertTrue(pts_gap["needs_optical_flow_repair"])
+        self.assertIn("minterpolate", pts_gap["repair_ffmpeg_command"])
+
+        whisper_gap = detect_retakes_and_whisper_hallucinations(
+            [{"text": "مقدمة سريعة"}],
+            speech_islands=[(0.0, 1.0), (3.0, 5.2)],
+            word_timestamps=[{"word": "مقدمة", "start_s": 0.1, "end_s": 0.8}],
+        )
+        self.assertEqual(len(whisper_gap["untranscribed_speech_gaps"]), 1)
+        self.assertIn("--condition_on_previous_text False", whisper_gap["untranscribed_speech_gaps"][0]["repair_command"])
+
+        # 4. B Studio 21-25 preflight/post audit (24_cut_align snap + failure detection)
+        clean_bs = run_bstudio_preflight_and_post_audit(
+            stage_windows=[{"m": "CARD", "s": 1.0, "e": 4.82}, {"m": "FULL", "s": 5.0, "e": 9.0}],
+            source_cuts_s=[5.0],
+            camera_keyframes=[{"t_s": 1.0, "duration_s": 1.5, "v_peak_px_per_frame": 40.0, "periodic_stripes": True}],
+            gaze_events=[{"gaze_down_s": 2.0, "gaze_up_s": 4.5}],
+            color_deltas={"delta_y": 0.2, "delta_u": 0.1, "delta_v": 0.1, "rgb_tilt_r_minus_b": 0.3},
+            source_bitrate_kbps=12000,
+            output_bitrate_kbps=6000,
+        )
+        self.assertTrue(clean_bs["valid"])
+        self.assertEqual(clean_bs["snapped_cuts_count"], 1)
+        self.assertEqual(clean_bs["aligned_windows"][0]["e"], 5.0)
+
+        bad_bs = run_bstudio_preflight_and_post_audit(
+            stage_windows=[{"m": "NONE", "s": 1.0, "e": 4.0}, {"m": "FULL", "s": 4.0, "e": 8.0}],
+            camera_keyframes=[
+                {"t_s": 1.0, "duration_s": 2.0, "v_peak_px_per_frame": 145.0, "periodic_stripes": True},
+                {"t_s": 2.2, "duration_s": 1.0},
+            ],
+            gaze_events=[{"gaze_down_s": 3.5, "gaze_up_s": 4.8}],
+            jsx_or_css_source="style={{ backgroundImage: 'url(bg.png)' }}",
+            frame_luma_series=[90.0, 165.0, 92.0],
+            color_deltas={"delta_y": 1.1, "delta_u": 0.1, "delta_v": 0.1, "rgb_tilt_r_minus_b": 0.9},
+            source_bitrate_kbps=15000,
+            output_bitrate_kbps=3000,
+        )
+        self.assertFalse(bad_bs["valid"])
+        self.assertEqual(len(bad_bs["violations"]), 7)
+
+        # 5. Cover 12% phone grid + <29MB two-pass bitrate calculator
+        ok_cov = validate_cover_thumbnail_and_delivery_size(60.0, max_mb=29.0)
+        self.assertTrue(ok_cov["valid"])
+        self.assertLessEqual(ok_cov["fit_delivery_budget"]["estimated_size_mb"], 29.0)
+        bad_cov = validate_cover_thumbnail_and_delivery_size(
+            60.0, title_px=120, subtext_px=80, logo_px=140, safe_y_min=200, chin_clearance_px=10
+        )
+        self.assertFalse(bad_cov["valid"])
+        self.assertEqual(len(bad_cov["violations"]), 5)
+
+        # 6. OpenMontage Append-Only DecisionLog & Present Both Composition Runtimes
+        dlog = DecisionLog()
+        first = dlog.record(
+            "render_runtime_selection",
+            "Programmatic Composition Runtime",
+            "remotion",
+            "Word-level RTL caption burn",
+            options_considered=["remotion", "hyperframes"],
+        )
+        self.assertEqual(first["status"], "locked")
+        second = dlog.record(
+            "render_runtime_selection",
+            "Programmatic Composition Runtime",
+            "hyperframes",
+            "Switched to GSAP Atelier stage",
+            options_considered=["remotion", "hyperframes"],
+        )
+        self.assertEqual(second["status"], "revised")
+        self.assertEqual(len(dlog.entries), 2)
+        rt_check = dlog.validate_composition_runtime_choice(["remotion", "hyperframes"])
+        self.assertTrue(rt_check["valid"])
+        self.assertEqual(rt_check["total_revisions"], 1)
+
+        # 7. CLI preflight-audit subcommand
+        with self.assertRaises(SystemExit) as cm_pre:
+            lint_main(["preflight-audit", "--duration", "45", "--max-mb", "29"])
+        self.assertEqual(cm_pre.exception.code, 0)
 
 
 if __name__ == "__main__":

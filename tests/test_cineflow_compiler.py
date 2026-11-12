@@ -158,7 +158,7 @@ def test_c3_provider_scoring_selects_different_winners_by_context() -> None:
     assert p_anim["selected_primary"] == "ink_theater_cmu_mocap"
     assert p_motion["selected_primary"] == "hyperframes_remotion_60fps"
     assert p_music["selected_primary"] == "seedance_2_0"
-    assert p_draft["selected_primary"] == "gemini_omni_flash_1_1"
+    assert p_draft["selected_primary"] == "gemini_omni_flash_1_2"
 
 
 def test_h1_h3_runtime_partitioning_and_extend_chain_cap() -> None:

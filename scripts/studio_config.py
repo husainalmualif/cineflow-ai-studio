@@ -62,7 +62,8 @@ VIDEO_LAYOUT_MAX_FOCAL_POINTS_PER_SCENE: int = 1
 
 # Gemini Omni Flash Stateful Interactions API & FastMCP Agent (`omni-skill-agy`)
 # Single Source of Truth for Model IDs and Verification Metadata
-MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-11"
+STUDIO_VERSION: str = "8.1.0"
+MODEL_REGISTRY_LAST_VERIFIED: str = "2026-11-12"
 OMNI_FLASH_MODEL_DEFAULT: str = "gemini-omni-1.2-flash"
 OMNI_FLASH_STABLE_MODEL: str = "gemini-omni-1.2-flash"
 OMNI_FLASH_LEGACY_MODEL: str = "gemini-omni-1.1-flash"
@@ -215,7 +216,7 @@ OMNI_MCP_TOOLS: Tuple[str, ...] = (
 )
 
 # Runtime bounds (seconds)
-MIN_TOTAL_RUNTIME_SECONDS: int = 4
+MIN_TOTAL_RUNTIME_SECONDS: int = 3
 MAX_TOTAL_RUNTIME_SECONDS: int = 600
 
 # Audio & 3D WebGL empirical defaults (overridable in user config)
@@ -728,3 +729,47 @@ ECOSYSTEM_EXTENDED_TOOLS_REGISTRY: Dict[str, Dict[str, Any]] = {
         "automation": "post_production_engine.py (Scale-to-COVER + yuv444p bt709/tv + -20/-14 LUFS linear loudnorm)",
     },
 }
+
+# v8.1.0 Provider Refresh (2026-10-23) & HyperFrames Official 9-Skill Manifest
+PROVIDER_REFRESH_2026_10_23: Dict[str, Dict[str, Any]] = {
+    "elevenlabs_v4_dialogue": {
+        "category": "voice_dialogue",
+        "name": "ElevenLabs v4 Text-to-Dialogue",
+        "capability": "Multi-speaker conversational TTS with overlapping turn cues and Arabic emotional prosody",
+    },
+    "flux_3_fibo_2": {
+        "category": "keyframe_image",
+        "name": "FLUX 3 / Bria Fibo 2 Structured Layout",
+        "capability": "Deterministic JSON-controlled composition and brand-typography reference frames",
+    },
+    "vidu_q4": {
+        "category": "generative_video",
+        "name": "Vidu Q4 Multi-Entity Reference Video",
+        "capability": "Up to 7 simultaneous entity references with fast storyboard-to-motion adherence",
+    },
+    "grok_imagine_1_5": {
+        "category": "ideation_motion",
+        "name": "Grok Imagine 1.5",
+        "capability": "Rapid stylized concept-board and social hook motion ideation",
+    },
+    "bmts_lite_local": {
+        "category": "local_montage",
+        "name": "BMTS-Lite Audio-Led Beat Montage",
+        "capability": "Zero-API local B-roll beat montage locked within <= 120ms of musical transients",
+    },
+}
+
+HYPERFRAMES_9_OFFICIAL_SKILLS: Tuple[str, ...] = (
+    "hyperframes",
+    "hyperframes-cli",
+    "hyperframes-registry",
+    "media-use",
+    "reverse-any-video",
+    "style-sampling",
+    "slideshow",
+    "remotion-to-hyperframes",
+    "figma",
+)
+
+# Never run `npx skills add ... --all` inside a HyperFrames repo checkout (wipes skills/); use:
+HYPERFRAMES_SKILLS_UPDATE_COMMAND: str = "npx hyperframes skills update"

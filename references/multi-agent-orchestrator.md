@@ -50,7 +50,7 @@ flowchart TD
 ### Agent 1: Master Orchestrator Agent (`مدير المشروع والمايسترو`)
 - **Primary Role**: Autonomous Executive Producer, Pipeline Router, State Manager, Budget Governor, and Final Quality Gatekeeper.
 - **Core Responsibilities**:
-  1. **Intent Classification & Pipeline Routing**: Classifies incoming requests into one of the **8 Video Purposes**, **5 Artistic Formats**, and **12 Autonomous Production Pipelines (`route_1` through `route_12`)**.
+  1. **Intent Classification & Pipeline Routing**: Classifies incoming requests into one of the **8 Video Purposes**, **5 Artistic Formats**, and **14 Autonomous Production Pipelines (`route_1` through `route_14`)**.
   2. **Taste Profile Initialization (`taste_profile`)**: Locks the visual direction (`design_read`), 3 integer dials (`visual_variance: 1..10`, `motion_intensity: 1..10`, `information_density: 1..10`), color palette (`midnight`, `ocean`, `gold`, `emerald`, etc.), and `17 Visual Styles`.
   3. **Append-Only Decision Logging (`decision_log`)**: Records provider selection scores across 7 dimensions (motion fidelity, Arabic typography safety, lip-sync accuracy, identity retention, aspect-ratio support, cost efficiency, latency).
   4. **Final Post-Render Gate (`final_review`)**: Executes the 5 mandatory post-render checks (`technical_probe`, `visual_spotcheck >= 4 frames`, `audio_spotcheck`, `promise_preservation`, `subtitle_check`) before approving delivery.

@@ -128,7 +128,7 @@ def select_pipeline_route(
     style_variant: str,
     specialized_intent: Optional[str] = None,
 ) -> str:
-    """Map validated production parameters to one of the 12 autonomous CineFlow execution pipelines."""
+    """Map validated production parameters to one of the 14 autonomous CineFlow execution pipelines."""
     validate_taxonomy_inputs(purpose, video_format, style_variant)
     intent = str(specialized_intent or '').strip().lower()
     if intent in ('product_review', 'review_reel', 'route_13'):
@@ -151,9 +151,18 @@ def select_pipeline_route(
         return "route_4_silent_broll_montage"
     return "route_1_generative_cinema"
 
-def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[int]:
+def partition_runtime_into_allowed_blocks(
+    total_runtime_seconds: int,
+    *,
+    omni_1_2_native: bool = False,
+) -> List[int]:
     """
-    Partitions `total_runtime_seconds` into a list of block durations strictly from `{4, 6, 8, 10}`.
+    Partition `total_runtime_seconds` into valid clip duration blocks:
+    - When `omni_1_2_native=True` (or `round(total_runtime_seconds) == 3`), uses Gemini Omni 1.2 Flash
+      native 1-second increments (`3..15s`) so a `15s` spot stays a single `[15]` block and longer
+      runtimes partition cleanly into `3..15s` blocks whose exact sum equals `round(total_runtime_seconds)`.
+    - When `omni_1_2_native=False` (default multi-block `Extend` chain mode where `Extend` clips are `<= 10s`),
+      partitions into `{4, 6, 8, 10}` blocks.
     """
     if (
         not isinstance(total_runtime_seconds, (int, float))
@@ -167,6 +176,14 @@ def partition_runtime_into_allowed_blocks(total_runtime_seconds: int) -> List[in
         )
 
     target = int(round(total_runtime_seconds))
+    if omni_1_2_native or target == 3:
+        if target <= 15:
+            return [target]
+        n_native = max(2, math.ceil(target / 15))
+        base_dur = target // n_native
+        rem_dur = target % n_native
+        return [base_dur + (1 if i < rem_dur else 0) for i in range(n_native)]
+
     if target % 2 == 1:
         target += 1
 
@@ -539,7 +556,7 @@ def score_providers(
             },
         },
         {
-            "provider": "gemini_omni_flash_1_1",
+            "provider": "gemini_omni_flash_1_2",
             "label": "Gemini Omni 1.2 Flash (3-15s 360p/720p Draft -> 0-Credit Conversational Edit -> 1080p/4K Upscale)",
             "metrics": {
                 "task_fit": 9.8 if is_draft else 8.0,
@@ -962,3 +979,106 @@ def generate_contract_storyboard_prompt(spec: Dict[str, Any]) -> Dict[str, Any]:
             "Lighting direction and wardrobe remain consistent across all panels.",
         ],
     }
+
+
+class DecisionLog:
+    """
+    Append-only production governance ledger keyed by `(category, subject)` (`OpenMontage` specification).
+    - Never deletes or overwrites prior entries: updating an existing `(category, subject)` appends a new
+      entry with `status="revised"` and `revision_index > 0`.
+    - Validates the `Present Both Composition Runtimes` governance rule (`remotion` vs. `hyperframes`).
+    """
+
+    def __init__(self, initial_entries: Optional[List[Dict[str, Any]]] = None) -> None:
+        self._entries: List[Dict[str, Any]] = [dict(item) for item in (initial_entries or [])]
+
+    @property
+    def entries(self) -> List[Dict[str, Any]]:
+        """Return a shallow copy of the append-only decision entries."""
+        return [dict(item) for item in self._entries]
+
+    def record(
+        self,
+        category: str,
+        subject: str,
+        selected: str,
+        reason: str,
+        *,
+        options_considered: Optional[List[str]] = None,
+        rejected_because: Optional[Dict[str, str]] = None,
+        confidence: float = 0.90,
+        user_visible: bool = True,
+    ) -> Dict[str, Any]:
+        """Append a `locked` (first) or `revised` (subsequent) decision under `(category, subject)`."""
+        cat = str(category).strip()
+        subj = str(subject).strip()
+        if not cat or not subj:
+            raise ValueError("DecisionLog requires non-empty category and subject.")
+        prior_count = sum(
+            1 for item in self._entries if item.get("category") == cat and item.get("subject") == subj
+        )
+        entry: Dict[str, Any] = {
+            "category": cat,
+            "subject": subj,
+            "selected": str(selected).strip(),
+            "options_considered": list(options_considered or [str(selected).strip()]),
+            "rejected_because": dict(rejected_because or {}),
+            "status": "locked" if prior_count == 0 else "revised",
+            "revision_index": prior_count,
+            "confidence": round(float(confidence), 2),
+            "reason": str(reason).strip(),
+            "user_visible": bool(user_visible),
+        }
+        self._entries.append(entry)
+        return dict(entry)
+
+    def current_for(self, category: str, subject: str) -> Optional[Dict[str, Any]]:
+        """Return the latest active entry for `(category, subject)` without mutating history."""
+        for item in reversed(self._entries):
+            if item.get("category") == category and item.get("subject") == subject:
+                return dict(item)
+        return None
+
+    def validate_composition_runtime_choice(
+        self,
+        available_runtimes: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Enforce `Present Both Composition Runtimes`:
+        - When both `remotion` and `hyperframes` are available locally, the latest `render_runtime_selection`
+          decision MUST include both in `options_considered`.
+        - When one runtime is unavailable on the machine, it must either be omitted with an explicit
+          `rejected_because[runtime] = 'runtime not available on this machine'` or recorded transparently.
+        """
+        avail = {str(r).strip().lower() for r in (available_runtimes or ["remotion", "hyperframes"])}
+        runtime_entries = [
+            e for e in self._entries if str(e.get("category", "")).startswith("render_runtime")
+        ]
+        if not runtime_entries:
+            return {
+                "valid": False,
+                "violations": ["Missing render_runtime_selection entry in DecisionLog."],
+            }
+        latest = runtime_entries[-1]
+        considered = {str(opt).strip().lower() for opt in (latest.get("options_considered") or [])}
+        rejected_map = {
+            str(k).strip().lower(): str(v) for k, v in (latest.get("rejected_because") or {}).items()
+        }
+        violations: List[str] = []
+        for rt in ("remotion", "hyperframes"):
+            if rt in avail and rt not in considered:
+                violations.append(
+                    f"Available composition runtime '{rt}' was not presented in options_considered."
+                )
+            if rt not in avail and rt not in considered and rt not in rejected_map:
+                violations.append(
+                    f"Unavailable runtime '{rt}' must record rejected_because['{rt}'] = "
+                    "'runtime not available on this machine'."
+                )
+        return {
+            "valid": len(violations) == 0,
+            "selected": latest.get("selected"),
+            "status": latest.get("status", "locked"),
+            "total_revisions": len(runtime_entries) - 1,
+            "violations": violations,
+        }

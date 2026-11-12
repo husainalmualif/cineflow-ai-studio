@@ -43,6 +43,10 @@ from governance_and_omni import (  # noqa: E402
 )
 from nle_project_exporters import export_all_nle_bundles  # noqa: E402
 from on_demand_tool_synthesizer import synthesize_missing_tool, validate_hyperframes_vector_seams  # noqa: E402
+from post_production_engine import (  # noqa: E402
+    run_bstudio_preflight_and_post_audit,
+    validate_cover_thumbnail_and_delivery_size,
+)
 from validate_package import convert_scene_breakdown_to_package  # noqa: E402
 
 # Package block modes (Google Flow UI names) -> machine mode names in FLOW_SURFACE_MODE_DURATIONS.
@@ -312,6 +316,42 @@ def _cmd_validate_seams(args: argparse.Namespace) -> int:
     return 0 if res["valid"] else 1
 
 
+def _cmd_preflight_audit(args: argparse.Namespace) -> int:
+    spec = _load_json(args.spec) if args.spec else {}
+    if not isinstance(spec, dict):
+        print("FAIL: preflight spec must be a JSON object", file=sys.stderr)
+        return 2
+    bstudio_res = run_bstudio_preflight_and_post_audit(
+        stage_windows=spec.get("stage_windows"),
+        source_cuts_s=spec.get("source_cuts_s"),
+        camera_keyframes=spec.get("camera_keyframes"),
+        gaze_events=spec.get("gaze_events"),
+        jsx_or_css_source=str(spec.get("jsx_or_css_source", "")),
+        frame_luma_series=spec.get("frame_luma_series"),
+        color_deltas=spec.get("color_deltas"),
+        source_bitrate_kbps=spec.get("source_bitrate_kbps"),
+        output_bitrate_kbps=spec.get("output_bitrate_kbps"),
+    )
+    cover_cfg = spec.get("cover") if isinstance(spec.get("cover"), dict) else {}
+    cover_res = validate_cover_thumbnail_and_delivery_size(
+        duration_s=float(spec.get("duration_s", args.duration)),
+        title_px=int(cover_cfg.get("title_px", 180)),
+        subtext_px=int(cover_cfg.get("subtext_px", 116)),
+        logo_px=int(cover_cfg.get("logo_px", 220)),
+        safe_y_min=int(cover_cfg.get("safe_y_min", 440)),
+        safe_y_max=int(cover_cfg.get("safe_y_max", 1480)),
+        chin_clearance_px=int(cover_cfg.get("chin_clearance_px", 42)),
+        max_mb=float(spec.get("max_mb", args.max_mb)),
+    )
+    report = {
+        "valid": bstudio_res["valid"] and cover_res["valid"],
+        "bstudio_preflight": bstudio_res,
+        "cover_and_delivery": cover_res,
+    }
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 0 if report["valid"] else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
     parser = argparse.ArgumentParser(description="CineFlow governance linter (SFX governor, window guard, Flow continuity, 22-tool payloads & cultural audit).")
@@ -364,6 +404,15 @@ def build_parser() -> argparse.ArgumentParser:
     seams = sub.add_parser("validate-seams", help="validate HyperFrames Motion Doctrine ledger.json")
     seams.add_argument("ledger", help="path to ledger.json")
     seams.set_defaults(func=_cmd_validate_seams)
+
+    preflight = sub.add_parser(
+        "preflight-audit",
+        help="run B Studio 21-25 preflight/post checks, 12%% phone cover guard & <29MB 2-pass calculator",
+    )
+    preflight.add_argument("--spec", default=None, help="optional JSON spec with windows, cuts, camera, color, cover")
+    preflight.add_argument("--duration", type=float, default=45.0, help="video duration in seconds (default: 45)")
+    preflight.add_argument("--max-mb", type=float, default=29.0, help="target max size in MB (default: 29)")
+    preflight.set_defaults(func=_cmd_preflight_audit)
     return parser
 
 

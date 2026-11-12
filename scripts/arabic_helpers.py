@@ -892,3 +892,25 @@ def compute_behind_head_kashida_gap(
         "tatweel_count": needed_tatweels,
         "letters_occluded_by_head": 0,
     }
+
+
+_BIDI_RANGE_RE = re.compile(
+    r"(?<![0-9\u0660-\u0669])"
+    r"([0-9\u0660-\u0669]+(?:[.,][0-9\u0660-\u0669]+)?%?"
+    r"\s*[\-\u2013\u2014/:]\s*"
+    r"[0-9\u0660-\u0669]+(?:[.,][0-9\u0660-\u0669]+)?%?)"
+    r"(?![0-9\u0660-\u0669%])"
+)
+
+
+def isolate_bidi_number_ranges(text: str) -> str:
+    """
+    Wrap numeric ranges (e.g. '25–30', '10 - 15%', '٢٥–٣٠', '9:30') in Unicode LTR Isolate
+    marks (U+2066 LRI ... U+2069 PDI) so RTL Arabic captions and motion cards never visually
+    invert '25–30' into '30–25' (`video-ad-editor` v6.2.1 BiDi range law). Idempotent.
+    """
+    raw = str(text or "")
+    if not raw:
+        return ""
+    unwrapped = re.sub(r"\u2066([^\u2066\u2069]+)\u2069", r"\1", raw)
+    return _BIDI_RANGE_RE.sub("\u2066\\1\u2069", unwrapped)

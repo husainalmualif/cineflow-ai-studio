@@ -4,7 +4,7 @@ This reference manual documents the programmatic post-production, talking-head e
 
 ---
 
-## 1. Twelve Autonomous Production & Editing Pipelines (`مسارات الإنتاج والمونتاج الاثنا عشر`)
+## 1. Fourteen Autonomous Production & Editing Pipelines (`مسارات الإنتاج والمونتاج الأربعة عشر`)
 
 Automatically route the user's input to the matching production pipeline without interrogating them with unnecessary questionnaires:
 
@@ -21,7 +21,9 @@ Automatically route the user's input to the matching production pipeline without
 | **9. Continuous 3D World Fly-Through (`عالم ثلاثي الأبعاد متصل`)** | **`route_9_3d_world_generation`** | Coarse-to-fine semantic terrain (`blockout` ➔ `production`), CC0 GLTF/GLB catalogs + `Atlas Tripo H3.1` / `fal Hunyuan 3D`, slope/contact constraints, and continuous `global ➔ regional ➔ walk` camera path rendered in **Blender 4.5 LTS (`Eevee Next`)** or **HyperFrames + Three.js** |
 | **10. Reference Video URL / Clip (`فيديو مرجعي: اصنع لي مثل هذا`)** | **`route_10_reference_video_cloner`** | Inspects `motion_type` (`motion_clip / animated_still / static_image`) + `flow_variance` ➔ Outputs **CHAI 5-Aspect Shot Breakdown** ➔ Proposes **2–3 differentiated concepts** (never a carbon copy) ➔ Renders **10–15s Sample-First Preview** before full production |
 | **11. Avatar Presenter & Lip-Sync Spokesperson (`مذيع ذكي`)** | **`route_11_avatar_spokesperson`** | `Google Flow Voice Lock`, `Kling Official Avatar / Lip-Sync`, or local `SadTalker / MuseTalk / Wav2Lip` + Remotion `TalkingHead` composition (`<= 6 words` per fast cut) |
-| **12. Multi-Language Localization & Dubbing (`ترجمة ودبلجة`)** | **`route_12_localization_dub`** | Diarized transcript truth ➔ Glossary-locked translation ➔ Timing-risk mapping ➔ `Google Chirp3-HD` (700+ voices) / `ElevenLabs` / `Azure SSML` dubbing + optional lip-sync |
+| **12. Multi-Language Localization & Dubbing (`ترجمة ودبلجة`)** | **`route_12_localization_dub`** | Diarized transcript truth ➔ Glossary-locked translation ➔ Timing-risk mapping ➔ `Google Chirp3-HD` (700+ voices) / `ElevenLabs v4` / `Azure SSML` dubbing + optional lip-sync |
+| **13. Product Review & Hands-On Verdict Reel (`مراجعة منتج وتقييم عملي`)** | **`route_13_product_review_reel`** | Hook & Unboxing Macro ➔ Hands-On Stress Benchmark ➔ Honest Pros/Cons Split Verdict Card ➔ Tabular Price-to-Value Score + Safe-Zone Offer CTA |
+| **14. Isometric Machine & Scientific Cutaway Explainer (`شرح هندسي / مقطعي للآلات`)** | **`route_14_isometric_machine_explainer`** | Orthographic Isometric Diorama (`exploded_view`, CAD dimension callouts, flow arrows) + `Blender AgX` / `HyperFrames Three.js` or AST-verified `ManimCE` (`--transparent`) |
 
 ---
 
@@ -180,8 +182,9 @@ Before rendering, design **2 to 3 signature depth moments** so the video feels c
 
 ## 7. 4-Bus Audio Mastering & NLE / Studio Delivery (`معايرة الصوت والتسليم المتعدد`)
 
-1. **Loudness & Dynamic Mastering**:
-   - Normalize integrated loudness to **`-14.0 LUFS`** with True Peak capped at **`-1.0 to -1.5 dBTP`** (`loudnorm=I=-14:TP=-1.5:LRA=11`).
+1. **Dual Loudness & Zero-Loss Dynamic Mastering**:
+   - **Real Recorded Human Voice (`own`)**: Preserve natural crest factor (`0 dB` untouched) or apply linear fixed-gain to **`-20.0 LUFS` (`<= -1.0 dBTP`)** with zero dynamic compressor pumping (`corr >= 0.999`, `|ΔRMS| < 0.15 dB`).
+   - **AI TTS & Commercial Mixes (`ai_tts`)**: Normalize integrated loudness via lookahead-limited linear `loudnorm=linear=true` to **`-14.0 LUFS`** with True Peak capped at **`-1.5 dBTP`**.
 2. **Meaningful SFX Discipline**:
    - Trigger SFX (`whoosh_up`, `whoosh_down`, `thud`, `tap`, `pop`, `tick`, `sub_drop`) **only on real visual state changes** (maximum **15 SFX events per minute**, peak capped below **`-18 dBFS`**).
    - Call background audio `"ملف صوتي بالخلفية"` (`bg-audio.mp3`) rather than assuming music, and auto-duck it under speech (`sidechaincompress` `attack=15ms, release=450ms`).
@@ -219,3 +222,4 @@ Lock `render_runtime` at the proposal stage and carry it through `edit_decisions
 - **Dense Keyframes (`-g 30 -keyint_min 30`) & `--workers 1`**: Prevents `video_heavy_parallel_timeout` and frame freezes in headless Chrome when rendering `> 5` video elements.
 - **Deterministic Font Whitelist**: In HyperFrames, use `Outfit`, `Montserrat`, `Inter`, `JetBrains Mono`, `Poppins`, `Playfair Display`, or local full-charset `@font-face` `.ttf` files (`Cairo`, `Tajawal`, `PatrickHand`) — never `Space Grotesk` or subsetted Google Fonts `woff2` URLs.
 - **Mandatory Pre-Render Gate**: Always run `npx hyperframes lint --json && npx hyperframes check --json --snapshots --caption-zone && npx hyperframes snapshot --review --json` before executing `npx hyperframes render`.
+- **HyperFrames Official 9-Skill Suite & Checkout Safety Guard**: The ecosystem ships 9 dedicated skills (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, `reverse-any-video` PSNR/SSIM diff loop, `style-sampling`, `slideshow`, `remotion-to-hyperframes`, `figma`). **Never run `npx skills add ... --all` inside a HyperFrames repository checkout** (it deletes `skills/`); always update via `npx hyperframes skills update`.

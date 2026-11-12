@@ -338,7 +338,9 @@
             "route_9_3d_world_generation",
             "route_10_reference_video_cloner",
             "route_11_avatar_spokesperson",
-            "route_12_localization_dub"
+            "route_12_localization_dub",
+            "route_13_product_review_reel",
+            "route_14_isometric_machine_explainer"
           ]
         },
         "execution_route": { "type": "string" },

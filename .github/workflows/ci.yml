@@ -42,7 +42,7 @@ jobs:
         run: |
           pylint scripts/studio_config.py scripts/arabic_helpers.py scripts/governance_and_omni.py scripts/beat_grid.py scripts/cineflow_compiler.py scripts/multi_agent_orchestrator.py scripts/validate_package.py scripts/estimate_cost.py scripts/make_srt.py scripts/verify_skill_references.py scripts/sync_remotion_skills.py scripts/lint_package.py scripts/post_production_engine.py scripts/nle_project_exporters.py scripts/on_demand_tool_synthesizer.py mcp/server.py tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py tests/test_lint_package.py tests/test_post_and_tool_factory.py
 
-      - name: Run Automated Unit, Montage, MCP Agent & v8.0.0 Post/NLE/Tool-Factory Tests with Pytest
+      - name: Run Automated Unit, Montage, MCP Agent & v8.1.0 Post/NLE/Tool-Factory Tests with Pytest
         run: |
           pytest -v tests/test_cineflow_compiler.py tests/test_montage.py tests/test_omni_agent.py tests/test_lint_package.py tests/test_post_and_tool_factory.py
 
@@ -90,3 +90,5 @@ jobs:
           test -s /tmp/test_browser_nle/cineflow_studio_editor.html
           python scripts/lint_package.py synthesize-tool hyperframes_atelier_bundle --output-dir /tmp/test_hf_bundle --package /tmp/test_blueprint.json
           python scripts/lint_package.py validate-seams /tmp/test_hf_bundle/ledger.json
+          python scripts/lint_package.py preflight-audit --duration 45 --max-mb 29 > /tmp/test_preflight.json
+          test -s /tmp/test_preflight.json

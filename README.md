@@ -1,6 +1,6 @@
-# استوديو سينما فلو الذكي — CineFlow AI Studio 🎬 (`v8.0.0`)
+# استوديو سينما فلو الذكي — CineFlow AI Studio 🎬 (`v8.1.0`)
 
-**الإصدار `8.0.0` (`Unified Production Agent, Google Flow Omni 1.2 Native, Multi-NLE Exporters & On-Demand Tool Factory`)** — الوكيل الشامل لإنتاج الفيديوهات السينمائية والإعلانية والقصيرة، وإخراج مشاريع **[Google Flow](https://flow.google.com/)** (`Gemini Omni 1.2 Flash • Nano Banana Pro • Veo 3.1 • Seedance 2.0 • Runway Gen-4 • Kling 3.0 • Hailuo Director • Wan VACE • Higgsfield DoP • MagicLight.AI`) عبر **14 مساراً إنتاجياً ذاتياً (`route_1..route_14`)**، ومصدّرات التايم لاين والمشاريع لبرامج المونتاج الاحترافية (`CapCut • Premiere Pro / FCPXML • CMX 3600 EDL • DaVinci Resolve 7-Node DWG • After Effects .jsx • Blender AgX • Remotion v4.0.539 • HyperFrames check • ManimCE AST-Verified • FFmpeg Zero-Loss`)، مع **مصنع أدوات المونتاج الفوري (`on_demand_tool_synthesizer.py`)** الذي يكتشف غياب أي برنامج تحرير ويبني أدوات المونتاج والمؤثرات الصوتية والتايم لاين التفاعلي في المتصفح لحظياً.
+**الإصدار `8.1.0` (`Precision Post-Production QA Gates, BiDi/Thumbnail/29MB Science, Omni 1.2 Native Partitioning & Multi-NLE Tool Factory`)** — الوكيل الشامل لإنتاج الفيديوهات السينمائية والإعلانية والقصيرة، وإخراج مشاريع **[Google Flow](https://flow.google.com/)** (`Gemini Omni 1.2 Flash • Nano Banana Pro • Veo 3.1 • Seedance 2.0 • Runway Gen-4 • Kling 3.0 • Hailuo Director • Wan VACE • Higgsfield DoP • MagicLight.AI`) عبر **14 مساراً إنتاجياً ذاتياً (`route_1..route_14`)**، ومصدّرات التايم لاين والمشاريع لبرامج المونتاج الاحترافية (`CapCut • Premiere Pro / FCPXML • CMX 3600 EDL • DaVinci Resolve 7-Node DWG • After Effects .jsx • Blender AgX • Remotion v4.0.539 • HyperFrames check • ManimCE AST-Verified • FFmpeg Zero-Loss`)، مع **مصنع أدوات المونتاج الفوري (`on_demand_tool_synthesizer.py`)** وبوابات التدقيق المسبق واللاحق (`preflight-audit` لـ `B Studio 21–25` وحاسبة الغلاف وسقف `29 MB`).
 
 > 📖 **الدستور الكامل والمعمارية التفصيلية:** راجع [`SKILL.md`](SKILL.md) و[`references/13-on-demand-tool-synthesis-and-nle-automation.md`](references/13-on-demand-tool-synthesis-and-nle-automation.md) و[`references/09-google-flow-agent-scenes-and-tools-mastery.md`](references/09-google-flow-agent-scenes-and-tools-mastery.md) و[`references/10-google-flow-cli-scripting-and-automation-mastery.md`](references/10-google-flow-cli-scripting-and-automation-mastery.md) و[`references/architecture-and-pipelines.md`](references/architecture-and-pipelines.md) و[`references/b-studio-and-video-edit-mastery.md`](references/b-studio-and-video-edit-mastery.md) و[`references/11-22-tool-video-ecosystem-and-nle-mastery.md`](references/11-22-tool-video-ecosystem-and-nle-mastery.md) و[`references/12-human-cultural-dialects-and-media-psychology.md`](references/12-human-cultural-dialects-and-media-psychology.md).
 
@@ -58,7 +58,7 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ```text
 cineflow-ai-studio/
-├── SKILL.md                                     # الدستور الرئيسي للمهارة (name: cineflow-ai-studio — v8.0.0)
+├── SKILL.md                                     # الدستور الرئيسي للمهارة (name: cineflow-ai-studio — v8.1.0)
 ├── README.md                                    # المدخل السريع للتثبيت والاستخدام
 ├── CHANGELOG.md                                 # سجل تغييرات الإصدارات
 ├── LICENSE                                      # رخصة Apache-2.0
@@ -83,7 +83,7 @@ cineflow-ai-studio/
 │   ├── validate_package.py                      # مدقق الحزم القياسي
 │   ├── estimate_cost.py                         # حاسبة الأرصدة قبل GATE 2
 │   ├── make_srt.py                              # مولد ملفات الترجمة العربية (.srt)
-│   ├── lint_package.py                          # واجهة سطر الأوامر الموحدة: check / sanitize / storyboard / tool-payload / cultural-audit / export-nle / synthesize-tool / validate-seams
+│   ├── lint_package.py                          # واجهة سطر الأوامر الموحدة: check / sanitize / storyboard / tool-payload / cultural-audit / export-nle / synthesize-tool / validate-seams / preflight-audit
 │   ├── verify_skill_references.py               # مدقق الروابط والمراجع الديناميكي للـ CI
 │   ├── sync_remotion_skills.py                  # أداة تحديث وتوثيق مراجع Remotion الرسمية
 │   └── Compile-CineFlowBlueprint.ps1            # غلاف PowerShell

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=too-many-lines
 """
 CineFlow AI Studio — Executable Post-Production, Zero-Loss Signal, Adaptive Silence Cutter,
 Waveform Word Snapper, Procedural 48kHz SFX Synthesizer & Beat-Locked FFmpeg Engine.
@@ -132,6 +133,80 @@ def _populate_ffprobe_video_metrics(
         tags = stream.get("tags") or {}
         if "rotate" in tags:
             media_report["rotation_deg"] = int(tags["rotate"]) % 360
+
+    if media_report.get("width", 0) > 0:
+        try:
+            pts_proc = subprocess.run(
+                [
+                    ffprobe_bin,
+                    "-v",
+                    "quiet",
+                    "-select_streams",
+                    "v:0",
+                    "-read_intervals",
+                    "%+30",
+                    "-show_entries",
+                    "packet=pts_time",
+                    "-print_format",
+                    "json",
+                    str(media_file),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                check=False,
+            )
+            if pts_proc.returncode == 0 and pts_proc.stdout.strip():
+                packets = json.loads(pts_proc.stdout).get("packets") or []
+                pts_vals = sorted(
+                    float(pkt["pts_time"])
+                    for pkt in packets
+                    if isinstance(pkt, dict) and pkt.get("pts_time") is not None
+                )
+                gap_info = analyze_pts_dropped_frame_gaps(pts_vals, input_path=str(media_file))
+                media_report["dropped_frame_gaps"] = gap_info["dropped_frame_gaps"]
+                if gap_info["needs_optical_flow_repair"]:
+                    media_report["optical_flow_repair_cmd"] = gap_info["repair_ffmpeg_command"]
+        except (OSError, ValueError, TypeError, subprocess.SubprocessError):
+            pass
+
+
+def analyze_pts_dropped_frame_gaps(
+    pts_timestamps_s: Sequence[float],
+    *,
+    gap_threshold_s: float = 0.070,
+    target_fps: int = 30,
+    input_path: str = "src.mov",
+) -> Dict[str, Any]:
+    """
+    Inspect sorted video frame PTS timestamps for dropped-frame freezes (`delta > 0.07s`,
+    common in mobile WebRTC/browser recordings) and generate the optical-flow `minterpolate` repair command.
+    """
+    ordered = sorted(float(t) for t in pts_timestamps_s)
+    gaps: List[Dict[str, float]] = []
+    for idx in range(1, len(ordered)):
+        delta = ordered[idx] - ordered[idx - 1]
+        if delta > gap_threshold_s + 1e-9:
+            gaps.append(
+                {
+                    "start_s": round(ordered[idx - 1], 4),
+                    "end_s": round(ordered[idx], 4),
+                    "delta_s": round(delta, 4),
+                }
+            )
+    fixed_out = str(Path(input_path).with_name(f"{Path(input_path).stem}_fixed.mov"))
+    repair_cmd = (
+        f'ffmpeg -y -i "{input_path}" -vf '
+        f'"minterpolate=fps={int(target_fps)}:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1" '
+        f'-c:a copy "{fixed_out}"'
+    )
+    return {
+        "dropped_frame_gaps": len(gaps),
+        "total_frozen_seconds": round(sum(g["delta_s"] for g in gaps), 4),
+        "needs_optical_flow_repair": len(gaps) > 0,
+        "gaps": gaps,
+        "repair_ffmpeg_command": repair_cmd if gaps else None,
+    }
 
 
 def probe_environment_and_media(media_path: Optional[str] = None) -> Dict[str, Any]:
@@ -393,16 +468,23 @@ def snap_word_timestamps_to_waveform(
 def detect_retakes_and_whisper_hallucinations(
     sentences: Sequence[Dict[str, Any]],
     similarity_threshold: float = 0.60,
+    *,
+    speech_islands: Optional[Sequence[Tuple[float, float]]] = None,
+    word_timestamps: Optional[Sequence[Dict[str, Any]]] = None,
+    audio_path: str = "voice.wav",
 ) -> Dict[str, Any]:
     """
     Detect:
     1. Duplicate takes / retakes within a 2-sentence lookahead window (first take = mistake -> drop;
        second take = speaker's correction -> keep).
     2. Whisper hallucination loops (`3x` repeated phrase, `4x` single-word loop, or outro hallucinations).
+    3. Untranscribed acoustic speech islands (`>= 1.2s` active RMS speech with zero Whisper words,
+       emitting isolated `--condition_on_previous_text False` repair commands per `02a_whisper_check.py`).
     """
     normalized = [_normalize_ar_for_retake(s.get("text", "")) for s in sentences]
     retakes_to_drop: List[Dict[str, Any]] = []
     hallucinations: List[Dict[str, Any]] = []
+    untranscribed_gaps: List[Dict[str, Any]] = []
 
     for idx, sent in enumerate(sentences):
         raw_text = str(sent.get("text", "")).strip()
@@ -454,11 +536,40 @@ def detect_retakes_and_whisper_hallucinations(
         if t0 and t0 == str(sentences[idx + 1].get("text", "")).strip() == str(sentences[idx + 2].get("text", "")).strip():
             hallucinations.append({"index": idx, "reason": "sentence_repeat_3x_loop", "text": t0})
 
+    # Check acoustic speech islands (>= 1.2s) with zero transcribed words (`02a_whisper_check.py`)
+    if speech_islands is not None:
+        words_list = list(word_timestamps or [])
+        for s_start, s_end in speech_islands:
+            span = float(s_end) - float(s_start)
+            if span < 1.2:
+                continue
+            has_word = any(
+                float(w.get("end_s", w.get("e", 0.0))) > float(s_start) + 0.05
+                and float(w.get("start_s", w.get("s", 0.0))) < float(s_end) - 0.05
+                for w in words_list
+            )
+            if not has_word:
+                win_dur = min(25.0, round(span + 0.6, 2))
+                win_start = max(0.0, round(float(s_start) - 0.3, 2))
+                untranscribed_gaps.append(
+                    {
+                        "start_s": round(float(s_start), 3),
+                        "end_s": round(float(s_end), 3),
+                        "duration_s": round(span, 3),
+                        "repair_command": (
+                            f'ffmpeg -y -ss {win_start} -t {win_dur} -i "{audio_path}" window_fix.wav && '
+                            f'whisper window_fix.wav --language ar --word_timestamps True '
+                            f'--condition_on_previous_text False --output_format json'
+                        ),
+                    }
+                )
+
     drop_set = {item["drop_index"] for item in retakes_to_drop} | {item["index"] for item in hallucinations}
     clean_sentences = [dict(s) for i, s in enumerate(sentences) if i not in drop_set]
     return {
         "retakes_detected": retakes_to_drop,
         "hallucinations_detected": hallucinations,
+        "untranscribed_speech_gaps": untranscribed_gaps,
         "dropped_indices": sorted(drop_set),
         "clean_sentences": clean_sentences,
     }
@@ -778,6 +889,193 @@ def build_beat_locked_ffmpeg_script(
     }
 
 
+def run_bstudio_preflight_and_post_audit(
+    *,
+    stage_windows: Optional[Sequence[Dict[str, Any]]] = None,
+    source_cuts_s: Optional[Sequence[float]] = None,
+    camera_keyframes: Optional[Sequence[Dict[str, Any]]] = None,
+    gaze_events: Optional[Sequence[Dict[str, Any]]] = None,
+    jsx_or_css_source: str = "",
+    frame_luma_series: Optional[Sequence[float]] = None,
+    color_deltas: Optional[Dict[str, float]] = None,
+    source_bitrate_kbps: Optional[float] = None,
+    output_bitrate_kbps: Optional[float] = None,
+) -> Dict[str, Any]:
+    """
+    Unified executable gate for B Studio scripts `21_color_check`, `22_preflight`,
+    `23_gaze_check`, `24_cut_align`, `25_flash_check`, and `Rule 87` bitrate floor:
+    1. `24_cut_align`: Snaps graphic window end `e` to hard cut `t_cut` when `0.02 < t_cut - e <= 0.30s`.
+    2. `22_preflight`: Rejects overlapping camera moves (`t1 < t0 + d0`) and stripe strobe (`v_peak > 120 px/frame`).
+    3. `23_gaze_check`: Rejects `NONE -> FULL` return while presenter gaze is down on notes (`t_return < gaze_up_s`).
+    4. `25_flash_check`: Rejects CSS `backgroundImage: url(...)` in Remotion JSX and single-frame luma spikes `> 45`.
+    5. `21_color_check`: Enforces `|ΔY| <= 0.6`, `|ΔU| <= 0.4`, `|ΔV| <= 0.4`, `|ΔR - ΔB| <= 0.8`.
+    6. `Rule 87`: Enforces `output_bitrate_kbps >= source_bitrate_kbps / 3.0`.
+    """
+    violations: List[str] = []
+    cuts = sorted(float(c) for c in (source_cuts_s or []))
+    aligned_windows: List[Dict[str, Any]] = []
+    snapped_count = 0
+
+    for win in stage_windows or []:
+        w_copy = dict(win)
+        mode = str(w_copy.get("m", w_copy.get("mode", "FULL"))).upper()
+        end_key = "e" if "e" in w_copy else "end_s"
+        end_val = float(w_copy.get(end_key, 0.0))
+        if mode != "FULL" and cuts:
+            for t_cut in cuts:
+                gap = t_cut - end_val
+                if 0.02 < gap <= 0.30:
+                    w_copy[end_key] = round(t_cut, 3)
+                    w_copy["snapped_to_source_cut_s"] = round(t_cut, 3)
+                    snapped_count += 1
+                    break
+        aligned_windows.append(w_copy)
+
+    # 22_preflight: non-overlapping camera moves & periodic-stripe pan velocity cap
+    ordered_cams = sorted(
+        (dict(k) for k in (camera_keyframes or [])),
+        key=lambda item: float(item.get("t_s", 0.0)),
+    )
+    for idx, cam in enumerate(ordered_cams):
+        t0 = float(cam.get("t_s", 0.0))
+        d0 = float(cam.get("duration_s", 0.0))
+        v_peak = float(cam.get("v_peak_px_per_frame", 0.0))
+        has_stripes = bool(cam.get("periodic_stripes", False))
+        if has_stripes and v_peak > 120.0:
+            violations.append(
+                f"22_preflight_StripeStrobe: camera move at {t0:.2f}s pans at {v_peak:.1f} px/frame (> 120) over stripes."
+            )
+        if idx + 1 < len(ordered_cams):
+            t1 = float(ordered_cams[idx + 1].get("t_s", 0.0))
+            if t1 < (t0 + d0) - 1e-6:
+                violations.append(
+                    f"22_preflight_CamOverlap: move #{idx} ({t0:.2f}..{t0 + d0:.2f}s) overlaps move #{idx + 1} ({t1:.2f}s)."
+                )
+
+    # 23_gaze_check: presenter return from NONE -> FULL must wait until gaze rises (`gaze_up_s`)
+    for idx in range(1, len(aligned_windows)):
+        prev_m = str(aligned_windows[idx - 1].get("m", aligned_windows[idx - 1].get("mode", "FULL"))).upper()
+        curr_m = str(aligned_windows[idx].get("m", aligned_windows[idx].get("mode", "FULL"))).upper()
+        if prev_m == "NONE" and curr_m == "FULL":
+            t_ret = float(aligned_windows[idx].get("s", aligned_windows[idx].get("start_s", 0.0)))
+            for gz in gaze_events or []:
+                down_s = float(gz.get("gaze_down_s", -1.0))
+                up_s = float(gz.get("gaze_up_s", -1.0))
+                if down_s <= t_ret < up_s - 1e-6:
+                    violations.append(
+                        f"23_gaze_check: NONE->FULL return at {t_ret:.2f}s occurs while gaze is lowered ({down_s:.2f}..{up_s:.2f}s)."
+                    )
+
+    # 25_flash_check: forbid CSS backgroundImage url(...) & single-frame luma spikes
+    if re.search(r"background(?:-image|Image)\s*:\s*['\"]?url\(", str(jsx_or_css_source or "")):
+        violations.append(
+            "25_flash_check_CSSUrl: forbidden CSS backgroundImage url(...) detected; use Remotion <Img> preload."
+        )
+    lumas = [float(y) for y in (frame_luma_series or [])]
+    for idx in range(1, len(lumas) - 1):
+        if abs(lumas[idx] - lumas[idx - 1]) > 45.0 and abs(lumas[idx] - lumas[idx + 1]) > 45.0:
+            violations.append(
+                f"25_flash_check_LumaSpike: single-frame flash spike at frame {idx} (Y={lumas[idx]:.1f})."
+            )
+
+    # 21_color_check: bt709/tv zero-loss thresholds
+    if color_deltas:
+        dy = abs(float(color_deltas.get("delta_y", 0.0)))
+        du = abs(float(color_deltas.get("delta_u", 0.0)))
+        dv = abs(float(color_deltas.get("delta_v", 0.0)))
+        tilt = abs(float(color_deltas.get("rgb_tilt_r_minus_b", 0.0)))
+        if dy > 0.6 or du > 0.4 or dv > 0.4 or tilt > 0.8:
+            violations.append(
+                f"21_color_check: bt709 drift exceeded thresholds (|dY|={dy:.2f}, |dU|={du:.2f}, |dV|={dv:.2f}, |dR-dB|={tilt:.2f})."
+            )
+
+    # Rule 87: output bitrate >= source_bitrate / 3
+    if source_bitrate_kbps and output_bitrate_kbps is not None:
+        floor_kbps = float(source_bitrate_kbps) / 3.0
+        if float(output_bitrate_kbps) < floor_kbps - 1e-6:
+            violations.append(
+                f"Rule87_BitrateFloor: output {float(output_bitrate_kbps):.0f} kbps < 1/3 source ({floor_kbps:.0f} kbps)."
+            )
+
+    return {
+        "valid": len(violations) == 0,
+        "snapped_cuts_count": snapped_count,
+        "aligned_windows": aligned_windows,
+        "violations": violations,
+    }
+
+
+def validate_cover_thumbnail_and_delivery_size(
+    duration_s: float,
+    *,
+    title_px: int = 180,
+    subtext_px: int = 116,
+    logo_px: int = 220,
+    safe_y_min: int = 440,
+    safe_y_max: int = 1480,
+    chin_clearance_px: int = 42,
+    max_mb: float = 29.0,
+    audio_kbps: int = 192,
+) -> Dict[str, Any]:
+    """
+    Validate mobile-grid cover & YouTube thumbnail readability (`28_cover.py` + `33_thumb.py`)
+    and compute the exact Two-Pass H.264 target bitrate so review MP4 files stay strictly `< 29 MB` (`FIT=1`):
+    - Enforces `12%` mobile thumbnail scale floors: `title_px >= 170`, `subtext_px >= 110`, `logo_px >= 200`.
+    - Enforces Instagram `1:1` central grid square (`Y: 420..1500` inside `1080x1920`) & `chin_clearance_px >= 30`.
+    - Emits 3-concept YouTube thumbnail specs (`3840x2160` 4K archive + `1280x720` `< 2 MB` upload).
+    """
+    dur = max(1.0, float(duration_s))
+    violations: List[str] = []
+    if int(title_px) < 170:
+        violations.append(f"Cover_TitleTooSmall: title {title_px}px < 170px floor for 12% phone grid readability.")
+    if int(subtext_px) < 110:
+        violations.append(f"Cover_SubtextTooSmall: subtext {subtext_px}px < 110px floor for 12% phone grid.")
+    if int(logo_px) < 200:
+        violations.append(f"Cover_LogoTooSmall: logo {logo_px}px < 200px floor for 12% phone grid.")
+    if int(safe_y_min) < 420 or int(safe_y_max) > 1500:
+        violations.append(
+            f"Cover_SafeSquare: elements at Y={safe_y_min}..{safe_y_max} exit 1080x1080 grid square (420..1500)."
+        )
+    if int(chin_clearance_px) < 30:
+        violations.append(f"Cover_ChinClearance: chin-to-headline gap {chin_clearance_px}px < 30px minimum.")
+
+    # Reserve 4% container/MP4 faststart overhead so actual file lands safely below `max_mb`
+    usable_kilobits = float(max_mb) * 8192.0 * 0.96
+    total_kbps = usable_kilobits / dur
+    video_kbps = max(350, int(math.floor(total_kbps - int(audio_kbps))))
+    est_size_mb = round(((video_kbps + int(audio_kbps)) * dur) / 8192.0, 2)
+
+    two_pass_cmds = [
+        f'ffmpeg -y -i master.mp4 -c:v libx264 -b:v {video_kbps}k -pass 1 -an -f mp4 NUL',
+        (
+            f'ffmpeg -y -i master.mp4 -c:v libx264 -b:v {video_kbps}k -pass 2 '
+            f'-c:a aac -b:a {int(audio_kbps)}k -ar 48000 -movflags +faststart review_under_{int(max_mb)}mb.mp4'
+        ),
+    ]
+    return {
+        "valid": len(violations) == 0,
+        "mobile_12pct_grid_preview": {
+            "rendered_title_px_on_phone": round(int(title_px) * 0.12, 1),
+            "safe_square_1080x1080": "Y: 420..1500",
+        },
+        "youtube_3_concept_thumbnail_contract": {
+            "concepts": ["1_curiosity_gap_closeup", "2_before_after_split", "3_bold_metric_hero"],
+            "master_archive_px": "3840x2160",
+            "youtube_upload_px": "1280x720",
+            "max_upload_mb": 2.0,
+        },
+        "fit_delivery_budget": {
+            "max_mb": float(max_mb),
+            "duration_s": round(dur, 2),
+            "target_video_kbps": video_kbps,
+            "audio_kbps": int(audio_kbps),
+            "estimated_size_mb": est_size_mb,
+            "two_pass_ffmpeg_commands": two_pass_cmds,
+        },
+        "violations": violations,
+    }
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """CLI entry point for `post_production_engine.py`."""
     parser = argparse.ArgumentParser(
@@ -803,6 +1101,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p_ff.add_argument("--output-mp4", default="studio/output/master.mp4")
     p_ff.add_argument("--music", default=None)
 
+    p_pre = sub.add_parser("preflight-audit", help="Run B Studio 21-25 preflight/post checks + cover & <29MB calculator")
+    p_pre.add_argument("--duration", type=float, default=45.0, help="Video duration in seconds")
+    p_pre.add_argument("--max-mb", type=float, default=29.0, help="Delivery size cap in MB (default: 29.0)")
+
     args = parser.parse_args(argv)
     if args.command == "probe":
         print(json.dumps(probe_environment_and_media(args.media), ensure_ascii=False, indent=2))
@@ -823,6 +1125,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         pkg = json.loads(Path(args.package).read_text(encoding="utf-8"))
         print(json.dumps(build_beat_locked_ffmpeg_script(pkg, output_mp4=args.output_mp4, music_path=args.music), ensure_ascii=False, indent=2))
         return 0
+    if args.command == "preflight-audit":
+        audit_res = run_bstudio_preflight_and_post_audit()
+        cover_res = validate_cover_thumbnail_and_delivery_size(args.duration, max_mb=args.max_mb)
+        combined = {
+            "valid": audit_res["valid"] and cover_res["valid"],
+            "bstudio_preflight": audit_res,
+            "cover_and_delivery": cover_res,
+        }
+        print(json.dumps(combined, ensure_ascii=False, indent=2))
+        return 0 if combined["valid"] else 1
     return 1
 
 
