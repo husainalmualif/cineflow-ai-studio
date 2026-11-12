@@ -235,7 +235,7 @@ class NonDestructiveTimeline:
         self._push_undo()
         for idx, clip in enumerate(self.state["spine"]):
             if clip["id"] == clip_id:
-                if not (0.1 <= split_offset_s <= clip["dur_s"] - 0.1):
+                if split_offset_s < 0.1 or split_offset_s > clip["dur_s"] - 0.1:
                     raise ValueError("split_offset_s must leave at least 0.1s on both halves.")
                 left = copy.deepcopy(clip)
                 right = copy.deepcopy(clip)

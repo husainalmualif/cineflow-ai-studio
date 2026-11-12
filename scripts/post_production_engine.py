@@ -82,6 +82,58 @@ def _normalize_ar_for_retake(text: str) -> List[str]:
     return tokens
 
 
+def _populate_ffprobe_video_metrics(
+    ffprobe_bin: str,
+    media_file: Path,
+    media_report: Dict[str, Any],
+) -> None:
+    """Populate stream dimensions, color transfer/range, and rotation via `ffprobe`."""
+    try:
+        proc = subprocess.run(
+            [
+                ffprobe_bin,
+                "-v",
+                "quiet",
+                "-print_format",
+                "json",
+                "-show_streams",
+                "-show_format",
+                str(media_file),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return
+    if proc.returncode != 0 or not proc.stdout.strip():
+        return
+    try:
+        info = json.loads(proc.stdout)
+    except ValueError:
+        return
+    for stream in info.get("streams", []):
+        if stream.get("codec_type") != "video":
+            continue
+        trc = str(stream.get("color_transfer", "")).lower()
+        cspace = str(stream.get("color_space", "")).lower()
+        crange = str(stream.get("color_range", "")).lower()
+        pix_fmt = str(stream.get("pix_fmt", "")).lower()
+        media_report["width"] = int(stream.get("width", 0) or 0)
+        media_report["height"] = int(stream.get("height", 0) or 0)
+        media_report["pix_fmt"] = pix_fmt
+        media_report["color_space"] = cspace
+        media_report["color_range"] = crange
+        if trc in ("arib-std-b67", "smpte2084"):
+            media_report["needs_hdr_to_sdr"] = True
+        if crange == "pc" or pix_fmt.startswith("yuvj") or cspace in ("bt470bg", "smpte170m", ""):
+            media_report["needs_bt709_range_norm"] = True
+        tags = stream.get("tags") or {}
+        if "rotate" in tags:
+            media_report["rotation_deg"] = int(tags["rotate"]) % 360
+
+
 def probe_environment_and_media(media_path: Optional[str] = None) -> Dict[str, Any]:
     """Rule Zero capability probe + optional source media SHA-256 & stream diagnostics."""
     cli_binaries = (
@@ -120,45 +172,7 @@ def probe_environment_and_media(media_path: Optional[str] = None) -> Dict[str, A
                 "dropped_frame_gaps": 0,
             }
             if available_tools["ffprobe"]:
-                try:
-                    proc = subprocess.run(
-                        [
-                            str(available_tools["ffprobe"]),
-                            "-v",
-                            "quiet",
-                            "-print_format",
-                            "json",
-                            "-show_streams",
-                            "-show_format",
-                            str(p),
-                        ],
-                        capture_output=True,
-                        text=True,
-                        timeout=15,
-                        check=False,
-                    )
-                    if proc.returncode == 0 and proc.stdout.strip():
-                        info = json.loads(proc.stdout)
-                        for stream in info.get("streams", []):
-                            if stream.get("codec_type") == "video":
-                                trc = str(stream.get("color_transfer", "")).lower()
-                                cspace = str(stream.get("color_space", "")).lower()
-                                crange = str(stream.get("color_range", "")).lower()
-                                pix_fmt = str(stream.get("pix_fmt", "")).lower()
-                                media_report["width"] = int(stream.get("width", 0) or 0)
-                                media_report["height"] = int(stream.get("height", 0) or 0)
-                                media_report["pix_fmt"] = pix_fmt
-                                media_report["color_space"] = cspace
-                                media_report["color_range"] = crange
-                                if trc in ("arib-std-b67", "smpte2084"):
-                                    media_report["needs_hdr_to_sdr"] = True
-                                if crange == "pc" or pix_fmt.startswith("yuvj") or cspace in ("bt470bg", "smpte170m", ""):
-                                    media_report["needs_bt709_range_norm"] = True
-                                tags = stream.get("tags") or {}
-                                if "rotate" in tags:
-                                    media_report["rotation_deg"] = int(tags["rotate"]) % 360
-                except (OSError, ValueError, subprocess.SubprocessError):
-                    pass
+                _populate_ffprobe_video_metrics(str(available_tools["ffprobe"]), p, media_report)
 
     return {
         "available_tools": available_tools,
@@ -355,8 +369,8 @@ def snap_word_timestamps_to_waveform(
         hi_idx = min(n_frames - 1, int(round((raw_s + 0.200) / hop_s)))
         if hi_idx > lo_idx + 1:
             window = envelope_db[lo_idx : hi_idx + 1]
-            valley_rel = min(range(len(window)), key=lambda i: window[i])
-            valley_db = float(window[valley_rel])
+            valley_rel, valley_raw = min(enumerate(window), key=lambda pair: pair[1])
+            valley_db = float(valley_raw)
             peak_db = max(window[valley_rel:])
             onset_idx = lo_idx + valley_rel
             if (peak_db - valley_db) >= 6.0:
@@ -556,11 +570,11 @@ def synthesize_procedural_sfx_wav(
         out_p = Path(output_path)
         out_p.parent.mkdir(parents=True, exist_ok=True)
         pcm_bytes = struct.pack(f"<{len(samples)}h", *(max(-32767, min(32767, int(x * 32767))) for x in samples))
-        with wave.open(str(out_p), "wb") as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)
-            wf.setframerate(sample_rate)
-            wf.writeframes(pcm_bytes)
+        with wave.open(str(out_p), "wb") as wf:  # pylint: disable=no-member
+            wf.setnchannels(1)  # pylint: disable=no-member
+            wf.setsampwidth(2)  # pylint: disable=no-member
+            wf.setframerate(sample_rate)  # pylint: disable=no-member
+            wf.writeframes(pcm_bytes)  # pylint: disable=no-member
         written_path = str(out_p.resolve())
 
     return {
